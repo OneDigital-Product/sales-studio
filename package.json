@@ -6,7 +6,7 @@
     "dev": "next dev",
     "dev:all": "concurrently \"bun run dev\" \"bun run convex\"",
     "convex": "convex dev",
-    "build": "next build",
+    "build": "convex codegen && next build",
     "start": "next start",
     "check": "tsc --noEmit",
     "lint": "biome check",
