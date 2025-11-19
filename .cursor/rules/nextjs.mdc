@@ -1,0 +1,272 @@
+---
+description: When writing code for Next.js (App Router) files, follow these rules. Prefer Server Components, Server Actions, and Cache Components with TypeScript.
+globs: **/*.tsx,**/*.ts,app/**/*.tsx,app/**/*.ts,app/**/route.ts,app/**/opengraph-image.tsx,app/**/icon.tsx,app/**/sitemap.ts,**/middleware.ts,next.config.js,next.config.mjs
+alwaysApply: false
+---
+
+- **Use TypeScript** for all code (`.ts` / `.tsx`).
+- **Use the App Router** and default to **Server Components**. Add `'use client'` only when you truly need interactivity, browser APIs, or React client hooks.
+- **Mutations → Server Actions/Functions**: Put side-effects behind a function marked with `'use server'`. Wire them to forms with `action={...}` or call them from Client Components. After a write, **revalidate** with `revalidatePath` and/or `revalidateTag`.
+- **Fetch data in Server Components** by default. Compose with `<Suspense>` and stream when helpful. In Client Components, you can pass a promise and read it with the React `use(...)` hook.
+- **Cache Components** when appropriate: add the `'use cache'` directive and configure cache TTL with `cacheLife(...)`, tag entries with `cacheTag(...)`, and refresh with `revalidateTag(...)` (or `updateTag(...)` for immediate refresh in the same request). _Note:_ Cache Components require the Node.js runtime.
+- **Images & fonts**: Use `next/image` and `next/font`. Configure remote domains for images in `next.config.*` when needed.
+- **Icons**: If you need Lucide icons, use `lucide-react`:
+  ```ts
+  import { Skull } from 'lucide-react'
+  ```
+
+> [!NOTE] **Docs & Version**
+>
+> These rules align with the Next.js docs (App Router, **v15+**) and the latest guidance for Server/Client Components, Server Actions, and Cache Components. See the consolidated Next.js reference used here: https://nextjs.org/docs/llms-full.txt
+
+# Core Next.js (App Router) Principles
+
+- **Server vs Client Components**: Pages and layouts are Server Components by default; mark client-only files with `'use client'`. Props sent to Client Components must be serializable. Use Server Components to fetch data and stream rendered HTML; use Client Components for interactivity only.
+  ```tsx
+  // app/ui/like-button.tsx
+  'use client'
+  import { useState } from 'react'
+  export default function LikeButton({ likes }: { likes: number }) {
+    const [count, setCount] = useState(likes)
+    return <button onClick={() => setCount((c) => c + 1)}>{count}</button>
+  }
+  ```
+
+- **Request data in RSC**: Read request headers/cookies in Server Components via the `next/headers` APIs. In v15+, some Dynamic APIs are async; `await cookies()`/`await headers()` in Server Components, or use `use(cookies())` in Client where applicable.
+  ```tsx
+  import { cookies, headers } from 'next/headers'
+
+  export default async function Page() {
+    const token = (await cookies()).get('token')?.value
+    const userAgent = (await headers()).get('user-agent')
+    return <pre>{JSON.stringify({ token, userAgent }, null, 2)}</pre>
+  }
+  ```
+
+# Project Structure & File Conventions
+
+- **App directory**: Use `app/` with a required `app/layout.tsx` and route `app/page.tsx`. Add `loading.tsx`, `error.tsx`, `not-found.tsx`, `template.tsx`, `default.tsx` as needed. Define API endpoints with `app/**/route.ts` (e.g., `app/api/posts/route.ts`).
+  ```tsx
+  // app/layout.tsx
+  export default function RootLayout({ children }: { children: React.ReactNode }) {
+    return <html lang="en"><body>{children}</body></html>
+  }
+
+  // app/page.tsx
+  export default function Page() {
+    return <h1>Hello, Next.js!</h1>
+  }
+  ```
+
+- **Dynamic routes**: Use folders like `app/blog/[slug]/page.tsx`. Catch-all: `app/docs/[...slug]/page.tsx`. Optional catch-all: `app/docs/[[...slug]]/page.tsx`.
+
+# Data Fetching, Streaming, and Navigation
+
+- **Fetch in Server Components** and stream with `<Suspense>`:
+  ```tsx
+  // app/blog/page.tsx
+  import { Suspense } from 'react'
+  import Posts from './posts'
+
+  async function getPosts() {
+    const res = await fetch('https://example.com/api/posts')
+    return res.json() as Promise<{ id: string; title: string }[]>
+  }
+
+  export default function Page() {
+    // intentionally *not* awaiting here to enable streaming with React.use in the child
+    const posts = getPosts()
+    return (
+      <Suspense fallback={<div>Loading posts...</div>}>
+        <Posts posts={posts} />
+      </Suspense>
+    )
+  }
+
+  // app/blog/posts.tsx
+  'use client'
+  import { use } from 'react'
+  export default function Posts({ posts }: { posts: Promise<{ id: string; title: string }[]> }) {
+    const list = use(posts)
+    return <ul>{list.map((p) => <li key={p.id}>{p.title}</li>)}</ul>
+  }
+  ```
+
+- **Client navigation**: Use `<Link>` for prefetching and `next/navigation` for router hooks.
+  ```tsx
+  import Link from 'next/link'
+  import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+  ```
+
+# Cache Components (Partial Prerendering)
+
+- **Opt-in caching** with the `'use cache'` directive. Configure lifetime with `cacheLife(...)` and tag entries with `cacheTag(...)`. Avoid passing runtime-only inputs; prefer stable, serializable arguments.
+  ```tsx
+  // app/products/[id]/price.tsx
+  import { cacheLife, cacheTag } from 'next/cache'
+
+  export async function ProductPrice({ id }: { id: string }) {
+    'use cache'
+    cacheTag(`product-${id}`)
+    cacheLife({ expire: 3600 }) // 1 hour
+    const res = await fetch(`https://example.com/api/products/${id}/price`)
+    const { price } = await res.json()
+    return <div>Price: ${'{'}price{'}'}</div>
+  }
+  ```
+
+- **Dynamic contexts**: If you must read cookies/headers, use `'use cache: private'` inside the cached function. For shared runtime caches without private data, you can use `'use cache: remote'`. Cache Components require the **Node.js** runtime (not Edge).
+
+- **Enable Cache Components** in `next.config.*` (opt‑in flag) and ensure you are using the Node.js runtime for routes that use cache directives.
+
+# Updating Data with Server Actions / Server Functions
+
+- **File-based Server Functions**:
+  ```tsx
+  // app/actions.ts
+  'use server'
+  import { revalidatePath, revalidateTag } from 'next/cache'
+  import { db } from '@/lib/db'
+
+  export async function createPost(formData: FormData) {
+    // mutate
+    await db.post.create({ data: { title: formData.get('title') as string } })
+    // refresh caches/UI
+    revalidatePath('/blog')
+    revalidateTag('posts')
+  }
+  ```
+
+- **Use in Server Components (forms)**:
+  ```tsx
+  // app/blog/new/page.tsx
+  import { createPost } from '@/app/actions'
+
+  export default function NewPostPage() {
+    return (
+      <form action={createPost}>
+        <input name="title" required />
+        <button type="submit">Create</button>
+      </form>
+    )
+  }
+  ```
+
+- **Use in Client Components**:
+  ```tsx
+  // app/ui/create-button.tsx
+  'use client'
+  import { useActionState, startTransition } from 'react'
+  import { createPost } from '@/app/actions'
+
+  export function CreateButton() {
+    const [_, action, pending] = useActionState(createPost, null)
+    return (
+      <button disabled={pending} onClick={() => startTransition(action)}>
+        {pending ? 'Creating…' : 'Create Post'}
+      </button>
+    )
+  }
+  ```
+
+# Route Handlers (API)
+
+- **Define API endpoints** with `app/**/route.ts`:
+  ```ts
+  // app/api/posts/route.ts
+  import { cacheTag } from 'next/cache'
+
+  async function getPosts() {
+    'use cache'
+    cacheTag('posts')
+    // fetch or read from DB
+    return [{ id: '1', title: 'Hello' }]
+  }
+
+  export async function GET() {
+    const posts = await getPosts()
+    return Response.json(posts)
+  }
+
+  export async function POST(request: Request) {
+    const data = await request.json()
+    // ... write
+    return Response.json({ ok: true }, { status: 201 })
+  }
+  ```
+
+# Route Segment Config (per file)
+
+Use these exports in `layout.tsx`, `page.tsx`, or `route.ts` when needed:
+
+```ts
+export const runtime = 'nodejs' // or 'edge' (not for Cache Components)
+export const revalidate = 3600   // seconds
+export const fetchCache = 'auto' // advanced; prefer 'use cache' instead
+export const preferredRegion = 'auto'
+export const maxDuration = 5
+```
+
+# Metadata & Assets
+
+- **Metadata API**: Export a `metadata` object or `generateMetadata` to manage `<head>` tags. File-based metadata (`icon.tsx`, `opengraph-image.tsx`, `sitemap.ts`) live alongside routes.
+  ```ts
+  // app/layout.tsx
+  import type { Metadata } from 'next'
+  export const metadata: Metadata = {
+    title: 'My App',
+    description: 'Built with Next.js',
+  }
+  ```
+
+- **Images**: Use `next/image`; configure external image domains in `next.config.*` if needed.
+  ```js
+  // next.config.js
+  module.exports = {
+    images: { domains: ['assets.acme.com'] },
+  }
+  ```
+
+# Error Handling & Not-Found
+
+- Create `error.tsx` for error boundaries and `not-found.tsx` for 404s in any route segment. Add `global-error.tsx` at the root if you need a global boundary.
+
+# Middleware (optional)
+
+- Add `middleware.ts` at the root to run lightweight logic on requests. Prefer Route Handlers or Server Components for most work; use Middleware only when you need to short-circuit or rewrite before rendering.
+
+# Gotchas & Best Practices
+
+- **Do not** trigger side-effects during render. Use Server Actions to mutate (e.g., logout) instead of reading `searchParams` and acting during render.
+- Keep `'use client'` boundaries as far down the tree as possible to reduce bundle size.
+- When using Cache Components, **do not** pass runtime-only values (cookies, headers) into a cached function unless you use `'use cache: private'`.
+- Prefer `Route Handlers` or direct DB calls in Server Components over fetching your own API in the same app (avoid unnecessary round-trips).
+- Prefer `revalidateTag`/`cacheTag` for precise, on-demand cache invalidation after mutations.
+
+---
+
+**Snippets to copy**
+
+```tsx
+// next.config.js (TypeScript users can use next.config.mjs/ts)
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    // Opt-in to Cache Components when you're ready to use `'use cache'`
+    cacheComponents: true,
+    serverActions: { allowedOrigins: ['*.my-proxy.com'] }, // if behind a proxy
+  },
+}
+module.exports = nextConfig
+```
+
+```tsx
+// Reading async params / cookies in v15+
+import { cookies } from 'next/headers'
+
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const session = (await cookies()).get('session')?.value
+  return <div>id={id} session={session}</div>
+}
+```

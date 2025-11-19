@@ -1,0 +1,12 @@
+First Name,Last Name,Date of Birth,Gender,Zip Code,Plan Type,Coverage Tier
+John,Doe,1985-03-15,M,10001,PPO,Employee Only
+Jane,Smith,1990-07-22,F,10002,HMO,Family
+Michael,Johnson,1978-11-30,M,10003,PPO,Employee + Spouse
+Emily,Davis,1995-01-10,F,10004,HMO,Employee Only
+David,Wilson,1982-05-18,M,10005,HDHP,Family
+Sarah,Brown,1988-09-05,F,10006,PPO,Employee + Children
+Robert,Miller,1975-12-12,M,10007,HMO,Employee + Spouse
+Jessica,Moore,1992-04-25,F,10008,HDHP,Employee Only
+William,Taylor,1980-08-14,M,10009,PPO,Family
+Ashley,Anderson,1986-02-28,F,10010,HMO,Employee + Children
+
