@@ -39,6 +39,7 @@ export default function ClientDetailPage() {
 
   const [uploading, setUploading] = useState(false);
   const [pendingCensusFile, setPendingCensusFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const CENSUS_KEYWORDS = [
     "dob",
@@ -145,6 +146,45 @@ export default function ClientDetailPage() {
     }
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    if (droppedFiles.length === 0) {
+      return;
+    }
+
+    setUploading(true);
+    try {
+      for (let i = 0; i < droppedFiles.length; i++) {
+        await uploadSingleFile(droppedFiles[i], i, droppedFiles.length);
+      }
+    } catch (error) {
+      console.error("Upload failed:", error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (client === undefined) {
     return <div className="p-8">Loading...</div>;
   }
@@ -244,7 +284,21 @@ export default function ClientDetailPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Magic Upload Dropzone */}
-                <div className="rounded-lg border-2 border-gray-300 border-dashed bg-gray-50 p-6 text-center transition-colors hover:bg-gray-100">
+                {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: Drag and drop requires event handlers on div */}
+                {/* biome-ignore lint/a11y/useSemanticElements: Dropzone needs to be a container div */}
+                <div
+                  aria-label="File upload dropzone"
+                  className={`rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
+                    isDragging
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                  }`}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  role="region"
+                >
                   <form className="space-y-4" onSubmit={handleUpload}>
                     <div className="space-y-2">
                       <div className="flex flex-col items-center gap-2">
