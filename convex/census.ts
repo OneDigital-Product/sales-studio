@@ -18,6 +18,9 @@ export const saveCensus = mutation({
       rowCount: args.rows.length,
     });
 
+    // Update the client's active census to this new upload
+    await ctx.db.patch(args.clientId, { activeCensusId: censusUploadId });
+
     // Insert rows in batches to avoid hitting size limits if necessary,
     // though Convex handles large transactions relatively well, keeping it simple for now.
     // For extremely large files, client-side batching or background jobs would be better.
@@ -60,6 +63,49 @@ export const getCensus = query({
       rows,
     };
   },
+});
+
+export const setActiveCensus = mutation({
+  args: { clientId: v.id("clients"), censusUploadId: v.id("census_uploads") },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.clientId, { activeCensusId: args.censusUploadId });
+  },
+});
+
+export const getActiveCensus = query({
+  args: { clientId: v.id("clients") },
+  handler: async (ctx, args) => {
+    const client = await ctx.db.get(args.clientId);
+    if (!client) {
+      return null;
+    }
+
+    if (client.activeCensusId) {
+      const upload = await ctx.db.get(client.activeCensusId);
+      if (upload) {
+        return upload;
+      }
+    }
+
+    // Fallback to latest if no active selection or if active ID is invalid/missing
+    const upload = await ctx.db
+      .query("census_uploads")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.clientId))
+      .order("desc")
+      .first();
+
+    return upload;
+  },
+});
+
+export const getCensusHistory = query({
+  args: { clientId: v.id("clients") },
+  handler: async (ctx, args) =>
+    await ctx.db
+      .query("census_uploads")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.clientId))
+      .order("desc")
+      .collect(),
 });
 
 export const getLatestCensus = query({

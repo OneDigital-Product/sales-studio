@@ -13,6 +13,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -31,11 +38,13 @@ export default function ClientDetailPage() {
 
   const client = useQuery(api.clients.getClient, { id: clientId });
   const files = useQuery(api.files.getFiles, { clientId });
-  const latestCensus = useQuery(api.census.getLatestCensus, { clientId });
+  const activeCensus = useQuery(api.census.getActiveCensus, { clientId });
+  const censusHistory = useQuery(api.census.getCensusHistory, { clientId });
 
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const saveFile = useMutation(api.files.saveFile);
   const deleteFile = useMutation(api.files.deleteFile);
+  const setActiveCensus = useMutation(api.census.setActiveCensus);
 
   const [uploading, setUploading] = useState(false);
   const [pendingCensusFile, setPendingCensusFile] = useState<File | null>(null);
@@ -205,24 +214,55 @@ export default function ClientDetailPage() {
       );
     }
 
-    if (latestCensus) {
+    if (activeCensus) {
       return (
         <div className="space-y-4">
           <div className="flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50 p-4">
             <div className="rounded-full bg-blue-100 p-2">
               <TableIcon className="h-5 w-5 text-blue-600" />
             </div>
-            <div>
-              <h3 className="font-semibold text-blue-900">
-                Smart Census Active
-              </h3>
-              <p className="text-blue-700 text-sm">
-                Parsing data from <strong>{latestCensus.fileName}</strong>. If
-                you upload a new census file, it will replace this view.
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-blue-900">
+                  Smart Census Active
+                </h3>
+                {censusHistory && censusHistory.length > 1 && (
+                  <Select
+                    onValueChange={(val) =>
+                      setActiveCensus({
+                        clientId,
+                        censusUploadId: val as Id<"census_uploads">,
+                      })
+                    }
+                    value={activeCensus._id}
+                  >
+                    <SelectTrigger className="h-8 w-[240px] bg-white">
+                      <SelectValue placeholder="Select version" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {censusHistory.map((upload) => (
+                        <SelectItem key={upload._id} value={upload._id}>
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium">
+                              {upload.fileName}
+                            </span>
+                            <span className="text-muted-foreground text-xs">
+                              {new Date(upload.uploadedAt).toLocaleString()} •{" "}
+                              {upload.rowCount} rows
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+              <p className="mt-1 text-blue-700 text-sm">
+                Parsing data from <strong>{activeCensus.fileName}</strong>.
               </p>
             </div>
           </div>
-          <CensusViewer censusUploadId={latestCensus._id} />
+          <CensusViewer censusUploadId={activeCensus._id} />
         </div>
       );
     }
