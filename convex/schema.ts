@@ -17,11 +17,14 @@ export default defineSchema({
   }).index("by_clientId", ["clientId"]),
   census_uploads: defineTable({
     clientId: v.id("clients"),
+    fileId: v.optional(v.id("files")),
     fileName: v.string(),
     uploadedAt: v.number(),
     columns: v.array(v.string()),
     rowCount: v.number(),
-  }).index("by_clientId", ["clientId"]),
+  })
+    .index("by_clientId", ["clientId"])
+    .index("by_fileId", ["fileId"]),
   census_rows: defineTable({
     censusUploadId: v.id("census_uploads"),
     data: v.any(), // Flexible JSON object

@@ -13,13 +13,14 @@ export const saveFile = mutation({
     type: v.string(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.insert("files", {
+    const fileId = await ctx.db.insert("files", {
       storageId: args.storageId,
       clientId: args.clientId,
       name: args.name,
       type: args.type,
       uploadedAt: Date.now(),
     });
+    return fileId;
   },
 });
 
@@ -48,22 +49,18 @@ export const deleteFile = mutation({
       return;
     }
 
-    // Find matching census uploads by fileName and clientId
+    // Find matching census uploads by fileId
     const matchingCensusUploads = await ctx.db
       .query("census_uploads")
-      .withIndex("by_clientId", (q) => q.eq("clientId", file.clientId))
+      .withIndex("by_fileId", (q) => q.eq("fileId", args.id))
       .collect();
-
-    const censusToDelete = matchingCensusUploads.filter(
-      (upload) => upload.fileName === file.name
-    );
 
     // Get client once to check activeCensusId
     const client = await ctx.db.get(file.clientId);
     let needsActiveCensusUpdate = false;
 
     // Delete census data if found
-    for (const censusUpload of censusToDelete) {
+    for (const censusUpload of matchingCensusUploads) {
       // Delete all census_rows for this upload
       const rows = await ctx.db
         .query("census_rows")

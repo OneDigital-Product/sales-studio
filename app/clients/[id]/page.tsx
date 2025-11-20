@@ -48,6 +48,8 @@ export default function ClientDetailPage() {
 
   const [uploading, setUploading] = useState(false);
   const [pendingCensusFile, setPendingCensusFile] = useState<File | null>(null);
+  const [pendingCensusFileId, setPendingCensusFileId] =
+    useState<Id<"files"> | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const CENSUS_KEYWORDS = [
@@ -103,10 +105,6 @@ export default function ClientDetailPage() {
   ) => {
     const isCensus = await isCensusFile(file);
 
-    if (isCensus && (index === totalFiles - 1 || !pendingCensusFile)) {
-      setPendingCensusFile(file);
-    }
-
     const postUrl = await generateUploadUrl();
     const result = await fetch(postUrl, {
       method: "POST",
@@ -115,12 +113,17 @@ export default function ClientDetailPage() {
     });
     const { storageId } = await result.json();
 
-    await saveFile({
+    const fileId = await saveFile({
       storageId,
       clientId,
       name: file.name,
       type: isCensus ? "Census" : "Quote Data",
     });
+
+    if (isCensus && (index === totalFiles - 1 || !pendingCensusFile)) {
+      setPendingCensusFile(file);
+      setPendingCensusFileId(fileId);
+    }
   };
 
   const handleUpload = async (e: React.FormEvent) => {
@@ -208,8 +211,15 @@ export default function ClientDetailPage() {
         <CensusImport
           clientId={clientId}
           file={pendingCensusFile}
-          onCancel={() => setPendingCensusFile(null)}
-          onSuccess={() => setPendingCensusFile(null)}
+          fileId={pendingCensusFileId ?? undefined}
+          onCancel={() => {
+            setPendingCensusFile(null);
+            setPendingCensusFileId(null);
+          }}
+          onSuccess={() => {
+            setPendingCensusFile(null);
+            setPendingCensusFileId(null);
+          }}
         />
       );
     }

@@ -5,6 +5,7 @@ import { mutation, query } from "./_generated/server";
 export const saveCensus = mutation({
   args: {
     clientId: v.id("clients"),
+    fileId: v.optional(v.id("files")),
     fileName: v.string(),
     columns: v.array(v.string()),
     rows: v.array(v.any()), // Array of row objects
@@ -12,6 +13,7 @@ export const saveCensus = mutation({
   handler: async (ctx, args) => {
     const censusUploadId = await ctx.db.insert("census_uploads", {
       clientId: args.clientId,
+      fileId: args.fileId,
       fileName: args.fileName,
       uploadedAt: Date.now(),
       columns: args.columns,

@@ -23,6 +23,7 @@ const MAX_EXCEL_SERIAL = 1_000_000;
 
 type CensusImportProps = {
   clientId: Id<"clients">;
+  fileId?: Id<"files">;
   onSuccess?: () => void;
   file: File;
   onCancel: () => void;
@@ -30,6 +31,7 @@ type CensusImportProps = {
 
 export function CensusImport({
   clientId,
+  fileId,
   onSuccess,
   file,
   onCancel,
@@ -137,6 +139,7 @@ export function CensusImport({
     try {
       await saveCensus({
         clientId,
+        fileId,
         fileName: file.name,
         columns,
         rows: previewData,
