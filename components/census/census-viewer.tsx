@@ -13,6 +13,8 @@ import {
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
+const DATE_STRING_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
 type CensusViewerProps = {
   censusUploadId: Id<"census_uploads">;
 };
@@ -59,20 +61,36 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
                   <TableCell className="text-muted-foreground text-xs">
                     {row.rowIndex + 1}
                   </TableCell>
-                  {upload.columns.map((col) => (
-                    <TableCell
-                      className="whitespace-nowrap"
-                      key={`${row._id}-${col}`}
-                    >
-                      {(() => {
-                        const rowData = row as Record<string, unknown>;
-                        const cellData = (
-                          rowData.data as Record<string, unknown>
-                        )?.[col];
-                        return cellData !== undefined ? String(cellData) : "";
-                      })()}
-                    </TableCell>
-                  ))}
+                  {upload.columns.map((col) => {
+                    const rowData = row as Record<string, unknown>;
+                    const cellData = (
+                      rowData.data as Record<string, unknown>
+                    )?.[col];
+
+                    // Format date values
+                    let displayValue = "";
+                    if (cellData !== undefined) {
+                      // Check if it's a date string (YYYY-MM-DD format)
+                      if (
+                        typeof cellData === "string" &&
+                        DATE_STRING_REGEX.test(cellData)
+                      ) {
+                        const date = new Date(cellData);
+                        displayValue = date.toLocaleDateString();
+                      } else {
+                        displayValue = String(cellData);
+                      }
+                    }
+
+                    return (
+                      <TableCell
+                        className="whitespace-nowrap"
+                        key={`${row._id}-${col}`}
+                      >
+                        {displayValue}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableBody>

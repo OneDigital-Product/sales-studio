@@ -228,6 +228,7 @@ export default function ClientDetailPage() {
                 </h3>
                 {censusHistory && censusHistory.length > 1 && (
                   <Select
+                    key={activeCensus._id}
                     onValueChange={(val) =>
                       setActiveCensus({
                         clientId,

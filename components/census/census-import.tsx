@@ -17,6 +17,10 @@ import {
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
+const DATE_STRING_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+const MILLISECONDS_PER_DAY = 86_400_000;
+const MAX_EXCEL_SERIAL = 1_000_000;
+
 type CensusImportProps = {
   clientId: Id<"clients">;
   onSuccess?: () => void;
@@ -39,6 +43,35 @@ export function CensusImport({
 
   const saveCensus = useMutation(api.census.saveCensus);
 
+  // Convert Excel serial number to date string
+  const excelSerialToDate = (serial: number): string => {
+    // Excel epoch is January 1, 1900
+    const excelEpoch = new Date(1900, 0, 1);
+    // Excel incorrectly treats 1900 as a leap year, so subtract 1 day for dates after Feb 28, 1900
+    const daysSince1900 = serial - (serial > 59 ? 1 : 0);
+    const date = new Date(
+      excelEpoch.getTime() + daysSince1900 * MILLISECONDS_PER_DAY
+    );
+    return date.toISOString().split("T")[0];
+  };
+
+  // Check if a value is likely an Excel date serial number
+  const isExcelDateSerial = (value: unknown): boolean =>
+    typeof value === "number" &&
+    value > 1 &&
+    value < MAX_EXCEL_SERIAL &&
+    value % 1 !== 0;
+
+  // Check if a column header suggests it's a date column
+  const isDateColumn = (header: string): boolean => {
+    const lowerHeader = header.toLowerCase();
+    return (
+      lowerHeader.includes("date") ||
+      lowerHeader.includes("dob") ||
+      lowerHeader.includes("birth")
+    );
+  };
+
   // Parse the file as soon as it's available
   if (file && previewData.length === 0 && !error) {
     const reader = new FileReader();
@@ -48,7 +81,12 @@ export function CensusImport({
         const workbook = read(data, { type: "binary" });
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
-        const jsonData = utils.sheet_to_json(sheet, { header: 1 });
+        // Parse with raw: true to get actual values, then convert dates
+        const jsonData = utils.sheet_to_json(sheet, {
+          header: 1,
+          raw: true,
+          defval: "",
+        });
 
         if (jsonData.length === 0) {
           setError("File is empty");
@@ -62,7 +100,18 @@ export function CensusImport({
         const formattedRows = rows.map((row) => {
           const rowData: RowData = {};
           headers.forEach((header, index) => {
-            rowData[header] = row[index];
+            let value = row[index];
+            // Convert Excel date serial numbers to date strings
+            if (
+              isDateColumn(header) &&
+              (isExcelDateSerial(value) ||
+                (typeof value === "number" &&
+                  value > 1 &&
+                  value < MAX_EXCEL_SERIAL))
+            ) {
+              value = excelSerialToDate(value as number);
+            }
+            rowData[header] = value;
           });
           return rowData;
         });
@@ -130,14 +179,30 @@ export function CensusImport({
                       const rowKey = JSON.stringify(row);
                       return (
                         <TableRow key={rowKey}>
-                          {columns.map((col) => (
-                            <TableCell
-                              className="whitespace-nowrap"
-                              key={`${rowKey}-${col}`}
-                            >
-                              {String(row[col] ?? "")}
-                            </TableCell>
-                          ))}
+                          {columns.map((col) => {
+                            const cellData = row[col];
+                            let displayValue = "";
+                            if (cellData !== undefined) {
+                              // Format date strings (YYYY-MM-DD format)
+                              if (
+                                typeof cellData === "string" &&
+                                DATE_STRING_REGEX.test(cellData)
+                              ) {
+                                const date = new Date(cellData);
+                                displayValue = date.toLocaleDateString();
+                              } else {
+                                displayValue = String(cellData);
+                              }
+                            }
+                            return (
+                              <TableCell
+                                className="whitespace-nowrap"
+                                key={`${rowKey}-${col}`}
+                              >
+                                {displayValue}
+                              </TableCell>
+                            );
+                          })}
                         </TableRow>
                       );
                     })}
