@@ -233,9 +233,9 @@ export default function ClientDetailPage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-blue-900">
+                <h2 className="font-semibold text-blue-900">
                   Smart Census Active
-                </h3>
+                </h2>
                 {censusHistory && censusHistory.length > 1 && (
                   <Select
                     key={activeCensus._id}
@@ -283,9 +283,9 @@ export default function ClientDetailPage() {
         <div className="mb-4 rounded-full bg-gray-100 p-4">
           <TableIcon className="h-8 w-8 text-gray-400" />
         </div>
-        <h3 className="font-semibold text-gray-900 text-xl">
+        <h2 className="font-semibold text-gray-900 text-xl">
           No Census Data Yet
-        </h3>
+        </h2>
         <p className="mt-2 max-w-md text-gray-500">
           Upload an Excel or CSV file with employee data (Name, DOB, Plan Type)
           to activate the Smart Census view.
@@ -295,10 +295,10 @@ export default function ClientDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-7xl space-y-8">
         <div className="flex flex-col gap-4">
-          <Link className="w-fit text-blue-600 hover:underline" href="/">
+          <Link className="w-fit text-blue-700 hover:underline" href="/">
             &larr; Back to Dashboard
           </Link>
 
@@ -355,7 +355,7 @@ export default function ClientDetailPage() {
                       <div className="flex flex-col items-center gap-2">
                         <FileText className="h-8 w-8 text-gray-400" />
                         <Label
-                          className="cursor-pointer font-medium text-blue-600 hover:underline"
+                          className="cursor-pointer font-medium text-blue-700 hover:underline"
                           htmlFor="file"
                         >
                           Click to Upload
@@ -376,7 +376,7 @@ export default function ClientDetailPage() {
                       </p>
                     </div>
                     {uploading && (
-                      <p className="animate-pulse text-blue-600 text-sm">
+                      <p className="animate-pulse text-blue-700 text-sm">
                         Uploading & Analyzing...
                       </p>
                     )}
@@ -412,6 +412,7 @@ export default function ClientDetailPage() {
                             <div className="flex justify-end gap-2">
                               {file.url && (
                                 <Button
+                                  aria-label={`Download ${file.name}`}
                                   asChild
                                   className="h-8 w-8"
                                   size="icon"
@@ -427,6 +428,7 @@ export default function ClientDetailPage() {
                                 </Button>
                               )}
                               <Button
+                                aria-label={`Delete ${file.name}`}
                                 className="h-8 w-8 text-red-600 hover:text-red-700"
                                 onClick={() => handleDelete(file._id)}
                                 size="icon"
@@ -459,6 +461,6 @@ export default function ClientDetailPage() {
           <div className="lg:col-span-2">{renderRightPanel()}</div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
