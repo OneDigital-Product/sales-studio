@@ -48,6 +48,58 @@ export const deleteFile = mutation({
       return;
     }
 
+    // Find matching census uploads by fileName and clientId
+    const matchingCensusUploads = await ctx.db
+      .query("census_uploads")
+      .withIndex("by_clientId", (q) => q.eq("clientId", file.clientId))
+      .collect();
+
+    const censusToDelete = matchingCensusUploads.filter(
+      (upload) => upload.fileName === file.name
+    );
+
+    // Get client once to check activeCensusId
+    const client = await ctx.db.get(file.clientId);
+    let needsActiveCensusUpdate = false;
+
+    // Delete census data if found
+    for (const censusUpload of censusToDelete) {
+      // Delete all census_rows for this upload
+      const rows = await ctx.db
+        .query("census_rows")
+        .withIndex("by_censusUploadId", (q) =>
+          q.eq("censusUploadId", censusUpload._id)
+        )
+        .collect();
+
+      for (const row of rows) {
+        await ctx.db.delete(row._id);
+      }
+
+      // Check if this was the active census
+      if (client?.activeCensusId === censusUpload._id) {
+        needsActiveCensusUpdate = true;
+      }
+
+      // Delete the census_uploads entry
+      await ctx.db.delete(censusUpload._id);
+    }
+
+    // Update activeCensusId if needed
+    if (needsActiveCensusUpdate && client) {
+      // Find the next available census or clear activeCensusId
+      const remainingCensus = await ctx.db
+        .query("census_uploads")
+        .withIndex("by_clientId", (q) => q.eq("clientId", file.clientId))
+        .order("desc")
+        .first();
+
+      await ctx.db.patch(file.clientId, {
+        activeCensusId: remainingCensus?._id ?? undefined,
+      });
+    }
+
+    // Delete the file storage and record
     await ctx.storage.delete(file.storageId);
     await ctx.db.delete(args.id);
   },
