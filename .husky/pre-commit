@@ -20,8 +20,8 @@ PARTIALLY_STAGED=$(git diff --name-only)
 git stash push --quiet --keep-index --message "pre-commit-stash" || true
 STASHED=$?
 
-# Run formatter on the staged files
-bun x ultracite fix
+# Run formatter only on staged files (not linter - that can be run separately)
+bun x biome format --write .
 FORMAT_EXIT_CODE=$?
 
 # Restore working directory state
