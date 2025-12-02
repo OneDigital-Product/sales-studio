@@ -1,7 +1,14 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { AlertCircle, CheckCircle2, Filter } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Filter,
+  Loader2,
+  Mail,
+  XCircle,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,15 +40,10 @@ type ValidationIssue = {
   requiredFor: "PEO" | "ACA" | "both";
 };
 
-type ValidationData = {
-  issues: ValidationIssue[];
-} | null;
-
 type FilterMode = "all" | "valid" | "issues";
 
 type CensusViewerProps = {
   censusUploadId: Id<"census_uploads">;
-  validation?: ValidationData;
 };
 
 // Map column names to field names using the same normalization logic as validation
@@ -84,13 +86,65 @@ const findFieldForColumn = (column: string): string | null => {
   return null;
 };
 
-export function CensusViewer({
-  censusUploadId,
-  validation,
-}: CensusViewerProps) {
+const getScoreColor = (score: number) => {
+  if (score >= 90) {
+    return "text-green-600";
+  }
+  if (score >= 70) {
+    return "text-yellow-600";
+  }
+  return "text-red-600";
+};
+
+const getRequiredForLabel = (requiredFor: ValidationIssue["requiredFor"]) => {
+  switch (requiredFor) {
+    case "PEO":
+      return "PEO";
+    case "ACA":
+      return "ACA";
+    default:
+      return "PEO + ACA";
+  }
+};
+
+const buildMailtoLink = (issues: ValidationIssue[]) => {
+  const subject = encodeURIComponent("Missing Census Data Required");
+  const issuesList = issues
+    .map((issue) => {
+      const rowCount = issue.affectedRows.length;
+      if (issue.issueType === "missing_column") {
+        return `- Missing "${issue.field}" column (affects all rows)`;
+      }
+      const rowPreview =
+        rowCount <= 5
+          ? `rows ${issue.affectedRows.map((r) => r + 1).join(", ")}`
+          : `${rowCount} rows`;
+      return `- ${issue.message} (${rowPreview})`;
+    })
+    .join("\n");
+
+  const body = encodeURIComponent(
+    `Hi,
+
+We found the following issues with the census data:
+
+${issuesList}
+
+Please provide the missing information so we can proceed with your quote.
+
+Thanks`
+  );
+
+  return `mailto:?subject=${subject}&body=${body}`;
+};
+
+export function CensusViewer({ censusUploadId }: CensusViewerProps) {
   const data = useQuery(api.census.getCensus, {
     censusUploadId,
     paginationOpts: { numItems: 50, cursor: null },
+  });
+  const validation = useQuery(api.censusValidation.getValidation, {
+    censusUploadId,
   });
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
 
@@ -116,7 +170,6 @@ export function CensusViewer({
       }
     }
 
-    // Calculate valid rows (total rows minus rows with issues)
     const allRows = data?.rows.page.map((r) => r.rowIndex) ?? [];
     const rowsWithoutIssues = new Set(
       allRows.filter((idx) => !rowsWithProblems.has(idx))
@@ -131,7 +184,16 @@ export function CensusViewer({
   }, [validation, data]);
 
   if (!data) {
-    return <div className="p-4">Loading census data...</div>;
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <span className="ml-2 text-muted-foreground">
+            Loading census data...
+          </span>
+        </CardContent>
+      </Card>
+    );
   }
 
   const { upload, rows } = data;
@@ -155,18 +217,13 @@ export function CensusViewer({
     if (!field) {
       return "";
     }
-
-    // Check if this column is entirely missing
     if (columnIssues.has(field)) {
       return "bg-red-50 text-red-900";
     }
-
-    // Check if this specific cell has an issue
     const issue = rowIssues.get(rowIndex)?.get(field);
     if (!issue) {
       return "";
     }
-
     return issue.issueType === "missing_value"
       ? "bg-red-50 text-red-600"
       : "bg-yellow-50 text-yellow-700";
@@ -177,17 +234,44 @@ export function CensusViewer({
     if (!field) {
       return;
     }
-
     if (columnIssues.has(field)) {
       return `Column "${field}" not found in census`;
     }
-
     const issue = rowIssues.get(rowIndex)?.get(field);
     return issue?.message;
   };
 
   const hasValidation = validation !== undefined && validation !== null;
-  const issueCount = validation?.issues?.length ?? 0;
+  const isValidating = validation === undefined;
+  const issues = validation?.issues ?? [];
+  const hasIssues = issues.length > 0;
+
+  // Group issues by type for display
+  const missingColumns = issues.filter((i) => i.issueType === "missing_column");
+  const missingValues = issues.filter((i) => i.issueType === "missing_value");
+  const invalidValues = issues.filter((i) => i.issueType === "invalid_value");
+
+  const renderIssueItem = (issue: ValidationIssue) => (
+    <div
+      className="flex items-start gap-2"
+      key={`${issue.field}-${issue.issueType}`}
+    >
+      <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="font-medium">{issue.message}</span>
+          <span className="text-muted-foreground text-sm">
+            {getRequiredForLabel(issue.requiredFor)}
+          </span>
+        </div>
+        <p className="text-muted-foreground text-sm">
+          {issue.issueType === "missing_column"
+            ? "This column was not found in the census file"
+            : `Affects ${issue.affectedRows.length} row${issue.affectedRows.length === 1 ? "" : "s"}`}
+        </p>
+      </div>
+    </div>
+  );
 
   return (
     <Card>
@@ -224,7 +308,73 @@ export function CensusViewer({
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
+        {/* Validation Summary */}
+        {isValidating ? (
+          <div className="flex items-center gap-2 text-muted-foreground text-sm">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Validating...
+          </div>
+        ) : hasValidation ? (
+          <div className="space-y-6">
+            {/* Issues */}
+            {hasIssues && (
+              <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
+                {/* Issue items */}
+                {[...missingColumns, ...missingValues, ...invalidValues].map(
+                  (issue) => renderIssueItem(issue)
+                )}
+
+                {/* Readiness Stats */}
+                <div className="flex items-center justify-between border-t pt-3">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">PEO Ready</span>
+                    <span className="text-muted-foreground text-sm">
+                      {validation.peoValidRows} of {validation.totalRows} rows
+                      valid
+                    </span>
+                  </div>
+                  <span
+                    className={`font-medium ${getScoreColor(validation.peoScore)}`}
+                  >
+                    {validation.peoScore}%
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">ACA Ready</span>
+                    <span className="text-muted-foreground text-sm">
+                      {validation.acaValidRows} of {validation.totalRows} rows
+                      valid
+                    </span>
+                  </div>
+                  <span
+                    className={`font-medium ${getScoreColor(validation.acaScore)}`}
+                  >
+                    {validation.acaScore}%
+                  </span>
+                </div>
+
+                {/* Request Missing Info */}
+                <div className="border-t pt-3">
+                  <Button
+                    asChild
+                    className="w-full"
+                    size="sm"
+                    variant="outline"
+                  >
+                    <a href={buildMailtoLink(issues)}>
+                      <Mail className="mr-2 h-4 w-4" />
+                      Request Missing Info
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        {/* Data Table */}
         <div className="max-h-[600px] overflow-auto rounded-md border">
           <Table>
             <TableHeader>
@@ -282,14 +432,12 @@ export function CensusViewer({
                         rowData.data as Record<string, unknown>
                       )?.[col];
 
-                      // Format date values
                       let displayValue = "";
                       if (
                         cellData !== undefined &&
                         cellData !== null &&
                         cellData !== ""
                       ) {
-                        // Check if it's a date string (YYYY-MM-DD format)
                         if (
                           typeof cellData === "string" &&
                           DATE_STRING_REGEX.test(cellData)
@@ -328,16 +476,13 @@ export function CensusViewer({
             </TableBody>
           </Table>
         </div>
-        <div className="mt-4 flex items-center justify-between text-muted-foreground text-sm">
+
+        {/* Footer */}
+        <div className="flex items-center justify-between text-muted-foreground text-sm">
           <span>
             Showing {filteredRows.length} of {rows.page.length} rows
             {filterMode !== "all" && ` (filtered: ${filterMode})`}
           </span>
-          {hasValidation && issueCount > 0 && (
-            <span className="text-yellow-600">
-              {issueCount} validation issue{issueCount === 1 ? "" : "s"}
-            </span>
-          )}
         </div>
       </CardContent>
     </Card>

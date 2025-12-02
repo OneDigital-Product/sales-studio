@@ -1,0 +1,23 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "formatter": {
+    "biome": {
+      "command": ["bun", "x", "ultracite", "fix", "$FILE"],
+      "extensions": [
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".json",
+        ".jsonc",
+        ".css",
+        ".md",
+        ".mdx"
+      ]
+    },
+    "prettier": {
+      "disabled": true
+    }
+  },
+  "instructions": [".cursor/rules/*.mdc"]
+}
