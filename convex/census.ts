@@ -1,5 +1,6 @@
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 
 export const saveCensus = mutation({
@@ -36,6 +37,11 @@ export const saveCensus = mutation({
         })
       )
     );
+
+    // Schedule validation to run after save completes
+    await ctx.scheduler.runAfter(0, internal.censusValidation.runValidation, {
+      censusUploadId,
+    });
 
     return censusUploadId;
   },

@@ -1,0 +1,7 @@
+Employee Name,Date of Birth,ZIP Code,Salary,Coverage Tier,Hours Per Week,Hire Date
+John Smith,1985-03-15,90210,75000,Employee Only,40,2020-01-15
+Jane Doe,1990-07-22,10001,,Employee + Spouse,40,2019-06-01
+Bob Johnson,,60601,95000,Family,45,2018-03-20
+Alice Williams,1992-04-30,123,68000,,38,2021-09-10
+,1988-09-12,30301,71000,Employee Only,40,2022-02-28
+Charlie Brown,invalid-date,98101,-5000,Employee Only,40,2022-03-15

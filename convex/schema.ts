@@ -30,4 +30,60 @@ export default defineSchema({
     data: v.any(), // Flexible JSON object
     rowIndex: v.number(),
   }).index("by_censusUploadId", ["censusUploadId"]),
+  quotes: defineTable({
+    clientId: v.id("clients"),
+    type: v.union(v.literal("PEO"), v.literal("ACA")),
+    status: v.union(
+      v.literal("not_started"),
+      v.literal("intake"),
+      v.literal("underwriting"),
+      v.literal("proposal_ready"),
+      v.literal("presented"),
+      v.literal("accepted"),
+      v.literal("declined")
+    ),
+    isBlocked: v.optional(v.boolean()),
+    blockedReason: v.optional(v.string()),
+    assignedTo: v.optional(v.string()),
+    startedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    notes: v.optional(v.string()),
+  })
+    .index("by_clientId", ["clientId"])
+    .index("by_clientId_and_type", ["clientId", "type"])
+    .index("by_status", ["status"]),
+  quote_history: defineTable({
+    quoteId: v.id("quotes"),
+    previousStatus: v.string(),
+    newStatus: v.string(),
+    changedAt: v.number(),
+    changedBy: v.optional(v.string()),
+    notes: v.optional(v.string()),
+  }).index("by_quoteId", ["quoteId"]),
+  census_validations: defineTable({
+    censusUploadId: v.id("census_uploads"),
+    validatedAt: v.number(),
+    peoScore: v.number(),
+    acaScore: v.number(),
+    totalRows: v.number(),
+    peoValidRows: v.number(),
+    acaValidRows: v.number(),
+    issues: v.array(
+      v.object({
+        field: v.string(),
+        issueType: v.union(
+          v.literal("missing_column"),
+          v.literal("missing_value"),
+          v.literal("invalid_value")
+        ),
+        affectedRows: v.array(v.number()),
+        message: v.string(),
+        requiredFor: v.union(
+          v.literal("PEO"),
+          v.literal("ACA"),
+          v.literal("both")
+        ),
+      })
+    ),
+  }).index("by_censusUploadId", ["censusUploadId"]),
 });

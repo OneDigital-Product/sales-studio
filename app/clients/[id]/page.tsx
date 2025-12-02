@@ -7,7 +7,9 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { read, utils } from "xlsx";
 import { CensusImport } from "@/components/census/census-import";
+import { CensusValidationSummary } from "@/components/census/census-validation-summary";
 import { CensusViewer } from "@/components/census/census-viewer";
+import { QuoteStatusCard } from "@/components/quotes/quote-status-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,6 +42,11 @@ export default function ClientDetailPage() {
   const files = useQuery(api.files.getFiles, { clientId });
   const activeCensus = useQuery(api.census.getActiveCensus, { clientId });
   const censusHistory = useQuery(api.census.getCensusHistory, { clientId });
+  const quotes = useQuery(api.quotes.getQuotesByClient, { clientId });
+  const validation = useQuery(
+    api.censusValidation.getValidation,
+    activeCensus ? { censusUploadId: activeCensus._id } : "skip"
+  );
 
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const saveFile = useMutation(api.files.saveFile);
@@ -143,8 +150,8 @@ export default function ClientDetailPage() {
       if (fileInput) {
         fileInput.value = "";
       }
-    } catch (error) {
-      console.error("Upload failed:", error);
+    } catch {
+      // Upload error silently handled
     } finally {
       setUploading(false);
     }
@@ -154,7 +161,7 @@ export default function ClientDetailPage() {
     try {
       await deleteFile({ id: fileId });
     } catch {
-      console.error("Failed to delete file");
+      // Delete error silently handled
     }
   };
 
@@ -190,8 +197,8 @@ export default function ClientDetailPage() {
       for (let i = 0; i < droppedFiles.length; i++) {
         await uploadSingleFile(droppedFiles[i], i, droppedFiles.length);
       }
-    } catch (error) {
-      console.error("Upload failed:", error);
+    } catch {
+      // Upload error silently handled
     } finally {
       setUploading(false);
     }
@@ -273,7 +280,11 @@ export default function ClientDetailPage() {
               </p>
             </div>
           </div>
-          <CensusViewer censusUploadId={activeCensus._id} />
+          <CensusValidationSummary censusUploadId={activeCensus._id} />
+          <CensusViewer
+            censusUploadId={activeCensus._id}
+            validation={validation ?? undefined}
+          />
         </div>
       );
     }
@@ -325,141 +336,146 @@ export default function ClientDetailPage() {
           </div>
         </div>
 
-        {/* Unified Dashboard Layout */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Left Panel: File Repository & Upload */}
-          <div className="space-y-6 lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle>Project Files</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Magic Upload Dropzone */}
-                {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: Drag and drop requires event handlers on div */}
-                {/* biome-ignore lint/a11y/useSemanticElements: Dropzone needs to be a container div */}
-                <div
-                  aria-label="File upload dropzone"
-                  className={`rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
-                    isDragging
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-300 bg-gray-50 hover:bg-gray-100"
-                  }`}
-                  onDragEnter={handleDragEnter}
-                  onDragLeave={handleDragLeave}
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                  role="region"
-                >
-                  <form className="space-y-4" onSubmit={handleUpload}>
-                    <div className="space-y-2">
-                      <div className="flex flex-col items-center gap-2">
-                        <FileText className="h-8 w-8 text-gray-400" />
-                        <Label
-                          className="cursor-pointer font-medium text-blue-700 hover:underline"
-                          htmlFor="file"
-                        >
-                          Click to Upload
-                        </Label>
-                        <span className="text-gray-500 text-sm">
-                          or drag and drop files
-                        </span>
-                      </div>
-                      <Input
-                        className="hidden"
-                        id="file"
-                        multiple
-                        onChange={handleUpload}
-                        type="file" // Auto-submit on selection for smoother flow
-                      />
-                      <p className="text-gray-400 text-xs">
-                        Supports Excel, CSV, PDF, Word, PPT
-                      </p>
-                    </div>
-                    {uploading && (
-                      <p className="animate-pulse text-blue-700 text-sm">
-                        Uploading & Analyzing...
-                      </p>
-                    )}
-                  </form>
-                </div>
-
-                {/* File List */}
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[50%]">Name</TableHead>
-                        <TableHead className="text-right">Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {files?.map((file) => (
-                        <TableRow key={file._id}>
-                          <TableCell className="font-medium">
-                            <div className="flex flex-col">
-                              <span
-                                className="block max-w-[150px] truncate"
-                                title={file.name}
-                              >
-                                {file.name}
-                              </span>
-                              <span className="text-gray-500 text-xs">
-                                {new Date(file.uploadedAt).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              {file.url && (
-                                <Button
-                                  aria-label={`Download ${file.name}`}
-                                  asChild
-                                  className="h-8 w-8"
-                                  size="icon"
-                                  variant="ghost"
-                                >
-                                  <a
-                                    href={file.url}
-                                    rel="noopener noreferrer"
-                                    target="_blank"
-                                  >
-                                    <Download className="h-4 w-4" />
-                                  </a>
-                                </Button>
-                              )}
-                              <Button
-                                aria-label={`Delete ${file.name}`}
-                                className="h-8 w-8 text-red-600 hover:text-red-700"
-                                onClick={() => handleDelete(file._id)}
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <Trash className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {files?.length === 0 && (
-                        <TableRow>
-                          <TableCell
-                            className="h-24 text-center text-gray-500"
-                            colSpan={2}
-                          >
-                            No files yet.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Panel: Smart Preview / Active Census */}
-          <div className="lg:col-span-2">{renderRightPanel()}</div>
+        {/* Quote Status Section */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <QuoteStatusCard
+            clientId={clientId}
+            quote={quotes?.find((q) => q.type === "PEO") ?? null}
+            type="PEO"
+          />
+          <QuoteStatusCard
+            clientId={clientId}
+            quote={quotes?.find((q) => q.type === "ACA") ?? null}
+            type="ACA"
+          />
         </div>
+
+        {/* File Management Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Project Files</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Magic Upload Dropzone */}
+            {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: Drag and drop requires event handlers on div */}
+            {/* biome-ignore lint/a11y/useSemanticElements: Dropzone needs to be a container div */}
+            <div
+              aria-label="File upload dropzone"
+              className={`rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
+                isDragging
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+              }`}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              role="region"
+            >
+              <form className="space-y-4" onSubmit={handleUpload}>
+                <div className="space-y-2">
+                  <div className="flex flex-col items-center gap-2">
+                    <FileText className="h-8 w-8 text-gray-400" />
+                    <Label
+                      className="cursor-pointer font-medium text-blue-700 hover:underline"
+                      htmlFor="file"
+                    >
+                      Click to Upload
+                    </Label>
+                    <span className="text-gray-500 text-sm">
+                      or drag and drop files
+                    </span>
+                  </div>
+                  <Input
+                    className="hidden"
+                    id="file"
+                    multiple
+                    onChange={handleUpload}
+                    type="file" // Auto-submit on selection for smoother flow
+                  />
+                  <p className="text-gray-400 text-xs">
+                    Supports Excel, CSV, PDF, Word, PPT
+                  </p>
+                </div>
+                {uploading && (
+                  <p className="animate-pulse text-blue-700 text-sm">
+                    Uploading & Analyzing...
+                  </p>
+                )}
+              </form>
+            </div>
+
+            {/* File List */}
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50%]">Name</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {files?.map((file) => (
+                    <TableRow key={file._id}>
+                      <TableCell className="font-medium">
+                        <div className="flex flex-col">
+                          <span className="block">{file.name}</span>
+                          <span className="text-gray-500 text-xs">
+                            {new Date(file.uploadedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          {file.url && (
+                            <Button
+                              aria-label={`Download ${file.name}`}
+                              asChild
+                              className="h-8 w-8"
+                              size="icon"
+                              variant="ghost"
+                            >
+                              <a
+                                href={file.url}
+                                rel="noopener noreferrer"
+                                target="_blank"
+                              >
+                                <Download className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
+                          <Button
+                            aria-label={`Delete ${file.name}`}
+                            className="h-8 w-8 text-red-600 hover:text-red-700"
+                            onClick={() => handleDelete(file._id)}
+                            size="icon"
+                            variant="ghost"
+                          >
+                            <Trash className="h-4 w-4" />
+                            <span className="sr-only">Delete {file.name}</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {files?.length === 0 && (
+                    <TableRow>
+                      <TableCell
+                        className="h-24 text-center text-gray-500"
+                        colSpan={2}
+                      >
+                        No files yet.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Census Information Section */}
+        <div>{renderRightPanel()}</div>
       </div>
     </main>
   );
