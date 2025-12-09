@@ -390,7 +390,7 @@
       "Verify salary must be positive",
       "Verify affected row is highlighted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
