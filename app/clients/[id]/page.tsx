@@ -13,6 +13,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { read, utils } from "xlsx";
 import { CensusImport } from "@/components/census/census-import";
+import { CensusValidationSummary } from "@/components/census/census-validation-summary";
 import { CensusViewer } from "@/components/census/census-viewer";
 import { QuoteStatusCard } from "@/components/quotes/quote-status-card";
 import { Button } from "@/components/ui/button";
@@ -313,6 +314,7 @@ export default function ClientDetailPage() {
               </p>
             </div>
           </div>
+          <CensusValidationSummary censusUploadId={activeCensus._id} />
           <CensusViewer censusUploadId={activeCensus._id} />
         </div>
       );

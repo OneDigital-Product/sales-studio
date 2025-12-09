@@ -318,7 +318,7 @@
       "Verify validation summary appears",
       "Verify validation score is calculated"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -330,7 +330,7 @@
       "Verify validation summary appears",
       "Verify validation score is calculated"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
