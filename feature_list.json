@@ -414,7 +414,7 @@
       "Verify issue count matches",
       "Verify score calculation is correct"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
