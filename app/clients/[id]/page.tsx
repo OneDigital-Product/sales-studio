@@ -15,6 +15,7 @@ import { read, utils } from "xlsx";
 import { CensusImport } from "@/components/census/census-import";
 import { CensusValidationSummary } from "@/components/census/census-validation-summary";
 import { CensusViewer } from "@/components/census/census-viewer";
+import { CommentFeed } from "@/components/comments/comment-feed";
 import { QuoteStatusCard } from "@/components/quotes/quote-status-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -514,6 +515,9 @@ export default function ClientDetailPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Activity Feed Section */}
+        <CommentFeed clientId={clientId} />
 
         {/* Census Information Section */}
         <div>{renderRightPanel()}</div>

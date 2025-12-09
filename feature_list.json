@@ -461,7 +461,7 @@
       "Verify each group shows count of affected rows",
       "Verify issue type is displayed for each group"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -510,7 +510,7 @@
       "Submit comment",
       "Verify comment appears in activity feed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -536,7 +536,7 @@
       "Submit",
       "Verify comment displays with purple ACA badge"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -560,7 +560,7 @@
       "Verify newest comments appear first",
       "Verify team badges are visible"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

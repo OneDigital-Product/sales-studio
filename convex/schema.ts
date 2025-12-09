@@ -86,4 +86,23 @@ export default defineSchema({
       })
     ),
   }).index("by_censusUploadId", ["censusUploadId"]),
+  comments: defineTable({
+    clientId: v.id("clients"),
+    targetType: v.union(
+      v.literal("client"),
+      v.literal("file"),
+      v.literal("census")
+    ),
+    targetId: v.optional(v.string()),
+    content: v.string(),
+    authorName: v.string(),
+    authorTeam: v.union(v.literal("PEO"), v.literal("ACA"), v.literal("Sales")),
+    createdAt: v.number(),
+    isResolved: v.optional(v.boolean()),
+    resolvedAt: v.optional(v.number()),
+    resolvedBy: v.optional(v.string()),
+  })
+    .index("by_clientId", ["clientId"])
+    .index("by_targetType_and_targetId", ["targetType", "targetId"])
+    .index("by_clientId_and_createdAt", ["clientId", "createdAt"]),
 });
