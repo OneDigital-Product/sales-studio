@@ -212,7 +212,7 @@
       "Verify status updates to intake",
       "Verify status change is persisted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -224,7 +224,7 @@
       "Verify status updates to underwriting",
       "Verify status change is persisted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -548,7 +548,7 @@
       "Submit",
       "Verify comment displays with teal Sales badge"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -573,7 +573,7 @@
       "Verify resolved timestamp is recorded",
       "Verify resolved styling is applied"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -585,7 +585,7 @@
       "Verify comment returns to unresolved state",
       "Verify resolved timestamp is cleared"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
