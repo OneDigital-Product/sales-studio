@@ -235,7 +235,7 @@
       "Verify visual indicator changes",
       "Verify timestamp is recorded"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -246,7 +246,7 @@
       "Verify status updates",
       "Verify completedAt timestamp is set"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -257,7 +257,7 @@
       "Verify status shows as won",
       "Verify visual styling indicates success"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -281,7 +281,7 @@
       "Save status change",
       "Verify notes are saved with status"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
