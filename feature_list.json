@@ -378,7 +378,7 @@
       "Verify only 5-digit format is accepted",
       "Verify affected rows are tracked"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
