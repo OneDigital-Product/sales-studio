@@ -366,7 +366,7 @@
       "Verify affected rows are identified",
       "Verify issue type is invalid_value"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
