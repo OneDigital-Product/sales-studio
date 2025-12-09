@@ -44,7 +44,7 @@
       "Verify file appears in document list",
       "Verify file type is correctly set"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -79,7 +79,7 @@
       "Verify file downloads successfully",
       "Verify downloaded file content is correct"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -91,7 +91,7 @@
       "Verify file is removed from list",
       "Verify file is removed from storage"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

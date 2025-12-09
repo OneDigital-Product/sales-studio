@@ -1,0 +1,13 @@
+ACME Corporation Insurance Proposal
+Date: December 9, 2024
+
+This is a sample insurance proposal document for testing file upload functionality.
+
+Coverage Details:
+- Health Insurance
+- Dental Insurance
+- Vision Insurance
+
+Total Premium: $50,000/year
+
+This file should be detected as a non-census file.

@@ -148,10 +148,8 @@ export default function ClientDetailPage() {
     }
   };
 
-  const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const fileInput = document.getElementById("file") as HTMLInputElement;
-    const selectedFiles = fileInput.files;
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files;
     if (!selectedFiles || selectedFiles.length === 0) {
       return;
     }
@@ -162,9 +160,7 @@ export default function ClientDetailPage() {
         await uploadSingleFile(selectedFiles[i], i, selectedFiles.length);
       }
 
-      if (fileInput) {
-        fileInput.value = "";
-      }
+      e.target.value = "";
     } catch {
       // Upload error silently handled
     } finally {
