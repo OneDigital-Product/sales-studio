@@ -1,0 +1,2079 @@
+[
+  {
+    "category": "functional",
+    "description": "Create a new client with basic information",
+    "steps": [
+      "Navigate to home page",
+      "Click 'New Client' button",
+      "Enter client name, contact email, and notes",
+      "Submit the form",
+      "Verify client appears in client list"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View client details page",
+    "steps": [
+      "Navigate to home page",
+      "Click on existing client card",
+      "Verify client detail page loads",
+      "Verify client name, email, and notes are displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Edit client contact information",
+    "steps": [
+      "Navigate to client detail page",
+      "Click edit icon on client header",
+      "Update email address",
+      "Save changes",
+      "Verify updated email is displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Upload a single non-census file",
+    "steps": [
+      "Navigate to client detail page",
+      "Click upload button",
+      "Select a PDF file",
+      "Verify file appears in document list",
+      "Verify file type is correctly set"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Upload multiple files at once",
+    "steps": [
+      "Navigate to client detail page",
+      "Click upload button",
+      "Select 3 different files",
+      "Verify all 3 files appear in document list",
+      "Verify each has correct metadata"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Drag and drop file upload",
+    "steps": [
+      "Navigate to client detail page",
+      "Drag a file from desktop to upload zone",
+      "Drop the file",
+      "Verify file is uploaded",
+      "Verify file appears in document list"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Download an uploaded file",
+    "steps": [
+      "Navigate to client detail page with existing files",
+      "Click download button on a file",
+      "Verify file downloads successfully",
+      "Verify downloaded file content is correct"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Delete an uploaded file",
+    "steps": [
+      "Navigate to client detail page with existing files",
+      "Click delete button on a file",
+      "Confirm deletion",
+      "Verify file is removed from list",
+      "Verify file is removed from storage"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Automatic census file detection on upload",
+    "steps": [
+      "Navigate to client detail page",
+      "Upload a CSV file with headers: name, DOB, salary, zip, tier",
+      "Verify system detects it as census file",
+      "Verify census import dialog appears"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Import census data from CSV",
+    "steps": [
+      "Upload census CSV file",
+      "Review parsed data in preview",
+      "Click import button",
+      "Verify census data is saved",
+      "Verify row count is correct",
+      "Verify census viewer displays data"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Import census data from Excel",
+    "steps": [
+      "Upload census XLSX file",
+      "Review parsed data in preview",
+      "Click import button",
+      "Verify census data is saved",
+      "Verify row count is correct",
+      "Verify census viewer displays data"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View paginated census data",
+    "steps": [
+      "Navigate to client with imported census",
+      "View census viewer component",
+      "Verify first 50 rows are displayed",
+      "Click next page",
+      "Verify next 50 rows are displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Replace existing census with new upload",
+    "steps": [
+      "Navigate to client with existing census",
+      "Upload a new census file",
+      "Import the new census",
+      "Verify old census is replaced",
+      "Verify new census data is displayed",
+      "Verify latest census shows new data"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View latest census in right panel",
+    "steps": [
+      "Navigate to client with census data",
+      "Locate census viewer in right panel",
+      "Verify latest census is displayed",
+      "Verify column headers are correct",
+      "Verify data rows are visible"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Census column alias detection for DOB",
+    "steps": [
+      "Upload census with 'birthdate' column",
+      "Verify system recognizes it as date_of_birth",
+      "Import census",
+      "Verify data is correctly mapped"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Create PEO quote for client",
+    "steps": [
+      "Navigate to client detail page",
+      "Click 'Create PEO Quote' button",
+      "Verify PEO quote status card appears",
+      "Verify initial status is 'not_started'",
+      "Verify quote is saved to database"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Create ACA quote for client",
+    "steps": [
+      "Navigate to client detail page",
+      "Click 'Create ACA Quote' button",
+      "Verify ACA quote status card appears",
+      "Verify initial status is 'not_started'",
+      "Verify quote is saved to database"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Update PEO quote status to intake",
+    "steps": [
+      "Navigate to client with PEO quote",
+      "Click status dropdown on PEO quote card",
+      "Select 'Intake' status",
+      "Verify status updates to intake",
+      "Verify status change is persisted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Update ACA quote status to underwriting",
+    "steps": [
+      "Navigate to client with ACA quote",
+      "Click status dropdown on ACA quote card",
+      "Select 'Underwriting' status",
+      "Verify status updates to underwriting",
+      "Verify status change is persisted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Update quote status to proposal_ready",
+    "steps": [
+      "Navigate to client with quote in underwriting",
+      "Update status to 'Proposal Ready'",
+      "Verify visual indicator changes",
+      "Verify timestamp is recorded"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Update quote status to presented",
+    "steps": [
+      "Navigate to client with quote in proposal_ready",
+      "Update status to 'Presented'",
+      "Verify status updates",
+      "Verify completedAt timestamp is set"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Mark quote as won",
+    "steps": [
+      "Navigate to client with presented quote",
+      "Update status to 'Won'",
+      "Verify status shows as won",
+      "Verify visual styling indicates success"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Mark quote as lost",
+    "steps": [
+      "Navigate to client with presented quote",
+      "Update status to 'Lost'",
+      "Verify status shows as lost",
+      "Verify visual styling is appropriate"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Add notes when updating quote status",
+    "steps": [
+      "Navigate to client with active quote",
+      "Click status dropdown",
+      "Select new status",
+      "Enter notes in notes field",
+      "Save status change",
+      "Verify notes are saved with status"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Block quote with reason",
+    "steps": [
+      "Navigate to client with active quote",
+      "Click 'Block Quote' button",
+      "Enter blocked reason",
+      "Submit",
+      "Verify quote shows blocked status",
+      "Verify blocked reason is displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Unblock a blocked quote",
+    "steps": [
+      "Navigate to client with blocked quote",
+      "Click 'Unblock Quote' button",
+      "Confirm action",
+      "Verify quote returns to previous status",
+      "Verify blocked indicator is removed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Run PEO census validation automatically on import",
+    "steps": [
+      "Upload census file with all PEO required fields",
+      "Import census",
+      "Verify PEO validation runs automatically",
+      "Verify validation summary appears",
+      "Verify validation score is calculated"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Run ACA census validation automatically on import",
+    "steps": [
+      "Upload census file with all ACA required fields",
+      "Import census",
+      "Verify ACA validation runs automatically",
+      "Verify validation summary appears",
+      "Verify validation score is calculated"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Validate census with missing required column (PEO)",
+    "steps": [
+      "Upload census without salary column",
+      "Import census",
+      "Verify validation detects missing_column issue",
+      "Verify issue appears in validation summary",
+      "Verify affected field is 'salary'"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Validate census with empty required values (PEO)",
+    "steps": [
+      "Upload census with some empty salary values",
+      "Import census",
+      "Verify validation detects missing_value issues",
+      "Verify affected row indices are tracked",
+      "Verify quality score is reduced"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Validate census with invalid date format",
+    "steps": [
+      "Upload census with malformed date_of_birth values",
+      "Import census",
+      "Verify validation detects invalid_value issues",
+      "Verify affected rows are identified",
+      "Verify issue type is invalid_value"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Validate census with invalid zip code format",
+    "steps": [
+      "Upload census with 4-digit and 6-digit zip codes",
+      "Import census",
+      "Verify validation detects invalid zip codes",
+      "Verify only 5-digit format is accepted",
+      "Verify affected rows are tracked"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Validate census with negative salary values",
+    "steps": [
+      "Upload census with negative salary value",
+      "Import census",
+      "Verify validation detects invalid_value",
+      "Verify salary must be positive",
+      "Verify affected row is highlighted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Calculate census quality score (100% valid)",
+    "steps": [
+      "Upload census with all valid data",
+      "Import and validate",
+      "Verify quality score is 100",
+      "Verify validation summary shows 100%",
+      "Verify no issues are listed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Calculate census quality score (50% valid)",
+    "steps": [
+      "Upload census with 50% rows having issues",
+      "Import and validate",
+      "Verify quality score is approximately 50",
+      "Verify issue count matches",
+      "Verify score calculation is correct"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View validation summary card on client page",
+    "steps": [
+      "Navigate to client with validated census",
+      "Locate validation summary card",
+      "Verify overall score is displayed",
+      "Verify issue count is shown",
+      "Verify validation timestamp is shown"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Filter census view by validation status (show only invalid rows)",
+    "steps": [
+      "Navigate to client with partially valid census",
+      "Click filter dropdown on census viewer",
+      "Select 'Show Invalid Only'",
+      "Verify only rows with issues are displayed",
+      "Verify valid rows are hidden"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Highlight problematic cells in census viewer",
+    "steps": [
+      "Navigate to client with invalid census data",
+      "View census in census viewer",
+      "Verify cells with validation errors are highlighted in red",
+      "Verify cells with warnings are highlighted in yellow",
+      "Verify valid cells have no highlighting"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View validation issues grouped by field",
+    "steps": [
+      "Navigate to validation summary",
+      "Verify issues are grouped by field name",
+      "Verify each group shows count of affected rows",
+      "Verify issue type is displayed for each group"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Re-validate census after manual corrections",
+    "steps": [
+      "Navigate to client with invalid census",
+      "Note initial validation score",
+      "Upload corrected census file",
+      "Import and replace existing census",
+      "Verify validation runs again",
+      "Verify new validation score is higher"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Validate ACA-specific fields (hours_per_week)",
+    "steps": [
+      "Upload census with hours_per_week column",
+      "Include values outside 0-168 range",
+      "Import census",
+      "Verify ACA validation detects invalid hours",
+      "Verify valid range is enforced"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Validate ACA-specific fields (hire_date)",
+    "steps": [
+      "Upload census without hire_date column",
+      "Import census",
+      "Verify ACA validation detects missing_column",
+      "Verify hire_date is flagged as required for ACA"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Add comment on client",
+    "steps": [
+      "Navigate to client detail page",
+      "Click 'Add Comment' button",
+      "Enter comment text",
+      "Select author team (PEO)",
+      "Submit comment",
+      "Verify comment appears in activity feed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Add comment on specific file",
+    "steps": [
+      "Navigate to client detail page",
+      "Locate file in document list",
+      "Click comment icon on file",
+      "Enter comment text",
+      "Submit",
+      "Verify comment is associated with file",
+      "Verify file shows comment count badge"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Add comment with ACA team badge",
+    "steps": [
+      "Navigate to client detail page",
+      "Add comment",
+      "Select 'ACA' as author team",
+      "Submit",
+      "Verify comment displays with purple ACA badge"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Add comment with Sales team badge",
+    "steps": [
+      "Navigate to client detail page",
+      "Add comment",
+      "Select 'Sales' as author team",
+      "Submit",
+      "Verify comment displays with teal Sales badge"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View all comments in activity feed timeline",
+    "steps": [
+      "Navigate to client with multiple comments",
+      "Locate activity feed section",
+      "Verify comments are displayed in chronological order",
+      "Verify newest comments appear first",
+      "Verify team badges are visible"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Resolve a comment",
+    "steps": [
+      "Navigate to client with existing comments",
+      "Locate unresolved comment",
+      "Click 'Resolve' button",
+      "Verify comment is marked as resolved",
+      "Verify resolved timestamp is recorded",
+      "Verify resolved styling is applied"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Unresolve a resolved comment",
+    "steps": [
+      "Navigate to client with resolved comment",
+      "Locate resolved comment",
+      "Click 'Unresolve' button",
+      "Verify comment returns to unresolved state",
+      "Verify resolved timestamp is cleared"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View comment count indicator on files",
+    "steps": [
+      "Navigate to client detail page",
+      "Add comment on specific file",
+      "Return to document list",
+      "Verify file shows comment count badge",
+      "Verify badge number is accurate"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Filter comments by team",
+    "steps": [
+      "Navigate to client with comments from multiple teams",
+      "Click filter dropdown on activity feed",
+      "Select 'PEO Only'",
+      "Verify only PEO comments are displayed",
+      "Verify ACA and Sales comments are hidden"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Real-time comment sync between users",
+    "steps": [
+      "Open client detail page in two browser tabs",
+      "Add comment in first tab",
+      "Verify comment appears in second tab without refresh",
+      "Verify real-time sync is working"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Search comments by content",
+    "steps": [
+      "Navigate to client with many comments",
+      "Enter search term in comment search box",
+      "Verify only matching comments are displayed",
+      "Verify search is case-insensitive"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Create information request manually",
+    "steps": [
+      "Navigate to client detail page",
+      "Click 'Request Missing Info' button",
+      "Add request items manually",
+      "Set quote type (PEO/ACA)",
+      "Submit request",
+      "Verify request appears in outstanding requests panel"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Pre-populate request from validation issues",
+    "steps": [
+      "Navigate to client with validation issues",
+      "Click 'Request Missing Info' button",
+      "Verify request items are pre-populated from validation",
+      "Verify each issue becomes a request item",
+      "Submit request"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Mark individual request item as received",
+    "steps": [
+      "Navigate to outstanding requests panel",
+      "Locate pending request with multiple items",
+      "Check checkbox for one item",
+      "Verify item is marked as received",
+      "Verify receivedAt timestamp is recorded",
+      "Verify other items remain pending"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Mark all request items as received",
+    "steps": [
+      "Navigate to outstanding requests panel",
+      "Locate pending request",
+      "Mark all items as received",
+      "Verify request status changes to 'received'",
+      "Verify resolvedAt timestamp is set"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Cancel an information request",
+    "steps": [
+      "Navigate to outstanding requests panel",
+      "Locate pending request",
+      "Click 'Cancel' button",
+      "Confirm cancellation",
+      "Verify request status changes to cancelled",
+      "Verify request is removed from outstanding panel"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Link info request to quote blocked status",
+    "steps": [
+      "Create information request for client",
+      "Verify quote status automatically updates to blocked",
+      "Verify blockedReason references the info request",
+      "Mark request as received",
+      "Verify quote is unblocked automatically"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Track response time for information requests",
+    "steps": [
+      "Create information request",
+      "Note requestedAt timestamp",
+      "Mark request as received later",
+      "Verify response time is calculated",
+      "Verify response time is displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Send reminder for pending request",
+    "steps": [
+      "Navigate to pending request",
+      "Click 'Send Reminder' button",
+      "Verify reminderSentAt timestamp is updated",
+      "Verify reminder indicator is displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View request history audit trail",
+    "steps": [
+      "Navigate to client detail page",
+      "Click 'Request History' tab",
+      "Verify all past requests are listed",
+      "Verify timestamps for each request",
+      "Verify status changes are logged"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Dashboard widget showing outstanding requests across all clients",
+    "steps": [
+      "Navigate to home page",
+      "Locate outstanding requests widget",
+      "Verify all pending requests are listed",
+      "Verify grouped by client",
+      "Verify sorted by age (oldest first)"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Set file category to plan_summary",
+    "steps": [
+      "Upload file",
+      "Select category 'Plan Summary'",
+      "Save file",
+      "Verify file category is set",
+      "Verify file appears in Plan Summary section"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Set file category to claims_history",
+    "steps": [
+      "Upload file",
+      "Select category 'Claims History'",
+      "Save file",
+      "Verify category is correctly set",
+      "Verify file appears in correct section"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Auto-detect file category from filename",
+    "steps": [
+      "Upload file named 'renewal_letter_2024.pdf'",
+      "Verify system auto-detects category as 'Renewal Letter'",
+      "Verify category is set automatically"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Tag file as relevant to PEO team",
+    "steps": [
+      "Upload file",
+      "Select 'Relevant to: PEO'",
+      "Save file",
+      "Verify relevantTo includes PEO",
+      "Verify PEO analysts can see file highlighted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Tag file as relevant to both PEO and ACA teams",
+    "steps": [
+      "Upload file",
+      "Select 'Relevant to: PEO, ACA'",
+      "Save file",
+      "Verify relevantTo includes both teams",
+      "Verify both teams see file highlighted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Mark file as required document",
+    "steps": [
+      "Upload file",
+      "Check 'Required Document' checkbox",
+      "Save file",
+      "Verify isRequired is true",
+      "Verify file shows required indicator"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Mark file as verified",
+    "steps": [
+      "Navigate to uploaded file",
+      "Click 'Mark as Verified' button",
+      "Enter verifier name",
+      "Submit",
+      "Verify isVerified is true",
+      "Verify verifiedAt timestamp is set",
+      "Verify verified badge appears"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View Document Center with categorized files",
+    "steps": [
+      "Navigate to client with multiple files",
+      "Locate Document Center section",
+      "Verify files are grouped by category",
+      "Verify each category has a header",
+      "Verify files are listed under correct category"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Filter files by category in Document Center",
+    "steps": [
+      "Navigate to Document Center",
+      "Click filter dropdown",
+      "Select 'Plan Summary' category",
+      "Verify only plan summary files are displayed",
+      "Verify other categories are hidden"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Filter files by team relevance",
+    "steps": [
+      "Navigate to Document Center",
+      "Click team filter dropdown",
+      "Select 'PEO'",
+      "Verify only PEO-relevant files are displayed",
+      "Verify ACA-only files are hidden"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Track document completeness per client",
+    "steps": [
+      "Navigate to client detail page",
+      "Locate document completeness indicator",
+      "Verify percentage of required documents uploaded",
+      "Upload missing required document",
+      "Verify percentage increases"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View required documents checklist",
+    "steps": [
+      "Navigate to Document Center",
+      "Click 'Requirements' tab",
+      "Verify list of required document types",
+      "Verify checkmark for uploaded types",
+      "Verify missing types are highlighted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Quote status dashboard - view all active quotes",
+    "steps": [
+      "Navigate to home page",
+      "Click 'Quote Dashboard' tab",
+      "Verify all active quotes are listed",
+      "Verify grouped by status",
+      "Verify client name and quote type shown"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Filter quote dashboard by status",
+    "steps": [
+      "Navigate to quote dashboard",
+      "Click status filter dropdown",
+      "Select 'Underwriting'",
+      "Verify only quotes in underwriting are displayed",
+      "Verify count matches"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Filter quote dashboard by quote type (PEO only)",
+    "steps": [
+      "Navigate to quote dashboard",
+      "Click type filter dropdown",
+      "Select 'PEO'",
+      "Verify only PEO quotes are displayed",
+      "Verify ACA quotes are hidden"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Filter quote dashboard to show blocked quotes only",
+    "steps": [
+      "Navigate to quote dashboard",
+      "Toggle 'Blocked Only' filter",
+      "Verify only blocked quotes are displayed",
+      "Verify blocked reason is shown for each"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View time-to-completion metrics for quotes",
+    "steps": [
+      "Navigate to quote dashboard",
+      "Locate completed quote",
+      "Verify time from startedAt to completedAt is shown",
+      "Verify time is formatted in days/hours"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View quote status progress timeline",
+    "steps": [
+      "Navigate to client detail page with quote",
+      "Locate quote status card",
+      "Click 'View Timeline' button",
+      "Verify all status changes are listed chronologically",
+      "Verify timestamps for each status"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Search clients by name on home page",
+    "steps": [
+      "Navigate to home page",
+      "Enter client name in search box",
+      "Verify matching clients are displayed",
+      "Verify non-matching clients are hidden",
+      "Verify search is case-insensitive"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Search clients by email on home page",
+    "steps": [
+      "Navigate to home page",
+      "Enter email address in search box",
+      "Verify client with matching email is displayed",
+      "Verify search works on partial email"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Sort clients by name (A-Z)",
+    "steps": [
+      "Navigate to home page",
+      "Click sort dropdown",
+      "Select 'Name (A-Z)'",
+      "Verify clients are sorted alphabetically",
+      "Verify sort persists on page reload"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Sort clients by most recently created",
+    "steps": [
+      "Navigate to home page",
+      "Click sort dropdown",
+      "Select 'Newest First'",
+      "Verify most recently created clients appear first"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View client quote status summary on client card",
+    "steps": [
+      "Navigate to home page",
+      "Locate client card with active quotes",
+      "Verify PEO quote status is displayed on card",
+      "Verify ACA quote status is displayed on card",
+      "Verify status indicators are color-coded"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View document completeness indicator on client card",
+    "steps": [
+      "Navigate to home page",
+      "Locate client card",
+      "Verify document completeness percentage is shown",
+      "Verify visual progress bar is displayed",
+      "Verify indicator updates when documents are added"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Mobile responsive - client list view",
+    "steps": [
+      "Navigate to home page",
+      "Resize browser to mobile width (375px)",
+      "Verify client cards stack vertically",
+      "Verify all content is readable",
+      "Verify no horizontal scroll"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Mobile responsive - client detail page",
+    "steps": [
+      "Navigate to client detail page",
+      "Resize browser to mobile width (375px)",
+      "Verify layout adapts to single column",
+      "Verify all sections are accessible",
+      "Verify buttons are touch-friendly"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Mobile responsive - file upload on mobile",
+    "steps": [
+      "Navigate to client detail page on mobile",
+      "Click upload button",
+      "Verify file picker opens",
+      "Select file",
+      "Verify file uploads successfully"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Real-time sync - client list updates",
+    "steps": [
+      "Open home page in two browser tabs",
+      "Create new client in first tab",
+      "Verify new client appears in second tab without refresh",
+      "Verify real-time sync is working"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Real-time sync - file upload notification",
+    "steps": [
+      "Open client detail page in two tabs",
+      "Upload file in first tab",
+      "Verify file appears in document list in second tab",
+      "Verify no page refresh required"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Real-time sync - quote status changes",
+    "steps": [
+      "Open client detail page in two tabs",
+      "Update quote status in first tab",
+      "Verify status updates in second tab instantly",
+      "Verify visual indicator updates"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Handle census import with 10,000+ rows",
+    "steps": [
+      "Prepare census file with 10,000 rows",
+      "Upload and import census",
+      "Verify import completes successfully",
+      "Verify all rows are saved",
+      "Verify pagination works correctly",
+      "Verify performance is acceptable"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Handle file upload errors gracefully",
+    "steps": [
+      "Attempt to upload file with invalid format",
+      "Verify error message is displayed",
+      "Verify user is informed of the issue",
+      "Verify page remains functional"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Handle census parsing errors gracefully",
+    "steps": [
+      "Upload corrupted CSV file",
+      "Verify error message is displayed",
+      "Verify user can try again",
+      "Verify app doesn't crash"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Validate required fields on client creation",
+    "steps": [
+      "Click 'New Client' button",
+      "Submit form without entering name",
+      "Verify validation error is displayed",
+      "Verify form is not submitted",
+      "Verify error message is clear"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Validate email format on client creation",
+    "steps": [
+      "Click 'New Client' button",
+      "Enter invalid email format",
+      "Submit form",
+      "Verify email validation error is displayed",
+      "Verify form is not submitted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Store file size metadata on upload",
+    "steps": [
+      "Upload file",
+      "Verify fileSize is stored in database",
+      "Verify file size is displayed in document list",
+      "Verify size is formatted (KB/MB)"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Store MIME type metadata on upload",
+    "steps": [
+      "Upload PDF file",
+      "Verify mimeType is stored as 'application/pdf'",
+      "Upload Excel file",
+      "Verify mimeType is stored correctly"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Add optional description to uploaded file",
+    "steps": [
+      "Upload file",
+      "Enter description in description field",
+      "Save file",
+      "Verify description is stored",
+      "Verify description is displayed in file list"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Track who uploaded each file",
+    "steps": [
+      "Upload file",
+      "Verify uploadedBy is stored",
+      "View file in document list",
+      "Verify uploader name is displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View recent activity feed on home page",
+    "steps": [
+      "Navigate to home page",
+      "Locate recent activity widget",
+      "Verify recent comments are listed",
+      "Verify recent status changes are listed",
+      "Verify sorted by most recent first"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Delete client with all associated data",
+    "steps": [
+      "Navigate to client with files and census",
+      "Click 'Delete Client' button",
+      "Confirm deletion",
+      "Verify client is deleted",
+      "Verify all files are deleted from storage",
+      "Verify all census data is deleted",
+      "Verify all comments are deleted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Prevent accidental client deletion",
+    "steps": [
+      "Navigate to client detail page",
+      "Click 'Delete Client' button",
+      "Verify confirmation dialog appears",
+      "Verify user must type client name to confirm",
+      "Cancel deletion",
+      "Verify client is not deleted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Export census data to CSV",
+    "steps": [
+      "Navigate to client with census data",
+      "Click 'Export Census' button",
+      "Verify CSV file is downloaded",
+      "Verify all rows are included",
+      "Verify column headers are correct"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Export census data to Excel",
+    "steps": [
+      "Navigate to client with census data",
+      "Click 'Export Census' button",
+      "Select 'Excel' format",
+      "Verify XLSX file is downloaded",
+      "Verify data is correctly formatted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View census column statistics",
+    "steps": [
+      "Navigate to census viewer",
+      "Click on column header",
+      "Verify statistics panel appears",
+      "Verify count, min, max for numeric columns",
+      "Verify unique value count for text columns"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Sort census data by column",
+    "steps": [
+      "Navigate to census viewer",
+      "Click column header to sort",
+      "Verify data is sorted ascending",
+      "Click again",
+      "Verify data is sorted descending"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Filter census data by column value",
+    "steps": [
+      "Navigate to census viewer",
+      "Click filter icon on column",
+      "Enter filter value",
+      "Apply filter",
+      "Verify only matching rows are displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View validation error tooltip on hover",
+    "steps": [
+      "Navigate to census viewer with invalid data",
+      "Hover over highlighted cell",
+      "Verify tooltip appears",
+      "Verify tooltip shows error message",
+      "Verify tooltip shows expected format"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Bookmark client for quick access",
+    "steps": [
+      "Navigate to client detail page",
+      "Click 'Bookmark' button",
+      "Navigate to home page",
+      "Verify bookmarked clients section exists",
+      "Verify client appears in bookmarks"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Remove client bookmark",
+    "steps": [
+      "Navigate to bookmarked client",
+      "Click 'Remove Bookmark' button",
+      "Navigate to home page",
+      "Verify client is removed from bookmarks section"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View client last modified timestamp",
+    "steps": [
+      "Navigate to client detail page",
+      "Verify 'Last Modified' timestamp is displayed",
+      "Upload a file",
+      "Verify timestamp updates",
+      "Verify format is human-readable"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Copy client information to clipboard",
+    "steps": [
+      "Navigate to client detail page",
+      "Click 'Copy Client Info' button",
+      "Verify success message appears",
+      "Paste from clipboard",
+      "Verify client name, email, and notes are copied"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View quote assignment (assigned analyst)",
+    "steps": [
+      "Navigate to quote status card",
+      "Verify 'Assigned To' field is displayed",
+      "Verify analyst name is shown if assigned"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Complete full quote workflow from start to finish",
+    "steps": [
+      "Create new client",
+      "Upload census file",
+      "Import census and view validation",
+      "Create PEO quote",
+      "Update status to intake",
+      "Upload required documents",
+      "Update status to underwriting",
+      "Add internal comments",
+      "Identify validation issues",
+      "Create information request",
+      "Quote is blocked automatically",
+      "Mark request items as received",
+      "Quote is unblocked",
+      "Update status to proposal_ready",
+      "Update status to presented",
+      "Mark quote as won",
+      "Verify all data is saved",
+      "Verify audit trail exists"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Handle dual PEO and ACA quotes for same client",
+    "steps": [
+      "Create client",
+      "Create PEO quote",
+      "Create ACA quote",
+      "Verify both quotes are independent",
+      "Update PEO status to underwriting",
+      "Verify ACA status is unaffected",
+      "Update ACA status separately",
+      "Verify both track independently"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Validate census with all PEO required fields present",
+    "steps": [
+      "Upload census with employee_name, DOB, zip, salary, tier",
+      "Import census",
+      "Verify PEO validation passes",
+      "Verify quality score is 100",
+      "Verify no issues are reported"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Validate census with all ACA required fields present",
+    "steps": [
+      "Upload census with all PEO fields plus hours_per_week, hire_date",
+      "Import census",
+      "Verify ACA validation passes",
+      "Verify quality score is 100",
+      "Verify no issues are reported"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View multiple census uploads history",
+    "steps": [
+      "Navigate to client detail page",
+      "Click 'Census History' tab",
+      "Verify all past census uploads are listed",
+      "Verify each shows upload date and row count",
+      "Click on historical census",
+      "Verify historical data is displayed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Compare two census versions side-by-side",
+    "steps": [
+      "Navigate to client with multiple census uploads",
+      "Select two census versions",
+      "Click 'Compare' button",
+      "Verify side-by-side comparison view",
+      "Verify differences are highlighted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Undo census replacement",
+    "steps": [
+      "Upload and import new census (replacing old one)",
+      "Click 'Undo' button immediately after",
+      "Verify previous census is restored",
+      "Verify latest census shows restored data"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View data quality trend over time",
+    "steps": [
+      "Navigate to client with multiple census versions",
+      "Click 'Quality Trend' tab",
+      "Verify chart showing quality scores over time",
+      "Verify trend line is displayed",
+      "Verify dates and scores are accurate"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Batch update quote status for multiple clients",
+    "steps": [
+      "Navigate to quote dashboard",
+      "Select multiple quotes with checkboxes",
+      "Click 'Bulk Update Status' button",
+      "Select new status",
+      "Apply changes",
+      "Verify all selected quotes are updated"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Generate quote status report",
+    "steps": [
+      "Navigate to quote dashboard",
+      "Click 'Generate Report' button",
+      "Select date range",
+      "Click 'Generate'",
+      "Verify report includes all quotes in range",
+      "Verify summary statistics are shown",
+      "Verify report can be exported to PDF"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Home page layout and visual design",
+    "steps": [
+      "Navigate to home page",
+      "Take screenshot",
+      "Verify client cards have consistent spacing",
+      "Verify card shadows and borders are subtle",
+      "Verify color scheme is professional",
+      "Verify typography is readable"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Client detail page layout",
+    "steps": [
+      "Navigate to client detail page",
+      "Take screenshot",
+      "Verify sections are clearly separated",
+      "Verify whitespace is generous",
+      "Verify information hierarchy is clear",
+      "Verify no visual clutter"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Quote status card visual design",
+    "steps": [
+      "Navigate to client with quote",
+      "Take screenshot of status card",
+      "Verify status indicator is prominent",
+      "Verify color coding matches status",
+      "Verify typography hierarchy is clear",
+      "Verify card has subtle elevation"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Validation summary visual design",
+    "steps": [
+      "Navigate to census with validation",
+      "Take screenshot of validation summary",
+      "Verify quality score is visually prominent",
+      "Verify color coding (green/yellow/red) is clear",
+      "Verify issues list is scannable",
+      "Verify icons are meaningful"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Document Center categorized layout",
+    "steps": [
+      "Navigate to Document Center",
+      "Take screenshot",
+      "Verify categories are visually grouped",
+      "Verify category headers are distinct",
+      "Verify files within category are aligned",
+      "Verify overall layout is clean"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Activity feed timeline design",
+    "steps": [
+      "Navigate to activity feed",
+      "Take screenshot",
+      "Verify timeline visual is present",
+      "Verify team badges are color-coded correctly",
+      "Verify timestamps are readable",
+      "Verify spacing between comments is comfortable"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Census viewer table design",
+    "steps": [
+      "Navigate to census viewer",
+      "Take screenshot",
+      "Verify table headers are sticky",
+      "Verify row striping improves readability",
+      "Verify cell padding is comfortable",
+      "Verify highlighted cells stand out clearly"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Button styles are consistent",
+    "steps": [
+      "Navigate through application",
+      "Take screenshots of various buttons",
+      "Verify primary buttons use same style",
+      "Verify secondary buttons use same style",
+      "Verify danger buttons use same style",
+      "Verify hover states are consistent"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Form input styles are consistent",
+    "steps": [
+      "Navigate to forms throughout app",
+      "Take screenshots",
+      "Verify input borders are consistent",
+      "Verify focus states are visible",
+      "Verify error states are clear",
+      "Verify labels are properly aligned"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Modal dialog design",
+    "steps": [
+      "Open various modal dialogs",
+      "Take screenshots",
+      "Verify backdrop dims page appropriately",
+      "Verify modal is centered",
+      "Verify close button is visible",
+      "Verify content is not cramped"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Team badge colors are distinct (PEO/ACA/Sales)",
+    "steps": [
+      "Navigate to comments with different team badges",
+      "Take screenshot",
+      "Verify PEO badge is blue",
+      "Verify ACA badge is purple",
+      "Verify Sales badge is teal",
+      "Verify colors are distinguishable"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Status colors are semantically correct",
+    "steps": [
+      "Navigate to various status indicators",
+      "Take screenshots",
+      "Verify green for complete/success",
+      "Verify yellow for in-progress/warning",
+      "Verify red for blocked/error",
+      "Verify gray for not started"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Mobile layout adapts correctly at 375px width",
+    "steps": [
+      "Resize browser to 375px width",
+      "Navigate through all pages",
+      "Take screenshots",
+      "Verify no horizontal scroll",
+      "Verify content is readable",
+      "Verify buttons are touch-sized (44px min)"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Tablet layout adapts correctly at 768px width",
+    "steps": [
+      "Resize browser to 768px width",
+      "Navigate through all pages",
+      "Take screenshots",
+      "Verify layout uses available space well",
+      "Verify no awkward spacing",
+      "Verify content doesn't feel cramped"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Desktop layout at 1920px width",
+    "steps": [
+      "Resize browser to 1920px width",
+      "Navigate through all pages",
+      "Take screenshots",
+      "Verify content doesn't stretch too wide",
+      "Verify max-width constraints are applied",
+      "Verify layout is balanced"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Loading states have appropriate spinners/skeletons",
+    "steps": [
+      "Navigate to pages with loading states",
+      "Take screenshots during loading",
+      "Verify spinners are centered",
+      "Verify skeleton loaders match content shape",
+      "Verify loading states don't cause layout shift"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Empty states have helpful messaging",
+    "steps": [
+      "Navigate to pages with no data",
+      "Take screenshots",
+      "Verify empty state message is friendly",
+      "Verify call-to-action is present",
+      "Verify icon or illustration is shown",
+      "Verify styling is not stark/harsh"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Error messages are visually distinct",
+    "steps": [
+      "Trigger various error states",
+      "Take screenshots",
+      "Verify error messages use red color",
+      "Verify error icon is present",
+      "Verify message text is clear",
+      "Verify error doesn't blend into background"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Success notifications are clear",
+    "steps": [
+      "Trigger success actions (save, upload, etc)",
+      "Take screenshots of notifications",
+      "Verify success uses green color",
+      "Verify checkmark icon is present",
+      "Verify notification is visible but not obtrusive",
+      "Verify auto-dismiss timing is appropriate"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Icons are consistent throughout app",
+    "steps": [
+      "Navigate through application",
+      "Take screenshots of various icons",
+      "Verify all icons are from same library (Lucide)",
+      "Verify icon sizing is consistent",
+      "Verify icon colors match context",
+      "Verify icons are semantically correct"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Card shadows create proper elevation hierarchy",
+    "steps": [
+      "Navigate to pages with multiple card levels",
+      "Take screenshots",
+      "Verify primary cards have subtle shadow",
+      "Verify modals have stronger shadow",
+      "Verify hover states increase shadow",
+      "Verify shadow depths create clear hierarchy"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Focus indicators are visible for keyboard navigation",
+    "steps": [
+      "Navigate app using only keyboard",
+      "Take screenshots of focused elements",
+      "Verify focus ring is visible on all interactive elements",
+      "Verify focus ring color has sufficient contrast",
+      "Verify focus order is logical"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Color contrast meets WCAG AA standards",
+    "steps": [
+      "Navigate through application",
+      "Use browser DevTools to check contrast ratios",
+      "Verify text on background meets 4.5:1 ratio",
+      "Verify large text meets 3:1 ratio",
+      "Verify UI components meet 3:1 ratio"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Typography scale is harmonious",
+    "steps": [
+      "Navigate through application",
+      "Take screenshots of various text sizes",
+      "Verify heading hierarchy is clear",
+      "Verify body text is 16px minimum",
+      "Verify line-height provides comfortable reading",
+      "Verify font weights create proper emphasis"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Spacing system is consistent",
+    "steps": [
+      "Navigate through application",
+      "Use DevTools to inspect spacing",
+      "Verify spacing uses consistent scale (4px, 8px, 16px, 24px, etc)",
+      "Verify padding is consistent within component types",
+      "Verify margins between sections are consistent"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Animations are smooth and purposeful",
+    "steps": [
+      "Navigate through interactive elements",
+      "Observe transitions and animations",
+      "Verify animations are smooth (60fps)",
+      "Verify animation durations are appropriate (150-300ms)",
+      "Verify animations don't distract from content",
+      "Verify no excessive motion"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Quote dashboard shows quotes by status pipeline",
+    "steps": [
+      "Navigate to quote dashboard",
+      "Verify quotes grouped by status",
+      "Verify pipeline stages: not_started, intake, underwriting, proposal_ready, presented, won, lost",
+      "Verify count shown for each status",
+      "Verify visual progression is clear"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View quote history audit trail",
+    "steps": [
+      "Navigate to quote with multiple status changes",
+      "Click 'View History' button",
+      "Verify all status changes are logged",
+      "Verify timestamps for each change",
+      "Verify notes associated with each change",
+      "Verify who made each change (if tracked)"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Clone census data to new client",
+    "steps": [
+      "Navigate to client with census data",
+      "Click 'Clone Census' button",
+      "Select target client",
+      "Confirm clone operation",
+      "Verify census is copied to target client",
+      "Verify original census is unchanged"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Merge duplicate client records",
+    "steps": [
+      "Navigate to client list",
+      "Select two clients to merge",
+      "Click 'Merge Clients' button",
+      "Choose primary client",
+      "Confirm merge",
+      "Verify all data from secondary client is moved",
+      "Verify secondary client is deleted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Archive completed clients",
+    "steps": [
+      "Navigate to client with completed quotes",
+      "Click 'Archive Client' button",
+      "Confirm archival",
+      "Verify client is moved to archived section",
+      "Verify archived client is hidden from main list",
+      "Verify archived client is still accessible via archive section"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Restore archived client",
+    "steps": [
+      "Navigate to archived clients section",
+      "Select archived client",
+      "Click 'Restore' button",
+      "Verify client is moved back to active list",
+      "Verify all data is intact"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "View system-wide statistics dashboard",
+    "steps": [
+      "Navigate to statistics/analytics page",
+      "Verify total clients count is shown",
+      "Verify active quotes count is shown",
+      "Verify average quote completion time is shown",
+      "Verify average data quality score is shown",
+      "Verify charts visualize trends"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Generate monthly activity report",
+    "steps": [
+      "Navigate to reports section",
+      "Select 'Monthly Activity Report'",
+      "Choose month and year",
+      "Generate report",
+      "Verify report includes client creation count",
+      "Verify report includes file upload count",
+      "Verify report includes quote completion count",
+      "Verify report can be exported to PDF"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Quote dashboard visual hierarchy",
+    "steps": [
+      "Navigate to quote dashboard",
+      "Take screenshot",
+      "Verify status columns are clearly defined",
+      "Verify quote cards within columns are distinct",
+      "Verify blocked quotes are visually highlighted",
+      "Verify color coding guides attention appropriately"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Information request panel design",
+    "steps": [
+      "Navigate to client with pending requests",
+      "Take screenshot of info request panel",
+      "Verify request items are clearly listed",
+      "Verify checkboxes are visible and touch-friendly",
+      "Verify pending items stand out from completed",
+      "Verify panel doesn't overwhelm the page"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "File upload drag-and-drop zone design",
+    "steps": [
+      "Navigate to client detail page",
+      "Take screenshot of upload zone",
+      "Verify dashed border indicates drag target",
+      "Verify icon and text invite action",
+      "Verify hover state changes appearance",
+      "Verify active drag state is distinct"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Census import preview modal design",
+    "steps": [
+      "Upload census file to trigger preview",
+      "Take screenshot of preview modal",
+      "Verify data table is readable",
+      "Verify column headers are clear",
+      "Verify sample rows give good preview",
+      "Verify import/cancel buttons are prominent"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Breadcrumb navigation design",
+    "steps": [
+      "Navigate to nested pages",
+      "Take screenshot of breadcrumbs",
+      "Verify breadcrumb trail is visible",
+      "Verify separators are subtle",
+      "Verify current page is distinct",
+      "Verify clickable items have hover state"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Client card hover state design",
+    "steps": [
+      "Navigate to home page",
+      "Hover over client card",
+      "Take screenshot",
+      "Verify hover effect is subtle but noticeable",
+      "Verify shadow increases on hover",
+      "Verify cursor changes to pointer",
+      "Verify transition is smooth"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Blocked quote visual indicator",
+    "steps": [
+      "Navigate to client with blocked quote",
+      "Take screenshot of blocked quote card",
+      "Verify blocked indicator is prominent",
+      "Verify red/warning color is used",
+      "Verify blocked reason is visible",
+      "Verify icon communicates blockage"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Required document indicator design",
+    "steps": [
+      "Navigate to Document Center",
+      "View file marked as required",
+      "Take screenshot",
+      "Verify required indicator is visible (e.g., asterisk or badge)",
+      "Verify indicator color suggests importance",
+      "Verify tooltip explains requirement"
+    ],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Verification badge design on files",
+    "steps": [
+      "Navigate to Document Center with verified file",
+      "Take screenshot",
+      "Verify verified badge is visible",
+      "Verify checkmark icon is used",
+      "Verify green/success color is used",
+      "Verify badge doesn't obscure file name"
+    ],
+    "passes": false
+  }
+]

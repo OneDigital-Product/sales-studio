@@ -1,6 +1,12 @@
-# Sales Studio
+# Sales Studio - PEO/ACA Quote Management Platform
 
 Sales Studio is a modern web application for managing clients and census data for PEO and ACA health plan quoting. It combines intelligent file detection with a streamlined data management interface.
+
+## 🎯 Project Status
+
+This project is being developed through autonomous AI agent sessions. Each agent works toward completing features defined in `feature_list.json`.
+
+**Current Progress:** See `feature_list.json` for detailed test case status (200+ features tracked)
 
 ## Features
 
@@ -31,6 +37,10 @@ Sales Studio is a modern web application for managing clients and census data fo
 ### Installation & Development
 
 ```bash
+# Quick start with initialization script
+./init.sh
+
+# Or manually:
 # Install dependencies
 bun install
 
@@ -148,6 +158,34 @@ NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
 ```
 
 Set in `.env.local` for local development.
+
+## 🧪 Testing
+
+Test cases are defined in `feature_list.json` (200+ features). Each feature has:
+- **category:** "functional" or "style"
+- **description:** What the test verifies
+- **steps:** Detailed testing steps
+- **passes:** Boolean status (false = not implemented, true = passing)
+
+To test a feature:
+1. Follow the steps in `feature_list.json`
+2. Verify expected behavior
+3. Update `passes` to `true` if feature works correctly
+4. Commit the updated `feature_list.json`
+
+## 🤖 For AI Agents
+
+If you're an AI agent continuing this work:
+
+1. **Read `feature_list.json`** to understand what needs to be built (200+ features)
+2. **Read `CLAUDE.md`** for project-specific coding standards
+3. **Run `./init.sh`** to start the development environment
+4. **Work on features in priority order** (top to bottom in feature_list.json)
+5. **Test thoroughly** before marking `passes: true`
+6. **Commit progress regularly** with descriptive messages
+7. **Leave a summary** in `claude-progress.txt` before your session ends
+
+**CRITICAL:** Never remove or edit features in `feature_list.json`. Only change `passes: false` to `passes: true`.
 
 ## Contributing
 
