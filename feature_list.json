@@ -268,7 +268,7 @@
       "Verify status shows as lost",
       "Verify visual styling is appropriate"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -294,7 +294,7 @@
       "Verify quote shows blocked status",
       "Verify blocked reason is displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
