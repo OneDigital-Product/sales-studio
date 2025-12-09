@@ -1,0 +1,5 @@
+Employee Name,DOB,ZIP Code,Salary,Coverage Tier,Hours Per Week,Hire Date
+John Doe,1/15/1985,10001,75000,Family,40,3/1/2020
+Jane Smith,2/20/1990,20002,85000,Employee,200,4/15/2019
+Bob Johnson,3/10/1988,30003,65000,Employee + Spouse,35,5/1/2021
+Alice Williams,4/5/1992,40004,95000,Family,-10,6/1/2018

@@ -450,7 +450,7 @@
       "Verify cells with warnings are highlighted in yellow",
       "Verify valid cells have no highlighting"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -474,7 +474,7 @@
       "Verify validation runs again",
       "Verify new validation score is higher"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -486,7 +486,7 @@
       "Verify ACA validation detects invalid hours",
       "Verify valid range is enforced"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
