@@ -7,6 +7,7 @@ export const createClient = mutation({
     contactEmail: v.optional(v.string()),
     notes: v.optional(v.string()),
   },
+  returns: v.id("clients"),
   handler: async (ctx, args) => {
     const clientId = await ctx.db.insert("clients", {
       name: args.name,
@@ -19,10 +20,31 @@ export const createClient = mutation({
 
 export const getClients = query({
   args: {},
+  returns: v.array(
+    v.object({
+      _id: v.id("clients"),
+      _creationTime: v.number(),
+      name: v.string(),
+      contactEmail: v.optional(v.string()),
+      notes: v.optional(v.string()),
+      activeCensusId: v.optional(v.id("census_uploads")),
+    })
+  ),
   handler: async (ctx) => await ctx.db.query("clients").collect(),
 });
 
 export const getClient = query({
   args: { id: v.id("clients") },
+  returns: v.union(
+    v.null(),
+    v.object({
+      _id: v.id("clients"),
+      _creationTime: v.number(),
+      name: v.string(),
+      contactEmail: v.optional(v.string()),
+      notes: v.optional(v.string()),
+      activeCensusId: v.optional(v.id("census_uploads")),
+    })
+  ),
   handler: async (ctx, args) => await ctx.db.get(args.id),
 });

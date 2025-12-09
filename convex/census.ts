@@ -11,6 +11,7 @@ export const saveCensus = mutation({
     columns: v.array(v.string()),
     rows: v.array(v.any()), // Array of row objects
   },
+  returns: v.id("census_uploads"),
   handler: async (ctx, args) => {
     const censusUploadId = await ctx.db.insert("census_uploads", {
       clientId: args.clientId,
@@ -52,6 +53,31 @@ export const getCensus = query({
     censusUploadId: v.id("census_uploads"),
     paginationOpts: paginationOptsValidator,
   },
+  returns: v.object({
+    upload: v.object({
+      _id: v.id("census_uploads"),
+      _creationTime: v.number(),
+      clientId: v.id("clients"),
+      fileId: v.optional(v.id("files")),
+      fileName: v.string(),
+      uploadedAt: v.number(),
+      columns: v.array(v.string()),
+      rowCount: v.number(),
+    }),
+    rows: v.object({
+      page: v.array(
+        v.object({
+          _id: v.id("census_rows"),
+          _creationTime: v.number(),
+          censusUploadId: v.id("census_uploads"),
+          data: v.any(),
+          rowIndex: v.number(),
+        })
+      ),
+      isDone: v.boolean(),
+      continueCursor: v.string(),
+    }),
+  }),
   handler: async (ctx, args) => {
     const upload = await ctx.db.get(args.censusUploadId);
     if (!upload) {
@@ -75,6 +101,7 @@ export const getCensus = query({
 
 export const setActiveCensus = mutation({
   args: { clientId: v.id("clients"), censusUploadId: v.id("census_uploads") },
+  returns: v.null(),
   handler: async (ctx, args) => {
     await ctx.db.patch(args.clientId, { activeCensusId: args.censusUploadId });
   },
@@ -82,6 +109,19 @@ export const setActiveCensus = mutation({
 
 export const getActiveCensus = query({
   args: { clientId: v.id("clients") },
+  returns: v.union(
+    v.null(),
+    v.object({
+      _id: v.id("census_uploads"),
+      _creationTime: v.number(),
+      clientId: v.id("clients"),
+      fileId: v.optional(v.id("files")),
+      fileName: v.string(),
+      uploadedAt: v.number(),
+      columns: v.array(v.string()),
+      rowCount: v.number(),
+    })
+  ),
   handler: async (ctx, args) => {
     const client = await ctx.db.get(args.clientId);
     if (!client) {
@@ -108,6 +148,18 @@ export const getActiveCensus = query({
 
 export const getCensusHistory = query({
   args: { clientId: v.id("clients") },
+  returns: v.array(
+    v.object({
+      _id: v.id("census_uploads"),
+      _creationTime: v.number(),
+      clientId: v.id("clients"),
+      fileId: v.optional(v.id("files")),
+      fileName: v.string(),
+      uploadedAt: v.number(),
+      columns: v.array(v.string()),
+      rowCount: v.number(),
+    })
+  ),
   handler: async (ctx, args) =>
     await ctx.db
       .query("census_uploads")
@@ -118,6 +170,19 @@ export const getCensusHistory = query({
 
 export const getLatestCensus = query({
   args: { clientId: v.id("clients") },
+  returns: v.union(
+    v.null(),
+    v.object({
+      _id: v.id("census_uploads"),
+      _creationTime: v.number(),
+      clientId: v.id("clients"),
+      fileId: v.optional(v.id("files")),
+      fileName: v.string(),
+      uploadedAt: v.number(),
+      columns: v.array(v.string()),
+      rowCount: v.number(),
+    })
+  ),
   handler: async (ctx, args) => {
     const upload = await ctx.db
       .query("census_uploads")

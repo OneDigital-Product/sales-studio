@@ -1,9 +1,11 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
-export const generateUploadUrl = mutation(
-  async (ctx) => await ctx.storage.generateUploadUrl()
-);
+export const generateUploadUrl = mutation({
+  args: {},
+  returns: v.string(),
+  handler: async (ctx) => await ctx.storage.generateUploadUrl(),
+});
 
 export const saveFile = mutation({
   args: {
@@ -12,6 +14,7 @@ export const saveFile = mutation({
     name: v.string(),
     type: v.string(),
   },
+  returns: v.id("files"),
   handler: async (ctx, args) => {
     const fileId = await ctx.db.insert("files", {
       storageId: args.storageId,
@@ -26,6 +29,18 @@ export const saveFile = mutation({
 
 export const getFiles = query({
   args: { clientId: v.id("clients") },
+  returns: v.array(
+    v.object({
+      _id: v.id("files"),
+      _creationTime: v.number(),
+      storageId: v.string(),
+      clientId: v.id("clients"),
+      name: v.string(),
+      type: v.string(),
+      uploadedAt: v.number(),
+      url: v.union(v.string(), v.null()),
+    })
+  ),
   handler: async (ctx, args) => {
     const files = await ctx.db
       .query("files")
@@ -43,6 +58,7 @@ export const getFiles = query({
 
 export const deleteFile = mutation({
   args: { id: v.id("files") },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const file = await ctx.db.get(args.id);
     if (!file) {
