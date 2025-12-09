@@ -438,7 +438,7 @@
       "Verify only rows with issues are displayed",
       "Verify valid rows are hidden"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
