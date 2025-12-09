@@ -75,7 +75,7 @@ export const getCensus = query({
         })
       ),
       isDone: v.boolean(),
-      continueCursor: v.string(),
+      continueCursor: v.union(v.string(), v.null()),
     }),
   }),
   handler: async (ctx, args) => {
