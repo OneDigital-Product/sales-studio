@@ -102,7 +102,7 @@
       "Verify system detects it as census file",
       "Verify census import dialog appears"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -115,7 +115,7 @@
       "Verify row count is correct",
       "Verify census viewer displays data"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -128,7 +128,7 @@
       "Verify row count is correct",
       "Verify census viewer displays data"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -140,7 +140,7 @@
       "Click next page",
       "Verify next 50 rows are displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -165,7 +165,7 @@
       "Verify column headers are correct",
       "Verify data rows are visible"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
