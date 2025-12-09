@@ -68,7 +68,7 @@
       "Verify file is uploaded",
       "Verify file appears in document list"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
