@@ -188,12 +188,35 @@ export function QuoteStatusUpdate({
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="text-red-600 focus:text-red-600"
-            onClick={handleSetBlocked}
-          >
-            {isBlocked ? "Update Block Reason" : "Mark as Blocked"}
-          </DropdownMenuItem>
+          {isBlocked ? (
+            <>
+              <DropdownMenuItem
+                className="text-green-600 focus:text-green-600"
+                onClick={() => {
+                  setSelectedStatus(currentStatus);
+                  setBlocked(false);
+                  setBlockReason("");
+                  setNotes("");
+                  setIsDialogOpen(true);
+                }}
+              >
+                Unblock Quote
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-red-600 focus:text-red-600"
+                onClick={handleSetBlocked}
+              >
+                Update Block Reason
+              </DropdownMenuItem>
+            </>
+          ) : (
+            <DropdownMenuItem
+              className="text-red-600 focus:text-red-600"
+              onClick={handleSetBlocked}
+            >
+              Mark as Blocked
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -203,12 +226,16 @@ export function QuoteStatusUpdate({
             <DialogTitle>
               {blocked
                 ? "Mark Quote as Blocked"
-                : `Update ${type} Quote Status`}
+                : isBlocked && !blocked
+                  ? "Unblock Quote"
+                  : `Update ${type} Quote Status`}
             </DialogTitle>
             <DialogDescription>
               {blocked
                 ? "Provide a reason why this quote is blocked."
-                : `Change status from "${currentLabel}" to "${STATUS_OPTIONS.find((s) => s.value === selectedStatus)?.label ?? ""}".`}
+                : isBlocked && !blocked
+                  ? "Remove the blocked status from this quote."
+                  : `Change status from "${currentLabel}" to "${STATUS_OPTIONS.find((s) => s.value === selectedStatus)?.label ?? ""}".`}
             </DialogDescription>
           </DialogHeader>
 

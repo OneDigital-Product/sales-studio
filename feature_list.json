@@ -306,7 +306,7 @@
       "Verify quote returns to previous status",
       "Verify blocked indicator is removed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
