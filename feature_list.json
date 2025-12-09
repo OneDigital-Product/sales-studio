@@ -354,7 +354,7 @@
       "Verify affected row indices are tracked",
       "Verify quality score is reduced"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
