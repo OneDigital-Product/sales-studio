@@ -16,6 +16,7 @@ import { CensusImport } from "@/components/census/census-import";
 import { CensusValidationSummary } from "@/components/census/census-validation-summary";
 import { CensusViewer } from "@/components/census/census-viewer";
 import { CommentFeed } from "@/components/comments/comment-feed";
+import { FileCommentButton } from "@/components/comments/file-comment-button";
 import { QuoteStatusCard } from "@/components/quotes/quote-status-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -469,6 +470,11 @@ export default function ClientDetailPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
+                          <FileCommentButton
+                            clientId={clientId}
+                            fileId={file._id}
+                            fileName={file.name}
+                          />
                           {file.url && (
                             <Button
                               aria-label={`Download ${file.name}`}

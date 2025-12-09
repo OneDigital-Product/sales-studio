@@ -524,7 +524,7 @@
       "Verify comment is associated with file",
       "Verify file shows comment count badge"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -597,7 +597,7 @@
       "Verify file shows comment count badge",
       "Verify badge number is accurate"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
