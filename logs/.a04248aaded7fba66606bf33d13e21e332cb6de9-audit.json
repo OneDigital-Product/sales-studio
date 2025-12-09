@@ -1,0 +1,15 @@
+{
+  "keep": {
+    "days": true,
+    "amount": 14
+  },
+  "auditLog": "/Users/andrewharvey/dev/sales-studio/logs/.a04248aaded7fba66606bf33d13e21e332cb6de9-audit.json",
+  "files": [
+    {
+      "date": 1765305296370,
+      "name": "/Users/andrewharvey/dev/sales-studio/logs/mcp-puppeteer-2025-12-09.log",
+      "hash": "dc24928e872fcbabfbe11bdb2e0505f09e3d5dba0aa416e4f61a413ac0b99ce0"
+    }
+  ],
+  "hashType": "sha256"
+}

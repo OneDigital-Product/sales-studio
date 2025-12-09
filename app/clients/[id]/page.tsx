@@ -1,7 +1,13 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
-import { Download, FileText, Table as TableIcon, Trash } from "lucide-react";
+import {
+  Download,
+  FileText,
+  Pencil,
+  Table as TableIcon,
+  Trash,
+} from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -11,6 +17,14 @@ import { CensusViewer } from "@/components/census/census-viewer";
 import { QuoteStatusCard } from "@/components/quotes/quote-status-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -28,6 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 
@@ -47,8 +62,13 @@ export default function ClientDetailPage() {
   const saveFile = useMutation(api.files.saveFile);
   const deleteFile = useMutation(api.files.deleteFile);
   const setActiveCensus = useMutation(api.census.setActiveCensus);
+  const updateClient = useMutation(api.clients.updateClient);
 
   const [uploading, setUploading] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editNotes, setEditNotes] = useState("");
   const [pendingCensusFile, setPendingCensusFile] = useState<File | null>(null);
   const [pendingCensusFileId, setPendingCensusFileId] =
     useState<Id<"files"> | null>(null);
@@ -199,6 +219,28 @@ export default function ClientDetailPage() {
     }
   };
 
+  const handleEditClick = () => {
+    setEditName(client?.name || "");
+    setEditEmail(client?.contactEmail || "");
+    setEditNotes(client?.notes || "");
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updateClient({
+        id: clientId,
+        name: editName,
+        contactEmail: editEmail,
+        notes: editNotes,
+      });
+      setIsEditModalOpen(false);
+    } catch {
+      // Update error silently handled
+    }
+  };
+
   if (client === undefined) {
     return <div className="p-8">Loading...</div>;
   }
@@ -305,16 +347,26 @@ export default function ClientDetailPage() {
           </Link>
 
           <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-            <div>
-              <h1 className="font-bold text-3xl text-gray-900">
-                {client.name}
-              </h1>
-              {client.contactEmail && (
-                <p className="text-gray-600">{client.contactEmail}</p>
-              )}
-              {client.notes && (
-                <p className="mt-1 text-gray-500">{client.notes}</p>
-              )}
+            <div className="flex items-start gap-3">
+              <div>
+                <h1 className="font-bold text-3xl text-gray-900">
+                  {client.name}
+                </h1>
+                {client.contactEmail && (
+                  <p className="text-gray-600">{client.contactEmail}</p>
+                )}
+                {client.notes && (
+                  <p className="mt-1 text-gray-500">{client.notes}</p>
+                )}
+              </div>
+              <Button
+                className="mt-1"
+                onClick={handleEditClick}
+                size="sm"
+                variant="ghost"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
             </div>
             <div className="flex gap-3">
               <Button className="bg-green-600 hover:bg-green-700" disabled>
@@ -468,6 +520,52 @@ export default function ClientDetailPage() {
         {/* Census Information Section */}
         <div>{renderRightPanel()}</div>
       </div>
+
+      {/* Edit Client Dialog */}
+      <Dialog onOpenChange={setIsEditModalOpen} open={isEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Client Information</DialogTitle>
+            <DialogDescription>
+              Update the client details below. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <form className="space-y-4" onSubmit={handleEditSubmit}>
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
+                id="edit-name"
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Client name"
+                required
+                value={editName}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">Email</Label>
+              <Input
+                id="edit-email"
+                onChange={(e) => setEditEmail(e.target.value)}
+                placeholder="contact@client.com"
+                type="email"
+                value={editEmail}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-notes">Notes</Label>
+              <Textarea
+                id="edit-notes"
+                onChange={(e) => setEditNotes(e.target.value)}
+                placeholder="Additional client details..."
+                value={editNotes}
+              />
+            </div>
+            <DialogFooter>
+              <Button type="submit">Save Changes</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

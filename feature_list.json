@@ -9,7 +9,7 @@
       "Submit the form",
       "Verify client appears in client list"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -20,7 +20,7 @@
       "Verify client detail page loads",
       "Verify client name, email, and notes are displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -32,7 +32,7 @@
       "Save changes",
       "Verify updated email is displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

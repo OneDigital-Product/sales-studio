@@ -1,0 +1,486 @@
+<project_specification>
+  <project_name>Sales Studio - PEO/ACA Quote Management Platform</project_name>
+
+  <overview>
+    Sales Studio is a modern client and census data management application designed for PEO (Professional Employer Organization) and ACA (Affordable Care Act) health plan quoting. The platform enables Account Managers, PEO Analysts, and ACA Analysts to collaborate on client quotes by managing documents, validating census data, tracking quote status, and streamlining the information request workflow. The application provides intelligent file categorization, real-time data validation, and comprehensive status tracking to reduce quote turnaround time and improve team coordination.
+  </overview>
+
+  <technology_stack>
+    <frontend>
+      <framework>Next.js 16 (App Router) with React 19</framework>
+      <styling>Tailwind CSS v4 (CSS-first configuration with CSS variables)</styling>
+      <ui_components>Shadcn UI - composable, accessible components</ui_components>
+      <state_management>React hooks, Convex real-time sync</state_management>
+      <package_manager>Bun (not npm or yarn)</package_manager>
+      <port>Default port 3000</port>
+    </frontend>
+    <backend>
+      <platform>Convex - backend as a service</platform>
+      <database>Convex (real-time, serverless)</database>
+      <storage>Convex Storage for file uploads</storage>
+      <functions>Queries, mutations, actions with typed validators</functions>
+    </backend>
+    <libraries>
+      <error_handling>neverthrow - type-safe Result/ResultAsync</error_handling>
+      <file_parsing>xlsx - Excel/CSV parsing</file_parsing>
+      <code_quality>Biome with Ultracite preset</code_quality>
+    </libraries>
+  </technology_stack>
+
+  <current_state>
+    <implemented_features>
+      <client_management>
+        - Create, view, and manage client profiles
+        - Client contact information (name, email, notes)
+        - Client list dashboard with cards
+      </client_management>
+
+      <file_management>
+        - Multi-file upload with drag-and-drop
+        - Automatic detection of census vs. quote data files
+        - File download via pre-signed URLs
+        - File deletion with storage cleanup
+        - File metadata tracking (name, type, upload date)
+      </file_management>
+
+      <census_data>
+        - Intelligent parsing of Excel/CSV files
+        - Automatic column detection with aliases
+        - Paginated census row viewer
+        - Census data import workflow with preview
+        - Support for large datasets (batch row insertion)
+        - Latest census display with replacement capability
+      </census_data>
+
+      <ui_infrastructure>
+        - Responsive mobile-first design
+        - Shadcn UI component library integration
+        - Dark mode ready theming (not yet implemented)
+        - Real-time updates via Convex subscriptions
+      </ui_infrastructure>
+    </implemented_features>
+
+    <database_schema>
+      <clients>
+        - id, name, contactEmail, notes
+        - created_at (implicit)
+      </clients>
+
+      <files>
+        - id, storageId, clientId, name, type ("PEO"/"ACA"/"Other")
+        - uploadedAt
+        - Index: by_clientId
+      </files>
+
+      <census_uploads>
+        - id, clientId, fileName, uploadedAt
+        - columns (array of column names)
+        - rowCount
+        - Index: by_clientId
+      </census_uploads>
+
+      <census_rows>
+        - id, censusUploadId, data (JSON), rowIndex
+        - Index: by_censusUploadId
+      </census_rows>
+    </database_schema>
+  </current_state>
+
+  <planned_features>
+    <priority_0_critical>
+      <census_validation>
+        - Automatic validation against PEO and ACA requirements
+        - Field requirement definitions with aliases
+        - Row-level validation with issue tracking
+        - Data quality score (0-100)
+        - Visual indicators for missing/invalid data
+        - Validation summary cards
+        - Filter census view by validation status
+        - Auto-trigger validation on import
+      </census_validation>
+
+      <quote_status_dashboard>
+        - Track PEO and ACA quote status independently
+        - Status pipeline: not_started → intake → underwriting → proposal_ready → presented → won/lost
+        - Visual status cards on client detail page
+        - Progress indicators with timeline
+        - Status update workflow with notes
+        - Blocked status with reason tracking
+        - Dashboard summary view of all active quotes
+        - Filter by status, type, blocked state
+        - Time-to-completion metrics
+      </quote_status_dashboard>
+    </priority_0_critical>
+
+    <priority_1_high>
+      <internal_comments>
+        - Polymorphic comments on clients, files, and census rows
+        - Author name and team badge (PEO/ACA/Sales)
+        - Real-time comment sync
+        - Activity feed timeline
+        - File-level comment count indicators
+        - Resolve/unresolve workflow
+        - Comment search and filtering
+      </internal_comments>
+
+      <request_missing_info>
+        - Formal workflow for requesting client information
+        - Pre-populate from census validation issues
+        - Track individual request items with status
+        - Mark items as received individually
+        - Integration with quote blocked status
+        - Dashboard widget for outstanding requests
+        - Response time tracking
+        - Send reminder functionality
+        - Request history audit trail
+      </request_missing_info>
+    </priority_1_high>
+
+    <priority_2_medium>
+      <file_categorization>
+        - Enhanced file categories: census, plan_summary, claims_history, renewal_letter, proposal, contract, other
+        - Auto-detection based on filename and content
+        - Team relevance tagging (PEO, ACA, both)
+        - Required vs. supplemental document tracking
+        - Document completeness tracking per client
+        - Document Center UI with grouped categories
+        - Filter files by category and team
+        - Document requirements definitions
+        - Verification workflow (mark as verified)
+      </file_categorization>
+    </priority_2_medium>
+  </planned_features>
+
+  <core_user_roles>
+    <account_manager>
+      - Manages client relationships
+      - Needs visibility into quote status
+      - Follows up on information requests
+      - Primary point of contact with clients
+    </account_manager>
+
+    <peo_analyst>
+      - Performs PEO quoting
+      - Reviews census data for PEO requirements
+      - Needs salary, workers comp, location data
+      - Updates PEO quote status
+    </peo_analyst>
+
+    <aca_analyst>
+      - Performs ACA compliance quoting
+      - Reviews census data for ACA requirements
+      - Needs hours/week, hire date data
+      - Updates ACA quote status
+    </aca_analyst>
+  </core_user_roles>
+
+  <key_workflows>
+    <new_client_quote>
+      1. Account Manager creates client record
+      2. Client documents uploaded (drag-and-drop)
+      3. Census file auto-detected and imported
+      4. System validates census against PEO/ACA requirements
+      5. If incomplete, Account Manager requests missing info
+      6. Quote status updated to "blocked - waiting on client"
+      7. When received, mark items complete, quote unblocked
+      8. Analysts update quote status as they work
+      9. Team members add comments for context
+      10. Quote completed and presented to client
+    </new_client_quote>
+
+    <census_validation_flow>
+      1. Census file uploaded and parsed
+      2. Auto-validation runs for both PEO and ACA
+      3. Validation summary shows score and issues
+      4. Issues categorized: missing_column, missing_value, invalid_value
+      5. Census viewer highlights problematic cells
+      6. "Request Missing Info" pre-populated with issues
+      7. Client provides corrections
+      8. Re-import or manual correction
+      9. Re-validation confirms completeness
+    </census_validation_flow>
+
+    <quote_status_tracking>
+      1. Quote created (PEO and/or ACA)
+      2. Status updated as work progresses
+      3. Optional notes added with each status change
+      4. If blocked, reason specified
+      5. Dashboard shows all quotes at-a-glance
+      6. Blocked quotes visually highlighted
+      7. Status history preserved for audit
+      8. Final status: won or lost
+    </quote_status_tracking>
+
+    <team_collaboration>
+      1. Analyst discovers issue in census data
+      2. Leaves comment on specific file or client
+      3. Comment includes team badge (PEO/ACA)
+      4. Other team members see comment in real-time
+      5. Reply or resolve comment
+      6. Activity feed shows full context
+      7. New team members review history
+    </team_collaboration>
+  </key_workflows>
+
+  <technical_requirements>
+    <code_standards>
+      - Language: TypeScript (strict mode)
+      - Do NOT write explicit return types (use inference)
+      - Do NOT add unit tests unless explicitly asked
+      - Use neverthrow for error handling (Result/ResultAsync)
+      - Be extremely concise; sacrifice grammar for brevity
+      - Server Components by default; 'use client' only when needed
+      - Use Next.js Server Actions for mutations
+      - Always use Bun as package manager
+    </code_standards>
+
+    <convex_patterns>
+      - Use new function syntax: query({args, handler})
+      - Always include argument AND return validators
+      - Use internalQuery/internalMutation for private functions
+      - Query via indexes (.withIndex), not .filter()
+      - Use .unique() for single-document queries
+      - Use .order('asc'/'desc') for ordering
+      - Use .paginate() for large result sets
+      - Never use ctx.db in actions
+    </convex_patterns>
+
+    <ui_patterns>
+      - Tailwind CSS v4 with @theme in CSS
+      - CSS-first configuration (not tailwind.config.js)
+      - Shadcn UI components for consistency
+      - Semantic HTML with ARIA attributes
+      - Mobile-first responsive design
+      - Real-time updates via Convex useQuery/useMutation
+      - Optimistic updates where appropriate
+    </ui_patterns>
+
+    <performance>
+      - Use Convex indexes for all queries
+      - Paginate large datasets (census rows)
+      - Lazy load components where appropriate
+      - Optimize bundle size (no barrel files)
+      - Use next/image for images
+      - Use next/font for fonts
+    </performance>
+  </technical_requirements>
+
+  <database_schema_extensions>
+    <quotes>
+      - id, clientId, type (PEO/ACA)
+      - status (not_started, intake, underwriting, proposal_ready, presented, won, lost)
+      - assignedTo (optional, future: user ID)
+      - startedAt, completedAt
+      - notes, blockedReason
+      - Indexes: by_clientId, by_clientId_and_type, by_status
+    </quotes>
+
+    <census_validations>
+      - id, censusUploadId, validationType (PEO/ACA)
+      - validatedAt, overallScore (0-100)
+      - totalRows, validRows
+      - issues (array of {field, issueType, affectedRows, message})
+      - Index: by_censusUploadId
+    </census_validations>
+
+    <comments>
+      - id, targetType (client/file/census), targetId, clientId
+      - content, authorName, authorTeam (PEO/ACA/Sales)
+      - createdAt, updatedAt
+      - isResolved, resolvedAt, resolvedBy
+      - mentions (optional, future)
+      - Indexes: by_clientId, by_targetType_and_targetId, by_clientId_and_createdAt
+    </comments>
+
+    <info_requests>
+      - id, clientId, quoteType (PEO/ACA/optional)
+      - status (pending/received/cancelled)
+      - requestedAt, requestedBy, resolvedAt
+      - items (array of {description, category, received, receivedAt})
+      - notes, reminderSentAt
+      - Indexes: by_clientId, by_status, by_clientId_and_status
+    </info_requests>
+
+    <files_enhanced>
+      - Add: category (census/plan_summary/claims_history/renewal_letter/proposal/contract/other)
+      - Add: relevantTo (array of PEO/ACA)
+      - Add: isRequired (boolean)
+      - Add: isVerified, verifiedBy, verifiedAt (optional)
+      - Add: uploadedBy, description (optional)
+      - Add: mimeType, fileSize (optional)
+      - Add index: by_clientId_and_category
+    </files_enhanced>
+  </database_schema_extensions>
+
+  <ui_layout>
+    <home_page>
+      - Client cards grid with search
+      - Quote status summary per client
+      - Document completeness indicator
+      - Outstanding info requests widget
+      - "New Client" button
+      - Filter/sort options
+    </home_page>
+
+    <client_detail_page>
+      - Client header (name, email, notes - editable)
+      - Quote status cards (PEO and ACA side-by-side)
+      - Document Center (categorized file list)
+      - Outstanding requests panel
+      - Activity feed (comments timeline)
+      - Census viewer (if census uploaded)
+      - Census validation summary
+      - Action buttons: Upload, Request Info, Add Comment
+    </client_detail_page>
+
+    <components>
+      - QuoteStatusCard: visual status, update dropdown
+      - DocumentCenter: categorized files with filters
+      - CensusValidationSummary: score, issues list
+      - CommentThread: activity feed with composer
+      - InfoRequestPanel: pending requests with item checkboxes
+      - CensusViewer: paginated table with validation highlights
+    </components>
+  </ui_layout>
+
+  <validation_rules>
+    <peo_requirements>
+      - employee_name (required)
+      - date_of_birth (required, valid date)
+      - zip_code (required, 5-digit format)
+      - salary (required, positive number)
+      - coverage_tier (required)
+      - gender (optional but recommended)
+      - location/state (derived from zip)
+    </peo_requirements>
+
+    <aca_requirements>
+      - All PEO requirements plus:
+      - hours_per_week (required, 0-168)
+      - hire_date (required, valid date)
+      - employment_status (full-time/part-time)
+      - offered_coverage (yes/no)
+    </aca_requirements>
+
+    <validation_logic>
+      - Use aliases to match column names (e.g., "DOB", "date of birth", "birthdate")
+      - Flag missing columns (missing_column)
+      - Flag empty values in required fields (missing_value)
+      - Flag invalid formats/ranges (invalid_value)
+      - Calculate quality score: validRows / totalRows * 100
+      - Store affected row indices for highlighting
+    </validation_logic>
+  </validation_rules>
+
+  <success_metrics>
+    <efficiency>
+      - Reduce quote turnaround time by 40%
+      - Reduce "what's the status?" inquiries by 50%
+      - Reduce duplicate info requests by 90%
+      - 90% of censuses pass validation before analyst review
+    </efficiency>
+
+    <data_quality>
+      - 80% of clients have all required documents
+      - 95% of uploaded censuses validated within 1 minute
+      - Average data quality score above 85%
+    </data_quality>
+
+    <collaboration>
+      - 70% of clients have internal comments
+      - Average info request response time tracked
+      - 100% of info requests logged in system
+    </collaboration>
+  </success_metrics>
+
+  <implementation_priorities>
+    <phase_1_mvp_current>
+      - ✅ Client management (CRUD)
+      - ✅ File upload and management
+      - ✅ Census parsing and viewer
+      - ✅ Basic UI with Shadcn components
+      - ✅ Real-time sync with Convex
+    </phase_1_mvp_current>
+
+    <phase_2_validation>
+      - Census validation (PEO and ACA rules)
+      - Validation summary UI
+      - Row-level issue highlighting
+      - Quote status tracking (basic)
+    </phase_2_validation>
+
+    <phase_3_collaboration>
+      - Internal comments system
+      - Request missing info workflow
+      - Quote status dashboard
+      - Activity feed timeline
+    </phase_3_collaboration>
+
+    <phase_4_optimization>
+      - Advanced file categorization
+      - Document requirements tracking
+      - Quote analytics and reporting
+      - Performance optimizations
+    </phase_4_optimization>
+  </implementation_priorities>
+
+  <design_system>
+    <color_palette>
+      - Primary: Tailwind default (customizable via CSS variables)
+      - Status colors: Green (complete), Yellow (in progress), Red (blocked), Gray (not started)
+      - Team badges: Blue (PEO), Purple (ACA), Teal (Sales)
+      - Validation: Green (valid), Yellow (warning), Red (error)
+    </color_palette>
+
+    <typography>
+      - Sans-serif system font stack
+      - Body: 16px, comfortable line-height
+      - Headings: font-semibold
+      - Code/data: monospace font
+    </typography>
+
+    <spacing_layout>
+      - Mobile-first responsive breakpoints
+      - Card-based layouts with consistent padding
+      - Generous whitespace for readability
+      - Sticky headers where appropriate
+    </spacing_layout>
+  </design_system>
+
+  <key_differentiators>
+    - Built specifically for PEO/ACA quoting workflow
+    - Intelligent census validation with industry-specific rules
+    - Dual-track quote status (PEO and ACA independent)
+    - Team-oriented collaboration features
+    - Real-time updates for multi-user coordination
+    - Formal information request tracking with SLA impact
+    - Document categorization with requirement checklists
+    - Audit trail for all quote activities
+  </key_differentiators>
+
+  <future_enhancements>
+    - User authentication and role-based access
+    - Email/SMS notifications for requests and status changes
+    - Client portal for self-service document upload
+    - Integration with external quoting systems (PEO carriers, ACA exchanges)
+    - Advanced analytics and reporting dashboards
+    - Document templates and prompt library
+    - Automated reminder workflows
+    - Mobile app for on-the-go access
+    - Export capabilities (PDF proposals, Excel reports)
+    - OCR for PDF document analysis
+  </future_enhancements>
+
+  <commands>
+    <development>
+      - bun run dev:all - Run Next.js + Convex concurrently
+      - bun run dev - Next.js only
+      - bun run convex - Convex only
+      - bun check - TypeScript type checking
+      - bun lint - Biome linter
+      - bun format - Auto-format with Biome
+      - bun run build - Production build
+      - bun run start - Production server
+    </development>
+  </commands>
+</project_specification>
