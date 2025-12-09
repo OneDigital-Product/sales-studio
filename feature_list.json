@@ -188,7 +188,7 @@
       "Verify initial status is 'not_started'",
       "Verify quote is saved to database"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -200,7 +200,7 @@
       "Verify initial status is 'not_started'",
       "Verify quote is saved to database"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

@@ -102,6 +102,29 @@ export function QuoteStatusCard({
   const status = quote?.status ?? "not_started";
   const isBlocked = quote?.isBlocked ?? false;
 
+  // If no quote exists, show create quote card
+  if (!quote) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">{type} Quote</CardTitle>
+            <span className="rounded-full bg-gray-100 px-2.5 py-0.5 font-medium text-gray-500 text-xs">
+              Not Created
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <QuoteStatusUpdate
+            clientId={clientId}
+            currentStatus={null}
+            type={type}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className={isBlocked ? "border-red-200 bg-red-50/30" : ""}>
       <CardHeader className="pb-3">

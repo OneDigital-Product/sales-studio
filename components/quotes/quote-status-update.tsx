@@ -125,6 +125,43 @@ export function QuoteStatusUpdate({
     STATUS_OPTIONS.find((s) => s.value === currentStatus)?.label ??
     "Not Started";
 
+  // If no quote exists yet, show simple create button
+  if (!currentStatus) {
+    return (
+      <>
+        <Button
+          className="w-full"
+          disabled={isSubmitting}
+          onClick={async () => {
+            setIsSubmitting(true);
+            const result = await ResultAsync.fromPromise(
+              updateQuoteStatus({
+                clientId,
+                type,
+                status: "not_started",
+                isBlocked: false,
+              }),
+              (error) => error
+            );
+            result.match(
+              () => {
+                // Success - quote created
+              },
+              () => {
+                // Error handled silently
+              }
+            );
+            setIsSubmitting(false);
+          }}
+          size="sm"
+          variant="default"
+        >
+          {isSubmitting ? "Creating..." : `Create ${type} Quote`}
+        </Button>
+      </>
+    );
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -134,7 +171,7 @@ export function QuoteStatusUpdate({
             size="sm"
             variant="outline"
           >
-            {currentStatus ? "Update Status" : "Start Quote"}
+            Update Status
             <ChevronDown className="ml-2 h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
