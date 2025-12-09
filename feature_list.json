@@ -342,7 +342,7 @@
       "Verify issue appears in validation summary",
       "Verify affected field is 'salary'"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
