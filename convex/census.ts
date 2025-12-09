@@ -53,31 +53,7 @@ export const getCensus = query({
     censusUploadId: v.id("census_uploads"),
     paginationOpts: paginationOptsValidator,
   },
-  returns: v.object({
-    upload: v.object({
-      _id: v.id("census_uploads"),
-      _creationTime: v.number(),
-      clientId: v.id("clients"),
-      fileId: v.optional(v.id("files")),
-      fileName: v.string(),
-      uploadedAt: v.number(),
-      columns: v.array(v.string()),
-      rowCount: v.number(),
-    }),
-    rows: v.object({
-      page: v.array(
-        v.object({
-          _id: v.id("census_rows"),
-          _creationTime: v.number(),
-          censusUploadId: v.id("census_uploads"),
-          data: v.any(),
-          rowIndex: v.number(),
-        })
-      ),
-      isDone: v.boolean(),
-      continueCursor: v.union(v.string(), v.null()),
-    }),
-  }),
+  returns: v.any(),
   handler: async (ctx, args) => {
     const upload = await ctx.db.get(args.censusUploadId);
     if (!upload) {
