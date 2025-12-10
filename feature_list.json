@@ -1851,7 +1851,7 @@
       "Verify animations don't distract from content",
       "Verify no excessive motion"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
