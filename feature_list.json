@@ -1982,7 +1982,7 @@
       "Verify pending items stand out from completed",
       "Verify panel doesn't overwhelm the page"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
