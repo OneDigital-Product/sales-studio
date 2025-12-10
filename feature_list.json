@@ -1503,7 +1503,7 @@
       "Apply changes",
       "Verify all selected quotes are updated"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

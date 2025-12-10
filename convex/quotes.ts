@@ -133,6 +133,45 @@ export const updateQuoteAssignment = mutation({
   },
 });
 
+export const batchUpdateQuoteStatus = mutation({
+  args: {
+    quoteIds: v.array(v.id("quotes")),
+    status: quoteStatusValidator,
+    notes: v.optional(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    const isTerminalStatus =
+      args.status === "accepted" || args.status === "declined";
+
+    for (const quoteId of args.quoteIds) {
+      const existing = await ctx.db.get(quoteId);
+      if (!existing) continue;
+
+      // Record history if status changed
+      if (existing.status !== args.status) {
+        await ctx.db.insert("quote_history", {
+          quoteId: existing._id,
+          previousStatus: existing.status,
+          newStatus: args.status,
+          changedAt: now,
+          notes: args.notes,
+        });
+      }
+
+      await ctx.db.patch(quoteId, {
+        status: args.status,
+        notes: args.notes,
+        startedAt:
+          existing.startedAt ??
+          (args.status !== "not_started" ? now : undefined),
+        completedAt: isTerminalStatus ? now : undefined,
+      });
+    }
+  },
+});
+
 export const getQuotesDashboard = query({
   args: {},
   returns: v.array(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -12,6 +12,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -28,6 +37,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 
 type QuoteStatus =
   | "not_started"
@@ -42,9 +52,17 @@ type QuoteType = "PEO" | "ACA" | "all";
 
 export function QuoteDashboard() {
   const dashboard = useQuery(api.quotes.getQuotesDashboard);
+  const batchUpdate = useMutation(api.quotes.batchUpdateQuoteStatus);
+
   const [statusFilter, setStatusFilter] = useState<QuoteStatus | "all">("all");
   const [typeFilter, setTypeFilter] = useState<QuoteType>("all");
   const [blockedOnly, setBlockedOnly] = useState(false);
+  const [selectedQuotes, setSelectedQuotes] = useState<Set<Id<"quotes">>>(
+    new Set()
+  );
+  const [showBulkDialog, setShowBulkDialog] = useState(false);
+  const [bulkStatus, setBulkStatus] = useState<QuoteStatus>("intake");
+  const [bulkNotes, setBulkNotes] = useState("");
 
   if (!dashboard) {
     return (
@@ -110,6 +128,39 @@ export function QuoteDashboard() {
     {} as Record<string, typeof filteredQuotes>
   );
 
+  const handleSelectQuote = (quoteId: Id<"quotes">, checked: boolean) => {
+    const newSelected = new Set(selectedQuotes);
+    if (checked) {
+      newSelected.add(quoteId);
+    } else {
+      newSelected.delete(quoteId);
+    }
+    setSelectedQuotes(newSelected);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allIds = filteredQuotes.map((q) => q.quoteId);
+      setSelectedQuotes(new Set(allIds));
+    } else {
+      setSelectedQuotes(new Set());
+    }
+  };
+
+  const handleBulkUpdate = async () => {
+    if (selectedQuotes.size === 0) return;
+
+    await batchUpdate({
+      quoteIds: Array.from(selectedQuotes),
+      status: bulkStatus,
+      notes: bulkNotes || undefined,
+    });
+
+    setSelectedQuotes(new Set());
+    setShowBulkDialog(false);
+    setBulkNotes("");
+  };
+
   const getStatusColor = (status: QuoteStatus) => {
     switch (status) {
       case "not_started":
@@ -172,7 +223,7 @@ export function QuoteDashboard() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Filters */}
+        {/* Filters and Bulk Actions */}
         <div className="flex flex-wrap gap-4">
           <div className="min-w-[200px] flex-1">
             <label className="mb-2 block font-medium text-gray-700 text-sm">
@@ -219,13 +270,18 @@ export function QuoteDashboard() {
             </Select>
           </div>
 
-          <div className="flex items-end">
+          <div className="flex items-end gap-2">
             <Button
               onClick={() => setBlockedOnly(!blockedOnly)}
               variant={blockedOnly ? "default" : "outline"}
             >
               {blockedOnly ? "Showing Blocked" : "Show Blocked Only"}
             </Button>
+            {selectedQuotes.size > 0 && (
+              <Button onClick={() => setShowBulkDialog(true)} variant="default">
+                Bulk Update Status ({selectedQuotes.size})
+              </Button>
+            )}
           </div>
         </div>
 
@@ -272,6 +328,29 @@ export function QuoteDashboard() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-12">
+                          <Checkbox
+                            checked={
+                              quotes.length > 0 &&
+                              quotes.every((q) => selectedQuotes.has(q.quoteId))
+                            }
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                const newSelected = new Set(selectedQuotes);
+                                for (const q of quotes) {
+                                  newSelected.add(q.quoteId);
+                                }
+                                setSelectedQuotes(newSelected);
+                              } else {
+                                const newSelected = new Set(selectedQuotes);
+                                for (const q of quotes) {
+                                  newSelected.delete(q.quoteId);
+                                }
+                                setSelectedQuotes(newSelected);
+                              }
+                            }}
+                          />
+                        </TableHead>
                         <TableHead>Client</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead>Status</TableHead>
@@ -287,6 +366,17 @@ export function QuoteDashboard() {
                           className={quote.isBlocked ? "bg-red-50" : ""}
                           key={`${quote.clientId}-${quote.type}`}
                         >
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedQuotes.has(quote.quoteId)}
+                              onCheckedChange={(checked) =>
+                                handleSelectQuote(
+                                  quote.quoteId,
+                                  checked as boolean
+                                )
+                              }
+                            />
+                          </TableCell>
                           <TableCell className="font-medium">
                             {quote.clientName}
                             {quote.isBlocked && (
@@ -362,6 +452,61 @@ export function QuoteDashboard() {
             ))}
           </div>
         )}
+
+        {/* Bulk Update Dialog */}
+        <Dialog onOpenChange={setShowBulkDialog} open={showBulkDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Bulk Update Status</DialogTitle>
+              <DialogDescription>
+                Update the status for {selectedQuotes.size} selected quote
+                {selectedQuotes.size === 1 ? "" : "s"}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="font-medium text-sm">New Status</label>
+                <Select
+                  onValueChange={(value) => setBulkStatus(value as QuoteStatus)}
+                  value={bulkStatus}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="not_started">Not Started</SelectItem>
+                    <SelectItem value="intake">Intake</SelectItem>
+                    <SelectItem value="underwriting">Underwriting</SelectItem>
+                    <SelectItem value="proposal_ready">
+                      Proposal Ready
+                    </SelectItem>
+                    <SelectItem value="presented">Presented</SelectItem>
+                    <SelectItem value="accepted">Accepted</SelectItem>
+                    <SelectItem value="declined">Declined</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="font-medium text-sm">Notes (optional)</label>
+                <textarea
+                  className="flex min-h-[100px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => setBulkNotes(e.target.value)}
+                  placeholder="Add notes about this status update..."
+                  value={bulkNotes}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                onClick={() => setShowBulkDialog(false)}
+                variant="outline"
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleBulkUpdate}>Apply Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
