@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
-import { AlertCircle, CheckCircle2, Clock, X } from "lucide-react";
+import { AlertCircle, Bell, CheckCircle2, Clock, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,6 +55,7 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
     api.info_requests.markItemNotReceived
   );
   const cancelRequest = useMutation(api.info_requests.cancelInfoRequest);
+  const sendReminder = useMutation(api.info_requests.sendReminder);
 
   if (!requests) {
     return (
@@ -88,6 +89,10 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
     if (confirm("Are you sure you want to cancel this request?")) {
       await cancelRequest({ requestId });
     }
+  };
+
+  const handleSendReminder = async (requestId: Id<"info_requests">) => {
+    await sendReminder({ requestId });
   };
 
   return (
@@ -161,20 +166,39 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
                         Requested {formatRelativeTime(request.requestedAt)}
                         {request.requestedBy && ` by ${request.requestedBy}`}
                       </div>
+                      {request.reminderSentAt && (
+                        <div className="mt-1 flex items-center gap-1 text-blue-600 text-xs">
+                          <Bell className="h-3 w-3" />
+                          <span>
+                            Reminder sent{" "}
+                            {formatRelativeTime(request.reminderSentAt)}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="font-medium text-sm">
                         {receivedCount}/{totalCount} items
                       </div>
                       {request.status === "pending" && (
-                        <Button
-                          onClick={() => handleCancelRequest(request._id)}
-                          size="icon-sm"
-                          title="Cancel request"
-                          variant="ghost"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        <>
+                          <Button
+                            onClick={() => handleSendReminder(request._id)}
+                            size="icon-sm"
+                            title="Send reminder"
+                            variant="ghost"
+                          >
+                            <Bell className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => handleCancelRequest(request._id)}
+                            size="icon-sm"
+                            title="Cancel request"
+                            variant="ghost"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </>
                       )}
                     </div>
                   </div>

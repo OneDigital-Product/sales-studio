@@ -360,3 +360,22 @@ export const addItemsToRequest = mutation({
   },
   returns: v.null(),
 });
+
+export const sendReminder = mutation({
+  args: {
+    requestId: v.id("info_requests"),
+  },
+  handler: async (ctx, args) => {
+    const request = await ctx.db.get(args.requestId);
+    if (!request) {
+      throw new Error("Request not found");
+    }
+
+    await ctx.db.patch(args.requestId, {
+      reminderSentAt: Date.now(),
+    });
+
+    return null;
+  },
+  returns: v.null(),
+});

@@ -729,7 +729,7 @@
       "Verify reminderSentAt timestamp is updated",
       "Verify reminder indicator is displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
