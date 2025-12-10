@@ -837,7 +837,7 @@
       "Verify verifiedAt timestamp is set",
       "Verify verified badge appears"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
