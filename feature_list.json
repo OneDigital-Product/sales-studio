@@ -979,7 +979,7 @@
       "Verify non-matching clients are hidden",
       "Verify search is case-insensitive"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -990,7 +990,7 @@
       "Verify client with matching email is displayed",
       "Verify search works on partial email"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

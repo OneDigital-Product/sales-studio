@@ -45,6 +45,7 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [activeTab, setActiveTab] = useState("clients");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +55,15 @@ export default function Home() {
     setNotes("");
     setIsModalOpen(false);
   };
+
+  // Filter clients by search query (name or email)
+  const filteredClients = clients?.filter((client) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    const nameMatch = client.name.toLowerCase().includes(query);
+    const emailMatch = client.contactEmail?.toLowerCase().includes(query);
+    return nameMatch || emailMatch;
+  });
 
   return (
     <main className="min-h-screen bg-gray-50 p-8">
@@ -129,10 +139,22 @@ export default function Home() {
           <TabsContent value="clients">
             <Card>
               <CardHeader>
-                <CardTitle>Current Clients</CardTitle>
-                <CardDescription>
-                  A list of all your active clients.
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Current Clients</CardTitle>
+                    <CardDescription>
+                      A list of all your active clients.
+                    </CardDescription>
+                  </div>
+                  <div className="w-64">
+                    <Input
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search by name or email..."
+                      type="search"
+                      value={searchQuery}
+                    />
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -144,7 +166,7 @@ export default function Home() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {clients?.map((client) => (
+                    {filteredClients?.map((client) => (
                       <TableRow key={client._id}>
                         <TableCell className="font-medium">
                           {client.name}
@@ -159,13 +181,15 @@ export default function Home() {
                         </TableCell>
                       </TableRow>
                     ))}
-                    {clients?.length === 0 && (
+                    {filteredClients?.length === 0 && (
                       <TableRow>
                         <TableCell
                           className="h-24 text-center text-gray-500"
                           colSpan={3}
                         >
-                          No clients found. Add one to get started.
+                          {searchQuery
+                            ? "No clients match your search."
+                            : "No clients found. Add one to get started."}
                         </TableCell>
                       </TableRow>
                     )}
