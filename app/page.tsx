@@ -3,6 +3,7 @@
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { useState } from "react";
+import { OutstandingRequestsWidget } from "@/components/info-requests/outstanding-requests-widget";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -113,6 +114,8 @@ export default function Home() {
             </DialogContent>
           </Dialog>
         </div>
+
+        <OutstandingRequestsWidget />
 
         <Card>
           <CardHeader>

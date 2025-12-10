@@ -379,3 +379,56 @@ export const sendReminder = mutation({
   },
   returns: v.null(),
 });
+
+export const getAllPendingRequests = query({
+  args: {},
+  handler: async (ctx) => {
+    const requests = await ctx.db
+      .query("info_requests")
+      .withIndex("by_status", (q) => q.eq("status", "pending"))
+      .order("asc") // Oldest first (sorted by age)
+      .collect();
+
+    // Fetch client information for each request
+    const requestsWithClients = await Promise.all(
+      requests.map(async (request) => {
+        const client = await ctx.db.get(request.clientId);
+        return {
+          ...request,
+          clientName: client?.name ?? "Unknown Client",
+        };
+      })
+    );
+
+    return requestsWithClients;
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id("info_requests"),
+      _creationTime: v.number(),
+      clientId: v.id("clients"),
+      clientName: v.string(),
+      quoteType: v.optional(
+        v.union(v.literal("PEO"), v.literal("ACA"), v.literal("both"))
+      ),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("received"),
+        v.literal("cancelled")
+      ),
+      requestedAt: v.number(),
+      requestedBy: v.optional(v.string()),
+      resolvedAt: v.optional(v.number()),
+      items: v.array(
+        v.object({
+          description: v.string(),
+          category: v.optional(v.string()),
+          received: v.boolean(),
+          receivedAt: v.optional(v.number()),
+        })
+      ),
+      notes: v.optional(v.string()),
+      reminderSentAt: v.optional(v.number()),
+    })
+  ),
+});

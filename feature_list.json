@@ -753,7 +753,7 @@
       "Verify grouped by client",
       "Verify sorted by age (oldest first)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
