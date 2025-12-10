@@ -1037,7 +1037,7 @@
       "Verify visual progress bar is displayed",
       "Verify indicator updates when documents are added"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
