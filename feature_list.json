@@ -1321,7 +1321,7 @@
       "Verify tooltip shows error message",
       "Verify tooltip shows expected format"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

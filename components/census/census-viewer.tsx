@@ -38,6 +38,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
@@ -584,459 +590,483 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
   );
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>{upload.fileName}</span>
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button disabled={isExporting} size="sm" variant="outline">
-                  <Download className="mr-1 h-4 w-4" />
-                  {isExporting ? "Exporting..." : "Export Census"}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleExportCSV}>
-                  Export as CSV
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleExportExcel}>
-                  Export as Excel
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            {hasValidation && (
+    <TooltipProvider>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>{upload.fileName}</span>
+            <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button size="sm" variant="outline">
-                    <Filter className="mr-1 h-4 w-4" />
-                    {filterMode === "all" && "All Rows"}
-                    {filterMode === "valid" && "Valid Only"}
-                    {filterMode === "issues" && "Issues Only"}
+                  <Button disabled={isExporting} size="sm" variant="outline">
+                    <Download className="mr-1 h-4 w-4" />
+                    {isExporting ? "Exporting..." : "Export Census"}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setFilterMode("all")}>
-                    All Rows ({rows.page.length})
+                  <DropdownMenuItem onClick={handleExportCSV}>
+                    Export as CSV
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilterMode("valid")}>
-                    Valid Only ({validRows.size})
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilterMode("issues")}>
-                    Issues Only ({rowsWithIssues.size})
+                  <DropdownMenuItem onClick={handleExportExcel}>
+                    Export as Excel
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            )}
-            <span className="font-normal text-muted-foreground text-sm">
-              {upload.rowCount} rows
-            </span>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Validation Summary */}
-        {isValidating ? (
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Validating...
-          </div>
-        ) : hasValidation ? (
-          <div className="space-y-6">
-            {/* Issues */}
-            {hasIssues && (
-              <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
-                {/* Issue items */}
-                {[...missingColumns, ...missingValues, ...invalidValues].map(
-                  (issue) => renderIssueItem(issue)
-                )}
+              {hasValidation && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="outline">
+                      <Filter className="mr-1 h-4 w-4" />
+                      {filterMode === "all" && "All Rows"}
+                      {filterMode === "valid" && "Valid Only"}
+                      {filterMode === "issues" && "Issues Only"}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setFilterMode("all")}>
+                      All Rows ({rows.page.length})
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setFilterMode("valid")}>
+                      Valid Only ({validRows.size})
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setFilterMode("issues")}>
+                      Issues Only ({rowsWithIssues.size})
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              <span className="font-normal text-muted-foreground text-sm">
+                {upload.rowCount} rows
+              </span>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Validation Summary */}
+          {isValidating ? (
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Validating...
+            </div>
+          ) : hasValidation ? (
+            <div className="space-y-6">
+              {/* Issues */}
+              {hasIssues && (
+                <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
+                  {/* Issue items */}
+                  {[...missingColumns, ...missingValues, ...invalidValues].map(
+                    (issue) => renderIssueItem(issue)
+                  )}
 
-                {/* Readiness Stats */}
-                <div className="flex items-center justify-between border-t pt-3">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">PEO Ready</span>
-                    <span className="text-muted-foreground text-sm">
-                      {validation.peoValidRows} of {validation.totalRows} rows
-                      valid
-                    </span>
-                  </div>
-                  <span
-                    className={`font-medium ${getScoreColor(validation.peoScore)}`}
-                  >
-                    {validation.peoScore}%
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">ACA Ready</span>
-                    <span className="text-muted-foreground text-sm">
-                      {validation.acaValidRows} of {validation.totalRows} rows
-                      valid
-                    </span>
-                  </div>
-                  <span
-                    className={`font-medium ${getScoreColor(validation.acaScore)}`}
-                  >
-                    {validation.acaScore}%
-                  </span>
-                </div>
-
-                {/* Request Missing Info */}
-                <div className="border-t pt-3">
-                  <Button
-                    asChild
-                    className="w-full"
-                    size="sm"
-                    variant="outline"
-                  >
-                    <a href={buildMailtoLink(issues)}>
-                      <Mail className="mr-2 h-4 w-4" />
-                      Request Missing Info
-                    </a>
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : null}
-
-        {/* Data Table */}
-        <div className="max-h-[600px] overflow-auto rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {hasValidation && (
-                  <TableHead className="w-[40px]" title="Row Status" />
-                )}
-                <TableHead className="w-[50px]">#</TableHead>
-                {upload.columns.map((col) => {
-                  const field = findFieldForColumn(col);
-                  const isMissingColumn = field && columnIssues.has(field);
-                  const isSelected = selectedColumn === col;
-                  return (
-                    <TableHead
-                      className={cn(
-                        "whitespace-nowrap",
-                        isMissingColumn && "bg-red-50 text-red-900"
-                      )}
-                      key={col}
+                  {/* Readiness Stats */}
+                  <div className="flex items-center justify-between border-t pt-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">PEO Ready</span>
+                      <span className="text-muted-foreground text-sm">
+                        {validation.peoValidRows} of {validation.totalRows} rows
+                        valid
+                      </span>
+                    </div>
+                    <span
+                      className={`font-medium ${getScoreColor(validation.peoScore)}`}
                     >
-                      <div className="flex items-center gap-1">
-                        <button
-                          className="flex items-center gap-1 hover:text-primary"
-                          onClick={() => handleSort(col)}
-                          title="Click to sort"
-                          type="button"
-                        >
-                          <span>{col}</span>
-                          {sortColumn === col && (
-                            <>
-                              {sortDirection === "asc" ? (
-                                <ArrowUp className="h-3 w-3" />
-                              ) : (
-                                <ArrowDown className="h-3 w-3" />
-                              )}
-                            </>
-                          )}
-                        </button>
-                        <Popover
-                          onOpenChange={(open) => {
-                            if (open) {
-                              setFilterColumn(col);
-                              setFilterInput(columnFilters.get(col) ?? "");
-                            } else {
-                              setFilterColumn(null);
-                            }
-                          }}
-                          open={filterColumn === col}
-                        >
-                          <PopoverTrigger asChild>
-                            <button
-                              className={cn(
-                                "hover:text-primary",
-                                columnFilters.has(col) && columnFilters.get(col)
-                                  ? "text-primary"
-                                  : "opacity-50"
-                              )}
-                              title="Filter by column value"
-                              type="button"
-                            >
-                              <Filter className="h-3 w-3" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent align="start" className="w-80">
-                            <div className="space-y-3">
-                              <div>
-                                <h4 className="font-semibold">Filter: {col}</h4>
-                                <p className="text-muted-foreground text-sm">
-                                  Enter value to filter rows
-                                </p>
-                              </div>
-                              <div className="space-y-2">
-                                <Input
-                                  onChange={(e) =>
-                                    setFilterInput(e.target.value)
-                                  }
-                                  placeholder="Enter filter value..."
-                                  value={filterInput}
-                                />
-                                <div className="flex gap-2">
-                                  <Button
-                                    className="flex-1"
-                                    onClick={() => {
-                                      const newFilters = new Map(columnFilters);
-                                      if (filterInput.trim()) {
-                                        newFilters.set(col, filterInput.trim());
-                                      } else {
-                                        newFilters.delete(col);
-                                      }
-                                      setColumnFilters(newFilters);
-                                      setFilterColumn(null);
-                                    }}
-                                    size="sm"
-                                  >
-                                    Apply Filter
-                                  </Button>
-                                  {columnFilters.has(col) && (
+                      {validation.peoScore}%
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">ACA Ready</span>
+                      <span className="text-muted-foreground text-sm">
+                        {validation.acaValidRows} of {validation.totalRows} rows
+                        valid
+                      </span>
+                    </div>
+                    <span
+                      className={`font-medium ${getScoreColor(validation.acaScore)}`}
+                    >
+                      {validation.acaScore}%
+                    </span>
+                  </div>
+
+                  {/* Request Missing Info */}
+                  <div className="border-t pt-3">
+                    <Button
+                      asChild
+                      className="w-full"
+                      size="sm"
+                      variant="outline"
+                    >
+                      <a href={buildMailtoLink(issues)}>
+                        <Mail className="mr-2 h-4 w-4" />
+                        Request Missing Info
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : null}
+
+          {/* Data Table */}
+          <div className="max-h-[600px] overflow-auto rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {hasValidation && (
+                    <TableHead className="w-[40px]" title="Row Status" />
+                  )}
+                  <TableHead className="w-[50px]">#</TableHead>
+                  {upload.columns.map((col) => {
+                    const field = findFieldForColumn(col);
+                    const isMissingColumn = field && columnIssues.has(field);
+                    const isSelected = selectedColumn === col;
+                    return (
+                      <TableHead
+                        className={cn(
+                          "whitespace-nowrap",
+                          isMissingColumn && "bg-red-50 text-red-900"
+                        )}
+                        key={col}
+                      >
+                        <div className="flex items-center gap-1">
+                          <button
+                            className="flex items-center gap-1 hover:text-primary"
+                            onClick={() => handleSort(col)}
+                            title="Click to sort"
+                            type="button"
+                          >
+                            <span>{col}</span>
+                            {sortColumn === col && (
+                              <>
+                                {sortDirection === "asc" ? (
+                                  <ArrowUp className="h-3 w-3" />
+                                ) : (
+                                  <ArrowDown className="h-3 w-3" />
+                                )}
+                              </>
+                            )}
+                          </button>
+                          <Popover
+                            onOpenChange={(open) => {
+                              if (open) {
+                                setFilterColumn(col);
+                                setFilterInput(columnFilters.get(col) ?? "");
+                              } else {
+                                setFilterColumn(null);
+                              }
+                            }}
+                            open={filterColumn === col}
+                          >
+                            <PopoverTrigger asChild>
+                              <button
+                                className={cn(
+                                  "hover:text-primary",
+                                  columnFilters.has(col) &&
+                                    columnFilters.get(col)
+                                    ? "text-primary"
+                                    : "opacity-50"
+                                )}
+                                title="Filter by column value"
+                                type="button"
+                              >
+                                <Filter className="h-3 w-3" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent align="start" className="w-80">
+                              <div className="space-y-3">
+                                <div>
+                                  <h4 className="font-semibold">
+                                    Filter: {col}
+                                  </h4>
+                                  <p className="text-muted-foreground text-sm">
+                                    Enter value to filter rows
+                                  </p>
+                                </div>
+                                <div className="space-y-2">
+                                  <Input
+                                    onChange={(e) =>
+                                      setFilterInput(e.target.value)
+                                    }
+                                    placeholder="Enter filter value..."
+                                    value={filterInput}
+                                  />
+                                  <div className="flex gap-2">
                                     <Button
+                                      className="flex-1"
                                       onClick={() => {
                                         const newFilters = new Map(
                                           columnFilters
                                         );
-                                        newFilters.delete(col);
+                                        if (filterInput.trim()) {
+                                          newFilters.set(
+                                            col,
+                                            filterInput.trim()
+                                          );
+                                        } else {
+                                          newFilters.delete(col);
+                                        }
                                         setColumnFilters(newFilters);
-                                        setFilterInput("");
+                                        setFilterColumn(null);
                                       }}
                                       size="sm"
-                                      variant="outline"
                                     >
-                                      Clear
+                                      Apply Filter
                                     </Button>
-                                  )}
+                                    {columnFilters.has(col) && (
+                                      <Button
+                                        onClick={() => {
+                                          const newFilters = new Map(
+                                            columnFilters
+                                          );
+                                          newFilters.delete(col);
+                                          setColumnFilters(newFilters);
+                                          setFilterInput("");
+                                        }}
+                                        size="sm"
+                                        variant="outline"
+                                      >
+                                        Clear
+                                      </Button>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                        <Popover
-                          onOpenChange={(open) => {
-                            if (open) {
-                              setSelectedColumn(col);
-                            } else if (isSelected) {
-                              setSelectedColumn(null);
-                            }
-                          }}
-                          open={isSelected}
-                        >
-                          <PopoverTrigger asChild>
-                            <button
-                              className="hover:text-primary"
-                              title="View column statistics"
-                              type="button"
-                            >
-                              <BarChart3 className="h-3 w-3 opacity-50" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent align="start" className="w-80">
-                            <div className="space-y-3">
-                              <div>
-                                <h4 className="font-semibold">{col}</h4>
-                                <p className="text-muted-foreground text-sm">
-                                  Column Statistics
-                                </p>
-                              </div>
-                              {columnStats && (
-                                <div className="space-y-2 text-sm">
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">
-                                      Total Rows
-                                    </span>
-                                    <span className="font-medium">
-                                      {columnStats.totalCount}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">
-                                      Non-Empty
-                                    </span>
-                                    <span className="font-medium">
-                                      {columnStats.nonEmptyCount}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">
-                                      Empty
-                                    </span>
-                                    <span className="font-medium">
-                                      {columnStats.emptyCount}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">
-                                      Unique Values
-                                    </span>
-                                    <span className="font-medium">
-                                      {columnStats.uniqueCount}
-                                    </span>
-                                  </div>
-                                  {columnStats.isNumeric && (
-                                    <>
-                                      <div className="border-t pt-2">
-                                        <p className="mb-2 font-medium">
-                                          Numeric Statistics
-                                        </p>
-                                      </div>
-                                      <div className="flex justify-between">
-                                        <span className="text-muted-foreground">
-                                          Minimum
-                                        </span>
-                                        <span className="font-medium">
-                                          {columnStats.min?.toLocaleString()}
-                                        </span>
-                                      </div>
-                                      <div className="flex justify-between">
-                                        <span className="text-muted-foreground">
-                                          Maximum
-                                        </span>
-                                        <span className="font-medium">
-                                          {columnStats.max?.toLocaleString()}
-                                        </span>
-                                      </div>
-                                      <div className="flex justify-between">
-                                        <span className="text-muted-foreground">
-                                          Average
-                                        </span>
-                                        <span className="font-medium">
-                                          {columnStats.avg?.toLocaleString(
-                                            undefined,
-                                            {
-                                              minimumFractionDigits: 0,
-                                              maximumFractionDigits: 2,
-                                            }
-                                          )}
-                                        </span>
-                                      </div>
-                                      <div className="flex justify-between">
-                                        <span className="text-muted-foreground">
-                                          Sum
-                                        </span>
-                                        <span className="font-medium">
-                                          {columnStats.sum?.toLocaleString()}
-                                        </span>
-                                      </div>
-                                    </>
-                                  )}
+                            </PopoverContent>
+                          </Popover>
+                          <Popover
+                            onOpenChange={(open) => {
+                              if (open) {
+                                setSelectedColumn(col);
+                              } else if (isSelected) {
+                                setSelectedColumn(null);
+                              }
+                            }}
+                            open={isSelected}
+                          >
+                            <PopoverTrigger asChild>
+                              <button
+                                className="hover:text-primary"
+                                title="View column statistics"
+                                type="button"
+                              >
+                                <BarChart3 className="h-3 w-3 opacity-50" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent align="start" className="w-80">
+                              <div className="space-y-3">
+                                <div>
+                                  <h4 className="font-semibold">{col}</h4>
+                                  <p className="text-muted-foreground text-sm">
+                                    Column Statistics
+                                  </p>
                                 </div>
-                              )}
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredRows.map((row) => {
-                const hasRowIssues = rowsWithIssues.has(row.rowIndex);
-                return (
-                  <TableRow key={row._id}>
-                    {hasValidation && (
-                      <TableCell className="text-center">
-                        {hasRowIssues ? (
-                          <span title="This row has validation issues">
-                            <AlertCircle className="mx-auto h-4 w-4 text-yellow-500" />
-                          </span>
-                        ) : (
-                          <span title="Valid row">
-                            <CheckCircle2 className="mx-auto h-4 w-4 text-green-500" />
-                          </span>
-                        )}
-                      </TableCell>
-                    )}
-                    <TableCell className="text-muted-foreground text-xs">
-                      {row.rowIndex + 1}
-                    </TableCell>
-                    {upload.columns.map((col) => {
-                      const rowData = row as Record<string, unknown>;
-                      const cellData = (
-                        rowData.data as Record<string, unknown>
-                      )?.[col];
-
-                      let displayValue = "";
-                      if (
-                        cellData !== undefined &&
-                        cellData !== null &&
-                        cellData !== ""
-                      ) {
-                        if (
-                          typeof cellData === "string" &&
-                          DATE_STRING_REGEX.test(cellData)
-                        ) {
-                          const date = new Date(cellData);
-                          displayValue = date.toLocaleDateString();
-                        } else {
-                          displayValue = String(cellData);
-                        }
-                      }
-
-                      const cellClassName = hasValidation
-                        ? getCellClassName(col, row.rowIndex)
-                        : "";
-                      const cellTitle = hasValidation
-                        ? getCellTitle(col, row.rowIndex)
-                        : undefined;
-
-                      return (
-                        <TableCell
-                          className={cn("whitespace-nowrap", cellClassName)}
-                          key={`${row._id}-${col}`}
-                          title={cellTitle}
-                        >
-                          {displayValue || (
-                            <span className="text-muted-foreground italic">
-                              empty
+                                {columnStats && (
+                                  <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">
+                                        Total Rows
+                                      </span>
+                                      <span className="font-medium">
+                                        {columnStats.totalCount}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">
+                                        Non-Empty
+                                      </span>
+                                      <span className="font-medium">
+                                        {columnStats.nonEmptyCount}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">
+                                        Empty
+                                      </span>
+                                      <span className="font-medium">
+                                        {columnStats.emptyCount}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">
+                                        Unique Values
+                                      </span>
+                                      <span className="font-medium">
+                                        {columnStats.uniqueCount}
+                                      </span>
+                                    </div>
+                                    {columnStats.isNumeric && (
+                                      <>
+                                        <div className="border-t pt-2">
+                                          <p className="mb-2 font-medium">
+                                            Numeric Statistics
+                                          </p>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-muted-foreground">
+                                            Minimum
+                                          </span>
+                                          <span className="font-medium">
+                                            {columnStats.min?.toLocaleString()}
+                                          </span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-muted-foreground">
+                                            Maximum
+                                          </span>
+                                          <span className="font-medium">
+                                            {columnStats.max?.toLocaleString()}
+                                          </span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-muted-foreground">
+                                            Average
+                                          </span>
+                                          <span className="font-medium">
+                                            {columnStats.avg?.toLocaleString(
+                                              undefined,
+                                              {
+                                                minimumFractionDigits: 0,
+                                                maximumFractionDigits: 2,
+                                              }
+                                            )}
+                                          </span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-muted-foreground">
+                                            Sum
+                                          </span>
+                                          <span className="font-medium">
+                                            {columnStats.sum?.toLocaleString()}
+                                          </span>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredRows.map((row) => {
+                  const hasRowIssues = rowsWithIssues.has(row.rowIndex);
+                  return (
+                    <TableRow key={row._id}>
+                      {hasValidation && (
+                        <TableCell className="text-center">
+                          {hasRowIssues ? (
+                            <span title="This row has validation issues">
+                              <AlertCircle className="mx-auto h-4 w-4 text-yellow-500" />
+                            </span>
+                          ) : (
+                            <span title="Valid row">
+                              <CheckCircle2 className="mx-auto h-4 w-4 text-green-500" />
                             </span>
                           )}
                         </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-        <div className="flex items-center justify-between text-muted-foreground text-sm">
-          <div className="flex items-center gap-2">
-            <span>
-              Showing {filteredRows.length} of {rows.page.length} rows
-              {filterMode !== "all" && ` (filtered: ${filterMode})`}
-            </span>
-            {columnFilters.size > 0 && (
-              <div className="flex items-center gap-1">
-                <Filter className="h-3 w-3" />
-                <span>
-                  {columnFilters.size} column filter
-                  {columnFilters.size !== 1 ? "s" : ""} active
-                </span>
-                <Button
-                  className="h-6 px-2"
-                  onClick={() => {
-                    setColumnFilters(new Map());
-                  }}
-                  size="sm"
-                  variant="ghost"
-                >
-                  <FilterX className="h-3 w-3" />
-                  Clear all
-                </Button>
-              </div>
-            )}
+                      )}
+                      <TableCell className="text-muted-foreground text-xs">
+                        {row.rowIndex + 1}
+                      </TableCell>
+                      {upload.columns.map((col) => {
+                        const rowData = row as Record<string, unknown>;
+                        const cellData = (
+                          rowData.data as Record<string, unknown>
+                        )?.[col];
+
+                        let displayValue = "";
+                        if (
+                          cellData !== undefined &&
+                          cellData !== null &&
+                          cellData !== ""
+                        ) {
+                          if (
+                            typeof cellData === "string" &&
+                            DATE_STRING_REGEX.test(cellData)
+                          ) {
+                            const date = new Date(cellData);
+                            displayValue = date.toLocaleDateString();
+                          } else {
+                            displayValue = String(cellData);
+                          }
+                        }
+
+                        const cellClassName = hasValidation
+                          ? getCellClassName(col, row.rowIndex)
+                          : "";
+                        const cellTitle = hasValidation
+                          ? getCellTitle(col, row.rowIndex)
+                          : undefined;
+
+                        const cellContent = displayValue || (
+                          <span className="text-muted-foreground italic">
+                            empty
+                          </span>
+                        );
+
+                        return (
+                          <TableCell
+                            className={cn("whitespace-nowrap", cellClassName)}
+                            key={`${row._id}-${col}`}
+                          >
+                            {cellTitle ? (
+                              <Tooltip delayDuration={200}>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help">
+                                    {cellContent}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="max-w-xs">{cellTitle}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              cellContent
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+          <div className="flex items-center justify-between text-muted-foreground text-sm">
+            <div className="flex items-center gap-2">
+              <span>
+                Showing {filteredRows.length} of {rows.page.length} rows
+                {filterMode !== "all" && ` (filtered: ${filterMode})`}
+              </span>
+              {columnFilters.size > 0 && (
+                <div className="flex items-center gap-1">
+                  <Filter className="h-3 w-3" />
+                  <span>
+                    {columnFilters.size} column filter
+                    {columnFilters.size !== 1 ? "s" : ""} active
+                  </span>
+                  <Button
+                    className="h-6 px-2"
+                    onClick={() => {
+                      setColumnFilters(new Map());
+                    }}
+                    size="sm"
+                    variant="ghost"
+                  >
+                    <FilterX className="h-3 w-3" />
+                    Clear all
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </TooltipProvider>
   );
 }
