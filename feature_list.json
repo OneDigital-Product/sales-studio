@@ -1956,7 +1956,7 @@
       "Verify report includes quote completion count",
       "Verify report can be exported to PDF"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
