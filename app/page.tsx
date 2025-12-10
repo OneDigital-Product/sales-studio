@@ -194,70 +194,75 @@ export default function Home() {
             </p>
           </div>
 
-          <Dialog onOpenChange={setIsModalOpen} open={isModalOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                + Add Client
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add New Client</DialogTitle>
-                <DialogDescription>
-                  Enter the details for the new client here. Click save when
-                  you're done.
-                </DialogDescription>
-              </DialogHeader>
-              <form className="space-y-4" onSubmit={handleSubmit}>
-                <div className="space-y-2">
-                  <Label htmlFor="name">
-                    Name <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    className={nameError ? "border-red-500" : ""}
-                    id="name"
-                    onChange={(e) => {
-                      setName(e.target.value);
-                      if (nameError) setNameError("");
-                    }}
-                    placeholder="Acme Corp"
-                    value={name}
-                  />
-                  {nameError && (
-                    <p className="text-red-500 text-sm">{nameError}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    className={emailError ? "border-red-500" : ""}
-                    id="email"
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      if (emailError) setEmailError("");
-                    }}
-                    placeholder="contact@acme.com"
-                    value={email}
-                  />
-                  {emailError && (
-                    <p className="text-red-500 text-sm">{emailError}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="notes">Notes</Label>
-                  <Textarea
-                    id="notes"
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Additional client details..."
-                    value={notes}
-                  />
-                </div>
-                <DialogFooter>
-                  <Button type="submit">Save Client</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <div className="flex gap-3">
+            <Link href="/stats">
+              <Button variant="outline">📊 Statistics</Button>
+            </Link>
+            <Dialog onOpenChange={setIsModalOpen} open={isModalOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-blue-600 text-white hover:bg-blue-700">
+                  + Add Client
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Client</DialogTitle>
+                  <DialogDescription>
+                    Enter the details for the new client here. Click save when
+                    you're done.
+                  </DialogDescription>
+                </DialogHeader>
+                <form className="space-y-4" onSubmit={handleSubmit}>
+                  <div className="space-y-2">
+                    <Label htmlFor="name">
+                      Name <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      className={nameError ? "border-red-500" : ""}
+                      id="name"
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        if (nameError) setNameError("");
+                      }}
+                      placeholder="Acme Corp"
+                      value={name}
+                    />
+                    {nameError && (
+                      <p className="text-red-500 text-sm">{nameError}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      className={emailError ? "border-red-500" : ""}
+                      id="email"
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (emailError) setEmailError("");
+                      }}
+                      placeholder="contact@acme.com"
+                      value={email}
+                    />
+                    {emailError && (
+                      <p className="text-red-500 text-sm">{emailError}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
+                      id="notes"
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Additional client details..."
+                      value={notes}
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Save Client</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         <BookmarkedClientsWidget />

@@ -1941,7 +1941,7 @@
       "Verify average data quality score is shown",
       "Verify charts visualize trends"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
