@@ -21,6 +21,7 @@ export function CommentFeed({ clientId }: CommentFeedProps) {
   const [teamFilter, setTeamFilter] = useState<"All" | "PEO" | "ACA" | "Sales">(
     "All"
   );
+  const [searchQuery, setSearchQuery] = useState("");
 
   const comments = useQuery(api.comments.getComments, { clientId });
   const addComment = useMutation(api.comments.addComment);
@@ -65,30 +66,50 @@ export function CommentFeed({ clientId }: CommentFeedProps) {
     }
   };
 
-  // Filter comments by team
+  // Filter comments by team and search query
   const filteredComments =
     comments?.filter((comment) => {
-      if (teamFilter === "All") return true;
-      return comment.authorTeam === teamFilter;
+      // Team filter
+      if (teamFilter !== "All" && comment.authorTeam !== teamFilter) {
+        return false;
+      }
+      // Search filter (case-insensitive)
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        return (
+          comment.content.toLowerCase().includes(query) ||
+          comment.authorName.toLowerCase().includes(query)
+        );
+      }
+      return true;
     }) ?? [];
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Activity Feed</CardTitle>
-          <select
-            className="rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            onChange={(e) =>
-              setTeamFilter(e.target.value as "All" | "PEO" | "ACA" | "Sales")
-            }
-            value={teamFilter}
-          >
-            <option value="All">All Teams</option>
-            <option value="PEO">PEO Only</option>
-            <option value="ACA">ACA Only</option>
-            <option value="Sales">Sales Only</option>
-          </select>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <CardTitle>Activity Feed</CardTitle>
+            <select
+              className="rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onChange={(e) =>
+                setTeamFilter(e.target.value as "All" | "PEO" | "ACA" | "Sales")
+              }
+              value={teamFilter}
+            >
+              <option value="All">All Teams</option>
+              <option value="PEO">PEO Only</option>
+              <option value="ACA">ACA Only</option>
+              <option value="Sales">Sales Only</option>
+            </select>
+          </div>
+          <input
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search comments..."
+            type="text"
+            value={searchQuery}
+          />
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -154,9 +175,11 @@ export function CommentFeed({ clientId }: CommentFeedProps) {
             <p className="text-muted-foreground text-sm">Loading comments...</p>
           ) : filteredComments.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              {teamFilter === "All"
-                ? "No comments yet. Be the first to add one!"
-                : `No ${teamFilter} comments found.`}
+              {searchQuery.trim()
+                ? `No comments matching "${searchQuery}".`
+                : teamFilter === "All"
+                  ? "No comments yet. Be the first to add one!"
+                  : `No ${teamFilter} comments found.`}
             </p>
           ) : (
             filteredComments.map((comment) => (

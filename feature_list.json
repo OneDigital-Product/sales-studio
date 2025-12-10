@@ -631,7 +631,7 @@
       "Verify only matching comments are displayed",
       "Verify search is case-insensitive"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
