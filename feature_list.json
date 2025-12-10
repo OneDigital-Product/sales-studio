@@ -1530,7 +1530,7 @@
       "Verify color scheme is professional",
       "Verify typography is readable"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
