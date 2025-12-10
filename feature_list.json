@@ -1002,7 +1002,7 @@
       "Verify clients are sorted alphabetically",
       "Verify sort persists on page reload"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -1013,7 +1013,7 @@
       "Select 'Newest First'",
       "Verify most recently created clients appear first"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

@@ -25,6 +25,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -46,6 +53,9 @@ export default function Home() {
   const [notes, setNotes] = useState("");
   const [activeTab, setActiveTab] = useState("clients");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"name-asc" | "name-desc" | "newest">(
+    "name-asc"
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,14 +66,27 @@ export default function Home() {
     setIsModalOpen(false);
   };
 
-  // Filter clients by search query (name or email)
-  const filteredClients = clients?.filter((client) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    const nameMatch = client.name.toLowerCase().includes(query);
-    const emailMatch = client.contactEmail?.toLowerCase().includes(query);
-    return nameMatch || emailMatch;
-  });
+  // Filter and sort clients
+  const filteredClients = clients
+    ?.filter((client) => {
+      if (!searchQuery) return true;
+      const query = searchQuery.toLowerCase();
+      const nameMatch = client.name.toLowerCase().includes(query);
+      const emailMatch = client.contactEmail?.toLowerCase().includes(query);
+      return nameMatch || emailMatch;
+    })
+    .sort((a, b) => {
+      if (sortBy === "name-asc") {
+        return a.name.localeCompare(b.name);
+      }
+      if (sortBy === "name-desc") {
+        return b.name.localeCompare(a.name);
+      }
+      if (sortBy === "newest") {
+        return b._creationTime - a._creationTime;
+      }
+      return 0;
+    });
 
   return (
     <main className="min-h-screen bg-gray-50 p-8">
@@ -146,8 +169,24 @@ export default function Home() {
                       A list of all your active clients.
                     </CardDescription>
                   </div>
-                  <div className="w-64">
+                  <div className="flex gap-2">
+                    <Select
+                      onValueChange={(value) =>
+                        setSortBy(value as "name-asc" | "name-desc" | "newest")
+                      }
+                      value={sortBy}
+                    >
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Sort by..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                        <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                        <SelectItem value="newest">Newest First</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <Input
+                      className="w-64"
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search by name or email..."
                       type="search"
