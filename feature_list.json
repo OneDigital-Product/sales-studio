@@ -1969,7 +1969,7 @@
       "Verify blocked quotes are visually highlighted",
       "Verify color coding guides attention appropriately"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
