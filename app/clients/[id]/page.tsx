@@ -6,6 +6,7 @@ import {
   BookmarkCheck,
   Copy,
   FileText,
+  GitCompare,
   Pencil,
   Table as TableIcon,
   Trash2,
@@ -103,6 +104,11 @@ export default function ClientDetailPage() {
   const [censusTab, setCensusTab] = useState<"active" | "history">("active");
   const [selectedHistoricalCensusId, setSelectedHistoricalCensusId] =
     useState<Id<"census_uploads"> | null>(null);
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [selectedForComparison, setSelectedForComparison] = useState<
+    Id<"census_uploads">[]
+  >([]);
+  const [showingComparison, setShowingComparison] = useState(false);
 
   const CENSUS_KEYWORDS = [
     "dob",
@@ -510,57 +516,210 @@ Notes: ${client.notes || "N/A"}`;
               <TabsContent className="space-y-4" value="history">
                 {censusHistory && censusHistory.length > 0 ? (
                   <>
-                    <div className="text-gray-600 text-sm">
-                      {censusHistory.length} census upload
-                      {censusHistory.length !== 1 ? "s" : ""} found
+                    <div className="flex items-center justify-between">
+                      <div className="text-gray-600 text-sm">
+                        {censusHistory.length} census upload
+                        {censusHistory.length !== 1 ? "s" : ""} found
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {!comparisonMode && censusHistory.length >= 2 && (
+                          <Button
+                            onClick={() => {
+                              setComparisonMode(true);
+                              setSelectedForComparison([]);
+                              setSelectedHistoricalCensusId(null);
+                            }}
+                            size="sm"
+                            variant="outline"
+                          >
+                            <GitCompare className="mr-2 h-4 w-4" />
+                            Compare Versions
+                          </Button>
+                        )}
+                        {comparisonMode && (
+                          <>
+                            <Button
+                              disabled={selectedForComparison.length !== 2}
+                              onClick={() => {
+                                setShowingComparison(true);
+                                setComparisonMode(false);
+                              }}
+                              size="sm"
+                            >
+                              <GitCompare className="mr-2 h-4 w-4" />
+                              Compare ({selectedForComparison.length}/2)
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                setComparisonMode(false);
+                                setSelectedForComparison([]);
+                              }}
+                              size="sm"
+                              variant="ghost"
+                            >
+                              Cancel
+                            </Button>
+                          </>
+                        )}
+                        {showingComparison && (
+                          <Button
+                            onClick={() => {
+                              setShowingComparison(false);
+                              setSelectedForComparison([]);
+                            }}
+                            size="sm"
+                            variant="outline"
+                          >
+                            Back to List
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      {censusHistory.map((upload) => (
-                        <Card
-                          className={`cursor-pointer transition-colors hover:bg-gray-50 ${
-                            selectedHistoricalCensusId === upload._id
-                              ? "border-blue-500 bg-blue-50"
-                              : ""
-                          }`}
-                          key={upload._id}
-                          onClick={() =>
-                            setSelectedHistoricalCensusId(upload._id)
-                          }
-                        >
-                          <CardHeader className="pb-3">
-                            <div className="flex items-start justify-between">
+                    {showingComparison && selectedForComparison.length === 2 ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          {selectedForComparison.map((censusId) => {
+                            const census = censusHistory.find(
+                              (c) => c._id === censusId
+                            );
+                            if (!census) return null;
+                            return (
+                              <div className="space-y-4" key={censusId}>
+                                <Card>
+                                  <CardHeader>
+                                    <h3 className="font-semibold text-gray-900">
+                                      {census.fileName}
+                                    </h3>
+                                    <p className="text-gray-500 text-sm">
+                                      {new Date(
+                                        census.uploadedAt
+                                      ).toLocaleString()}{" "}
+                                      • {census.rowCount} rows
+                                    </p>
+                                  </CardHeader>
+                                  <CardContent className="space-y-4">
+                                    <CensusValidationSummary
+                                      censusUploadId={censusId}
+                                      clientId={clientId}
+                                    />
+                                    <CensusViewer censusUploadId={censusId} />
+                                  </CardContent>
+                                </Card>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <Card className="bg-blue-50">
+                          <CardContent className="p-4">
+                            <div className="flex items-start gap-2">
+                              <GitCompare className="h-5 w-5 text-blue-600" />
                               <div>
-                                <h3 className="font-semibold text-gray-900">
-                                  {upload.fileName}
-                                </h3>
-                                <p className="text-gray-500 text-sm">
-                                  {new Date(upload.uploadedAt).toLocaleString()}
+                                <h4 className="font-semibold text-blue-900">
+                                  Side-by-Side Comparison
+                                </h4>
+                                <p className="text-blue-700 text-sm">
+                                  Compare the two census versions above to
+                                  identify differences in data, row counts, and
+                                  validation results.
                                 </p>
                               </div>
-                              <div className="flex flex-col items-end gap-1">
-                                <span className="rounded-full bg-gray-100 px-2.5 py-0.5 font-medium text-gray-700 text-xs">
-                                  {upload.rowCount} rows
-                                </span>
-                                {upload._id === activeCensus._id && (
-                                  <span className="rounded-full bg-green-100 px-2.5 py-0.5 font-medium text-green-700 text-xs">
-                                    Active
-                                  </span>
-                                )}
-                              </div>
                             </div>
-                          </CardHeader>
-                          {selectedHistoricalCensusId === upload._id && (
-                            <CardContent className="space-y-4 border-t pt-4">
-                              <CensusValidationSummary
-                                censusUploadId={upload._id}
-                                clientId={clientId}
-                              />
-                              <CensusViewer censusUploadId={upload._id} />
-                            </CardContent>
-                          )}
+                          </CardContent>
                         </Card>
-                      ))}
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {censusHistory.map((upload) => (
+                          <Card
+                            className={`transition-colors ${
+                              comparisonMode
+                                ? "cursor-pointer hover:bg-gray-50"
+                                : selectedHistoricalCensusId === upload._id
+                                  ? "cursor-pointer border-blue-500 bg-blue-50"
+                                  : "cursor-pointer hover:bg-gray-50"
+                            } ${
+                              selectedForComparison.includes(upload._id)
+                                ? "border-blue-500 bg-blue-50"
+                                : ""
+                            }`}
+                            key={upload._id}
+                            onClick={() => {
+                              if (comparisonMode) {
+                                // Toggle selection for comparison
+                                if (
+                                  selectedForComparison.includes(upload._id)
+                                ) {
+                                  setSelectedForComparison(
+                                    selectedForComparison.filter(
+                                      (id) => id !== upload._id
+                                    )
+                                  );
+                                } else if (selectedForComparison.length < 2) {
+                                  setSelectedForComparison([
+                                    ...selectedForComparison,
+                                    upload._id,
+                                  ]);
+                                }
+                              } else {
+                                setSelectedHistoricalCensusId(upload._id);
+                              }
+                            }}
+                          >
+                            <CardHeader className="pb-3">
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-3">
+                                  {comparisonMode && (
+                                    <input
+                                      checked={selectedForComparison.includes(
+                                        upload._id
+                                      )}
+                                      className="h-4 w-4"
+                                      disabled={
+                                        !selectedForComparison.includes(
+                                          upload._id
+                                        ) && selectedForComparison.length >= 2
+                                      }
+                                      onChange={() => {}}
+                                      type="checkbox"
+                                    />
+                                  )}
+                                  <div>
+                                    <h3 className="font-semibold text-gray-900">
+                                      {upload.fileName}
+                                    </h3>
+                                    <p className="text-gray-500 text-sm">
+                                      {new Date(
+                                        upload.uploadedAt
+                                      ).toLocaleString()}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex flex-col items-end gap-1">
+                                  <span className="rounded-full bg-gray-100 px-2.5 py-0.5 font-medium text-gray-700 text-xs">
+                                    {upload.rowCount} rows
+                                  </span>
+                                  {upload._id === activeCensus._id && (
+                                    <span className="rounded-full bg-green-100 px-2.5 py-0.5 font-medium text-green-700 text-xs">
+                                      Active
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </CardHeader>
+                            {!comparisonMode &&
+                              selectedHistoricalCensusId === upload._id && (
+                                <CardContent className="space-y-4 border-t pt-4">
+                                  <CensusValidationSummary
+                                    censusUploadId={upload._id}
+                                    clientId={clientId}
+                                  />
+                                  <CensusViewer censusUploadId={upload._id} />
+                                </CardContent>
+                              )}
+                          </Card>
+                        ))}
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div className="flex flex-col items-center justify-center rounded-lg border-2 border-gray-300 border-dashed bg-gray-50 p-8 text-center">

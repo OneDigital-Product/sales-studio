@@ -1467,7 +1467,7 @@
       "Verify side-by-side comparison view",
       "Verify differences are highlighted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
