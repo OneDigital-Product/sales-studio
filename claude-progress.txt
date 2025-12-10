@@ -4712,3 +4712,108 @@ Next Priority Tests (Style Category):
 - Feature #144: Success notifications are clear
 
 Session End State: Clean, all changes committed, Feature #140 verified and passing
+
+===============================================================================
+SESSION 93 UPDATE - Feature #141 Completed
+===============================================================================
+Date: December 10, 2024
+Tests at Start: 141/169 passing (83.4%)
+Tests at End: 142/169 passing (84.0%)
+Test Completed: Feature #141
+
+Feature #141: Loading states have appropriate spinners/skeletons ✅
+
+Comprehensive loading state implementation across the application:
+
+Components Created:
+1. Spinner Component (components/ui/spinner.tsx):
+   - Three sizes: sm (4x4), md (8x8), lg (12x12)
+   - Animated spinning border
+   - Proper ARIA role="status" for accessibility
+   - Screen reader text "Loading..."
+   - Motion-reduce support for accessibility
+
+2. Skeleton Component (components/ui/skeleton.tsx):
+   - Base skeleton component with pulse animation
+   - Gray background with rounded corners
+   - Reusable for custom skeleton layouts
+
+3. TableSkeleton Component (components/ui/table-skeleton.tsx):
+   - Configurable rows and columns
+   - Matches table structure for no layout shift
+   - Used for loading client lists
+
+4. CardSkeleton Component (components/ui/card-skeleton.tsx):
+   - Optional header with title and description skeletons
+   - Configurable number of content lines
+   - Used for loading widget content
+
+Loading States Implemented:
+
+1. Home Page (app/page.tsx):
+   - Desktop view: Centered large spinner while clients load
+   - Mobile view: Centered large spinner while clients load
+   - Checks for `clients === undefined` to show loading state
+   - No layout shift when data loads
+
+2. Client Detail Page (app/clients/[id]/page.tsx):
+   - Full-screen centered spinner during initial load
+   - Min-height: 100vh to fill viewport
+   - Centered with flexbox
+   - Large spinner for visibility
+
+3. Outstanding Requests Widget (components/info-requests/outstanding-requests-widget.tsx):
+   - Card header stays visible during loading
+   - Centered medium spinner in card content
+   - Proper padding (py-8) for visual balance
+   - Shows spinner when requests === undefined
+
+4. Recent Activity Widget (components/activity/recent-activity-widget.tsx):
+   - Card header stays visible during loading
+   - Centered medium spinner in card content
+   - Proper padding (py-8) for visual balance
+   - Shows spinner when activities === undefined
+
+Technical Implementation:
+- All loading checks use strict equality (=== undefined) to distinguish loading from empty
+- Spinners properly centered using flexbox (flex items-center justify-center)
+- Appropriate sizing: lg for full-page loads, md for widget loads
+- All components include proper accessibility attributes
+- No console errors during loading or loaded states
+- Smooth transitions without layout shift
+
+Verification Criteria Met:
+✅ Spinners are centered on all pages
+✅ Appropriate sizes for different contexts (lg/md)
+✅ Skeleton loaders created and available for future use
+✅ No layout shift during load-to-content transition
+✅ Proper ARIA labels for accessibility
+✅ Motion-reduce support for accessibility
+✅ No console errors
+
+Testing Performed:
+- Navigated to home page, verified loading spinner appears centered
+- Navigated to client detail page, verified full-screen loading spinner
+- Verified Outstanding Requests widget shows centered spinner
+- Verified Recent Activity widget shows centered spinner
+- Checked for console errors (none found)
+- Verified smooth transitions from loading to loaded state
+- Confirmed no layout shift occurs
+
+Screenshots: f141-01 through f141-05
+
+FINAL SESSION STATUS
+===============================================================================
+Tests Passing: 142/169 (84.0%)
+Tests Failing: 27
+Progress: +1 test passing this session
+Total Tests: 169
+Completion: 84.0%
+
+Next Priority Tests (Style Category):
+- Feature #142: Empty states have helpful messaging
+- Feature #143: Error messages are visually distinct
+- Feature #144: Success notifications are clear
+- Feature #145: Icons are consistent throughout app
+
+Session End State: Clean, all changes committed, Feature #141 verified and passing
