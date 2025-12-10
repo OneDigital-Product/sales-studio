@@ -17,6 +17,8 @@ import { CensusValidationSummary } from "@/components/census/census-validation-s
 import { CensusViewer } from "@/components/census/census-viewer";
 import { CommentFeed } from "@/components/comments/comment-feed";
 import { FileCommentButton } from "@/components/comments/file-comment-button";
+import { CreateRequestDialog } from "@/components/info-requests/create-request-dialog";
+import { RequestsPanel } from "@/components/info-requests/requests-panel";
 import { QuoteStatusCard } from "@/components/quotes/quote-status-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -369,6 +371,7 @@ export default function ClientDetailPage() {
               </Button>
             </div>
             <div className="flex gap-3">
+              <CreateRequestDialog clientId={clientId} />
               <Button className="bg-green-600 hover:bg-green-700" disabled>
                 PEO Quoting
               </Button>
@@ -392,6 +395,9 @@ export default function ClientDetailPage() {
             type="ACA"
           />
         </div>
+
+        {/* Outstanding Requests Section */}
+        <RequestsPanel clientId={clientId} />
 
         {/* File Management Section */}
         <Card>

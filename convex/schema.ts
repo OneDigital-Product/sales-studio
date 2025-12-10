@@ -105,4 +105,31 @@ export default defineSchema({
     .index("by_clientId", ["clientId"])
     .index("by_targetType_and_targetId", ["targetType", "targetId"])
     .index("by_clientId_and_createdAt", ["clientId", "createdAt"]),
+  info_requests: defineTable({
+    clientId: v.id("clients"),
+    quoteType: v.optional(
+      v.union(v.literal("PEO"), v.literal("ACA"), v.literal("both"))
+    ),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("received"),
+      v.literal("cancelled")
+    ),
+    requestedAt: v.number(),
+    requestedBy: v.optional(v.string()),
+    resolvedAt: v.optional(v.number()),
+    items: v.array(
+      v.object({
+        description: v.string(),
+        category: v.optional(v.string()),
+        received: v.boolean(),
+        receivedAt: v.optional(v.number()),
+      })
+    ),
+    notes: v.optional(v.string()),
+    reminderSentAt: v.optional(v.number()),
+  })
+    .index("by_clientId", ["clientId"])
+    .index("by_status", ["status"])
+    .index("by_clientId_and_status", ["clientId", "status"]),
 });

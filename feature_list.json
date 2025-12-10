@@ -644,7 +644,7 @@
       "Submit request",
       "Verify request appears in outstanding requests panel"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
