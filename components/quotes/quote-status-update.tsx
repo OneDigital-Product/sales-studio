@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/toast";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
@@ -63,6 +64,7 @@ export function QuoteStatusUpdate({
   blockedReason,
 }: QuoteStatusUpdateProps) {
   const updateQuoteStatus = useMutation(api.quotes.updateQuoteStatus);
+  const toast = useToast();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<QuoteStatus | null>(
@@ -112,9 +114,20 @@ export function QuoteStatusUpdate({
         setNotes("");
         setBlocked(false);
         setBlockReason("");
+
+        if (blocked) {
+          toast.success(`${type} quote marked as blocked`);
+        } else if (isBlocked && !blocked) {
+          toast.success(`${type} quote unblocked successfully`);
+        } else {
+          const newStatusLabel = STATUS_OPTIONS.find(
+            (s) => s.value === statusToSet
+          )?.label;
+          toast.success(`${type} quote status updated to ${newStatusLabel}`);
+        }
       },
       () => {
-        // Error handled silently
+        toast.error("Failed to update quote status. Please try again.");
       }
     );
 
@@ -145,10 +158,12 @@ export function QuoteStatusUpdate({
             );
             result.match(
               () => {
-                // Success - quote created
+                toast.success(`${type} quote created successfully`);
               },
               () => {
-                // Error handled silently
+                toast.error(
+                  `Failed to create ${type} quote. Please try again.`
+                );
               }
             );
             setIsSubmitting(false);

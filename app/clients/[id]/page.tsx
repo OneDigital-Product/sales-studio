@@ -83,6 +83,8 @@ export default function ClientDetailPage() {
   const quotes = useQuery(api.quotes.getQuotesByClient, { clientId });
   const isBookmarked = useQuery(api.bookmarks.isBookmarked, { clientId });
 
+  const toast = useToast();
+
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const saveFile = useMutation(api.files.saveFile);
   const deleteFile = useMutation(api.files.deleteFile);
@@ -234,9 +236,14 @@ export default function ClientDetailPage() {
         await uploadSingleFile(selectedFiles[i], i, selectedFiles.length);
       }
 
+      const fileCount = selectedFiles.length;
+      toast.success(
+        `Successfully uploaded ${fileCount} file${fileCount > 1 ? "s" : ""}`
+      );
+
       e.target.value = "";
     } catch {
-      // Upload error silently handled
+      toast.error("Failed to upload files. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -306,16 +313,18 @@ export default function ClientDetailPage() {
   const handleDelete = async (fileId: Id<"files">) => {
     try {
       await deleteFile({ id: fileId });
+      toast.success("File deleted successfully");
     } catch {
-      // Delete error silently handled
+      toast.error("Failed to delete file. Please try again.");
     }
   };
 
   const handleVerifyFile = async (fileId: Id<"files">, verifiedBy: string) => {
     try {
       await markFileAsVerified({ fileId, verifiedBy });
+      toast.success("File marked as verified");
     } catch (error) {
-      console.error("Error verifying file:", error);
+      toast.error("Failed to verify file. Please try again.");
     }
   };
 
@@ -351,8 +360,13 @@ export default function ClientDetailPage() {
       for (let i = 0; i < droppedFiles.length; i++) {
         await uploadSingleFile(droppedFiles[i], i, droppedFiles.length);
       }
+
+      const fileCount = droppedFiles.length;
+      toast.success(
+        `Successfully uploaded ${fileCount} file${fileCount > 1 ? "s" : ""}`
+      );
     } catch {
-      // Upload error silently handled
+      toast.error("Failed to upload files. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -375,8 +389,9 @@ export default function ClientDetailPage() {
         notes: editNotes,
       });
       setIsEditModalOpen(false);
+      toast.success("Client information updated successfully");
     } catch {
-      // Update error silently handled
+      toast.error("Failed to update client information. Please try again.");
     }
   };
 
@@ -393,8 +408,9 @@ export default function ClientDetailPage() {
         censusUploadId: undoInfo.previousCensusId,
       });
       setUndoInfo(null);
+      toast.success("Census replacement undone successfully");
     } catch {
-      // Error handled silently
+      toast.error("Failed to undo census replacement. Please try again.");
     }
   };
 
@@ -402,11 +418,13 @@ export default function ClientDetailPage() {
     try {
       if (isBookmarked) {
         await removeBookmark({ clientId });
+        toast.success("Bookmark removed");
       } else {
         await addBookmark({ clientId });
+        toast.success("Client bookmarked");
       }
     } catch {
-      // Bookmark error silently handled
+      toast.error("Failed to update bookmark. Please try again.");
     }
   };
 
@@ -416,10 +434,13 @@ export default function ClientDetailPage() {
     }
     try {
       await deleteClientMutation({ clientId });
+      toast.success("Client deleted successfully");
       // Navigate back to home page after deletion
-      window.location.href = "/";
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
     } catch {
-      // Delete error silently handled
+      toast.error("Failed to delete client. Please try again.");
     }
   };
 
@@ -430,9 +451,10 @@ Email: ${client.contactEmail || "N/A"}
 Notes: ${client.notes || "N/A"}`;
       await navigator.clipboard.writeText(clientInfo);
       setCopySuccess(true);
+      toast.success("Client information copied to clipboard");
       setTimeout(() => setCopySuccess(false), 2000);
     } catch {
-      // Copy error silently handled
+      toast.error("Failed to copy to clipboard. Please try again.");
     }
   };
 
@@ -468,8 +490,11 @@ Notes: ${client.notes || "N/A"}`;
                 previousCensusId: result.previousCensusId,
                 replacedAt: Date.now(),
               });
+              toast.success("Census data imported and replaced successfully");
               // Auto-hide undo notification after 30 seconds
               setTimeout(() => setUndoInfo(null), 30_000);
+            } else {
+              toast.success("Census data imported successfully");
             }
           }}
         />

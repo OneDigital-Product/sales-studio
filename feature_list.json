@@ -1763,7 +1763,7 @@
       "Verify notification is visible but not obtrusive",
       "Verify auto-dismiss timing is appropriate"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
