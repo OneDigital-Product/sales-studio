@@ -1418,7 +1418,7 @@
       "Update ACA status separately",
       "Verify both track independently"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
