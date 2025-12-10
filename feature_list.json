@@ -1430,7 +1430,7 @@
       "Verify quality score is 100",
       "Verify no issues are reported"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
