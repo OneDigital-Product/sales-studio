@@ -5,6 +5,7 @@ import { MessageSquare, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/convex/_generated/api";
 
 function formatRelativeTime(timestamp: number) {
@@ -48,8 +49,8 @@ export function RecentActivityWidget() {
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-sm">Loading activity...</p>
+        <CardContent className="flex items-center justify-center py-8">
+          <Spinner />
         </CardContent>
       </Card>
     );

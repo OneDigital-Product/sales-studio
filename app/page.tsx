@@ -34,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
@@ -283,25 +284,133 @@ export default function Home() {
               <CardContent>
                 {/* Desktop table view */}
                 <div className="hidden md:block">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Quote Status</TableHead>
-                        <TableHead>Documents</TableHead>
-                        <TableHead className="text-right">Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredClients?.map((client) => (
-                        <TableRow key={client._id}>
-                          <TableCell className="font-medium">
-                            {client.name}
-                          </TableCell>
-                          <TableCell>{client.contactEmail || "—"}</TableCell>
-                          <TableCell>
-                            <div className="flex gap-1.5">
+                  {clients === undefined ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Spinner size="lg" />
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Quote Status</TableHead>
+                          <TableHead>Documents</TableHead>
+                          <TableHead className="text-right">Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredClients?.map((client) => (
+                          <TableRow key={client._id}>
+                            <TableCell className="font-medium">
+                              {client.name}
+                            </TableCell>
+                            <TableCell>{client.contactEmail || "—"}</TableCell>
+                            <TableCell>
+                              <div className="flex gap-1.5">
+                                {client.peoQuote && (
+                                  <Badge
+                                    className={`border text-xs ${getStatusColor(
+                                      client.peoQuote.status,
+                                      client.peoQuote.isBlocked
+                                    )}`}
+                                    variant="outline"
+                                  >
+                                    PEO: {formatStatus(client.peoQuote.status)}
+                                  </Badge>
+                                )}
+                                {client.acaQuote && (
+                                  <Badge
+                                    className={`border text-xs ${getStatusColor(
+                                      client.acaQuote.status,
+                                      client.acaQuote.isBlocked
+                                    )}`}
+                                    variant="outline"
+                                  >
+                                    ACA: {formatStatus(client.acaQuote.status)}
+                                  </Badge>
+                                )}
+                                {!(client.peoQuote || client.acaQuote) && (
+                                  <span className="text-gray-400 text-sm">
+                                    No quotes
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <div className="min-w-[100px] flex-1">
+                                  <div className="h-2 w-full rounded-full bg-gray-200">
+                                    <div
+                                      className={`h-2 rounded-full transition-all ${
+                                        client.documentCompleteness
+                                          .percentage === 100
+                                          ? "bg-green-600"
+                                          : "bg-blue-600"
+                                      }`}
+                                      style={{
+                                        width: `${client.documentCompleteness.percentage}%`,
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                                <span className="whitespace-nowrap text-gray-600 text-sm">
+                                  {client.documentCompleteness.percentage}%
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Link href={`/clients/${client._id}`}>
+                                <Button size="sm" variant="outline">
+                                  Manage Quote
+                                </Button>
+                              </Link>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {filteredClients?.length === 0 && (
+                          <TableRow>
+                            <TableCell
+                              className="h-24 text-center text-gray-500"
+                              colSpan={5}
+                            >
+                              {searchQuery
+                                ? "No clients match your search."
+                                : "No clients found. Add one to get started."}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  )}
+                </div>
+
+                {/* Mobile card view */}
+                <div className="space-y-4 md:hidden">
+                  {clients === undefined ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Spinner size="lg" />
+                    </div>
+                  ) : (
+                    filteredClients?.map((client) => (
+                      <Card className="p-4" key={client._id}>
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-gray-900">
+                                {client.name}
+                              </h3>
+                              <p className="text-gray-600 text-sm">
+                                {client.contactEmail || "—"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div>
+                            <p className="mb-1.5 font-medium text-gray-700 text-xs">
+                              Quote Status
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
                               {client.peoQuote && (
                                 <Badge
                                   className={`border text-xs ${getStatusColor(
@@ -330,8 +439,12 @@ export default function Home() {
                                 </span>
                               )}
                             </div>
-                          </TableCell>
-                          <TableCell>
+                          </div>
+
+                          <div>
+                            <p className="mb-1.5 font-medium text-gray-700 text-xs">
+                              Documents
+                            </p>
                             <div className="flex items-center gap-2">
                               <div className="min-w-[100px] flex-1">
                                 <div className="h-2 w-full rounded-full bg-gray-200">
@@ -352,122 +465,25 @@ export default function Home() {
                                 {client.documentCompleteness.percentage}%
                               </span>
                             </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Link href={`/clients/${client._id}`}>
-                              <Button size="sm" variant="outline">
-                                Manage Quote
-                              </Button>
-                            </Link>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {filteredClients?.length === 0 && (
-                        <TableRow>
-                          <TableCell
-                            className="h-24 text-center text-gray-500"
-                            colSpan={5}
+                          </div>
+
+                          <Link
+                            className="block"
+                            href={`/clients/${client._id}`}
                           >
-                            {searchQuery
-                              ? "No clients match your search."
-                              : "No clients found. Add one to get started."}
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                {/* Mobile card view */}
-                <div className="space-y-4 md:hidden">
-                  {filteredClients?.map((client) => (
-                    <Card className="p-4" key={client._id}>
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-gray-900">
-                              {client.name}
-                            </h3>
-                            <p className="text-gray-600 text-sm">
-                              {client.contactEmail || "—"}
-                            </p>
-                          </div>
+                            <Button
+                              className="w-full"
+                              size="sm"
+                              variant="outline"
+                            >
+                              Manage Quote
+                            </Button>
+                          </Link>
                         </div>
-
-                        <div>
-                          <p className="mb-1.5 font-medium text-gray-700 text-xs">
-                            Quote Status
-                          </p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {client.peoQuote && (
-                              <Badge
-                                className={`border text-xs ${getStatusColor(
-                                  client.peoQuote.status,
-                                  client.peoQuote.isBlocked
-                                )}`}
-                                variant="outline"
-                              >
-                                PEO: {formatStatus(client.peoQuote.status)}
-                              </Badge>
-                            )}
-                            {client.acaQuote && (
-                              <Badge
-                                className={`border text-xs ${getStatusColor(
-                                  client.acaQuote.status,
-                                  client.acaQuote.isBlocked
-                                )}`}
-                                variant="outline"
-                              >
-                                ACA: {formatStatus(client.acaQuote.status)}
-                              </Badge>
-                            )}
-                            {!(client.peoQuote || client.acaQuote) && (
-                              <span className="text-gray-400 text-sm">
-                                No quotes
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div>
-                          <p className="mb-1.5 font-medium text-gray-700 text-xs">
-                            Documents
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <div className="min-w-[100px] flex-1">
-                              <div className="h-2 w-full rounded-full bg-gray-200">
-                                <div
-                                  className={`h-2 rounded-full transition-all ${
-                                    client.documentCompleteness.percentage ===
-                                    100
-                                      ? "bg-green-600"
-                                      : "bg-blue-600"
-                                  }`}
-                                  style={{
-                                    width: `${client.documentCompleteness.percentage}%`,
-                                  }}
-                                />
-                              </div>
-                            </div>
-                            <span className="whitespace-nowrap text-gray-600 text-sm">
-                              {client.documentCompleteness.percentage}%
-                            </span>
-                          </div>
-                        </div>
-
-                        <Link className="block" href={`/clients/${client._id}`}>
-                          <Button
-                            className="w-full"
-                            size="sm"
-                            variant="outline"
-                          >
-                            Manage Quote
-                          </Button>
-                        </Link>
-                      </div>
-                    </Card>
-                  ))}
-                  {filteredClients?.length === 0 && (
+                      </Card>
+                    ))
+                  )}
+                  {clients !== undefined && filteredClients?.length === 0 && (
                     <div className="py-12 text-center text-gray-500">
                       {searchQuery
                         ? "No clients match your search."

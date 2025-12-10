@@ -1724,7 +1724,7 @@
       "Verify skeleton loaders match content shape",
       "Verify loading states don't cause layout shift"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
