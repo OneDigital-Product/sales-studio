@@ -208,7 +208,8 @@ export default function ClientDetailPage() {
       | "renewal_letter"
       | "proposal"
       | "contract"
-      | "other"
+      | "other",
+    relevantTo?: string[]
   ) => {
     const isCensus = category === "census" || (await isCensusFile(file));
 
@@ -226,6 +227,7 @@ export default function ClientDetailPage() {
       name: file.name,
       type: isCensus ? "Census" : "Quote Data",
       category,
+      relevantTo,
     });
 
     if (isCensus) {
@@ -532,11 +534,28 @@ export default function ClientDetailPage() {
                   {files?.map((file) => (
                     <TableRow key={file._id}>
                       <TableCell className="font-medium">
-                        <div className="flex flex-col">
+                        <div className="flex flex-col gap-1">
                           <span className="block">{file.name}</span>
-                          <span className="text-gray-500 text-xs">
-                            {new Date(file.uploadedAt).toLocaleDateString()}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-500 text-xs">
+                              {new Date(file.uploadedAt).toLocaleDateString()}
+                            </span>
+                            {file.relevantTo && file.relevantTo.length > 0 && (
+                              <div className="flex gap-1">
+                                {file.relevantTo.map((team) => (
+                                  <Badge
+                                    className="text-xs"
+                                    key={team}
+                                    variant={
+                                      team === "PEO" ? "default" : "secondary"
+                                    }
+                                  >
+                                    {team}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">

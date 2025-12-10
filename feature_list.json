@@ -799,7 +799,7 @@
       "Verify relevantTo includes PEO",
       "Verify PEO analysts can see file highlighted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

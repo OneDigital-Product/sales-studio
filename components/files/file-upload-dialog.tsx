@@ -3,6 +3,7 @@
 import { Upload } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -40,7 +41,11 @@ const CATEGORY_OPTIONS: { value: FileCategory; label: string }[] = [
 ];
 
 interface FileUploadDialogProps {
-  onUpload: (file: File, category: FileCategory) => Promise<void>;
+  onUpload: (
+    file: File,
+    category: FileCategory,
+    relevantTo?: string[]
+  ) => Promise<void>;
   trigger?: React.ReactNode;
 }
 
@@ -49,6 +54,8 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [category, setCategory] = useState<FileCategory>("other");
   const [uploading, setUploading] = useState(false);
+  const [relevantToPEO, setRelevantToPEO] = useState(false);
+  const [relevantToACA, setRelevantToACA] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -86,10 +93,20 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
 
     setUploading(true);
     try {
-      await onUpload(selectedFile, category);
+      const relevantTo = [];
+      if (relevantToPEO) relevantTo.push("PEO");
+      if (relevantToACA) relevantTo.push("ACA");
+
+      await onUpload(
+        selectedFile,
+        category,
+        relevantTo.length > 0 ? relevantTo : undefined
+      );
       setOpen(false);
       setSelectedFile(null);
       setCategory("other");
+      setRelevantToPEO(false);
+      setRelevantToACA(false);
     } catch (error) {
       // Error handling
       console.error("Upload failed:", error);
@@ -102,6 +119,8 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
     setOpen(false);
     setSelectedFile(null);
     setCategory("other");
+    setRelevantToPEO(false);
+    setRelevantToACA(false);
   };
 
   return (
@@ -153,6 +172,40 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Relevant To</Label>
+            <div className="flex gap-4">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  checked={relevantToPEO}
+                  disabled={uploading}
+                  id="relevant-peo"
+                  onCheckedChange={setRelevantToPEO}
+                />
+                <Label
+                  className="cursor-pointer font-normal"
+                  htmlFor="relevant-peo"
+                >
+                  PEO Team
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  checked={relevantToACA}
+                  disabled={uploading}
+                  id="relevant-aca"
+                  onCheckedChange={setRelevantToACA}
+                />
+                <Label
+                  className="cursor-pointer font-normal"
+                  htmlFor="relevant-aca"
+                >
+                  ACA Team
+                </Label>
+              </div>
+            </div>
           </div>
 
           <div className="flex justify-end gap-2">
