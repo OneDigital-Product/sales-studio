@@ -1,10 +1,11 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { AlertCircle, Clock } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/convex/_generated/api";
 
@@ -51,9 +52,11 @@ export function OutstandingRequestsWidget() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500 text-sm">
-            No pending information requests
-          </p>
+          <EmptyState
+            description="All information requests have been completed. Great work!"
+            icon={CheckCircle}
+            title="No Pending Requests"
+          />
         </CardContent>
       </Card>
     );

@@ -1,9 +1,10 @@
 "use client";
 
-import { Download, Trash } from "lucide-react";
+import { Download, FileText, Trash } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Select,
   SelectContent,
@@ -119,33 +120,22 @@ export function DocumentCenter({
 
   if (files.length === 0) {
     return (
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[45%]">Name</TableHead>
-              <TableHead className="w-[15%]">Size</TableHead>
-              <TableHead className="text-right">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell className="h-24 text-center text-gray-500" colSpan={3}>
-                No files yet.
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </div>
+      <EmptyState
+        description="Upload documents like census files, plan summaries, and proposals to get started."
+        icon={FileText}
+        title="No Documents Yet"
+      />
     );
   }
 
   // Show message if teamFilteredFiles is empty after filtering
   if (teamFilteredFiles.length === 0) {
     return (
-      <div className="rounded-md border p-8 text-center text-gray-500">
-        No files match the selected team filter.
-      </div>
+      <EmptyState
+        description="Try selecting a different team or uploading documents relevant to this team."
+        icon={FileText}
+        title="No Files Match Filter"
+      />
     );
   }
 

@@ -1737,7 +1737,7 @@
       "Verify icon or illustration is shown",
       "Verify styling is not stark/harsh"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",

@@ -1,10 +1,11 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { MessageSquare, TrendingUp } from "lucide-react";
+import { Inbox, MessageSquare, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/convex/_generated/api";
 
@@ -63,10 +64,11 @@ export function RecentActivityWidget() {
           <CardTitle>Recent Activity</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-sm">
-            No recent activity. Activity will appear here as team members add
-            comments and update quote statuses.
-          </p>
+          <EmptyState
+            description="Activity will appear here as team members add comments and update quote statuses."
+            icon={Inbox}
+            title="No Recent Activity"
+          />
         </CardContent>
       </Card>
     );
