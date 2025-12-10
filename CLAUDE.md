@@ -15,19 +15,25 @@ Guidance for Claude AI instances working on this Sales Studio repository. Follow
 
 ## Project Overview
 
-**Sales Studio** is a client and file management application for PEO/ACA quoting. It combines Next.js 16 (App Router) frontend with Convex backend, Shadcn UI components, and Tailwind CSS v4 styling.
+**Sales Studio** is a comprehensive client and census data management platform for PEO/ACA health plan quoting. It provides sophisticated quote pipeline management, census data validation, document organization, and team collaboration features.
 
 **Package manager**: Bun (do not use npm or yarn)
+
+**Documentation**:
+- `USER_GUIDE.md` - Complete user guide for all features and workflows
+- `.docs/` - Development/testing archive (session summaries, test scripts, etc.)
 
 ## Architecture
 
 ### Frontend (Next.js App Router)
 
 - **Root layout** (`app/layout.tsx`): Wraps with Convex client provider
-- **Main page** (`app/page.tsx`): Client management dashboard with add/view clients
-- **Client detail page** (`app/clients/[id]/page.tsx`): File upload, management, and census data viewing
+- **Main page** (`app/page.tsx`): Dashboard with client list, search, sort, bookmarking
+- **Client detail page** (`app/clients/[id]/page.tsx`): Quote pipeline, file upload/management, census data validation and viewing, team comments
+- **Archived page** (`app/archived/page.tsx`): View archived/deleted clients
+- **Statistics pages** (`app/statistics/page.tsx`, `app/stats/page.tsx`): Analytics and reporting
 - **UI components** (`components/`): Shadcn UI-based buttons, cards, dialogs, tables, etc.
-- **Styling**: Tailwind CSS v4 (configured in `tailwind.config.js`)
+- **Styling**: Tailwind CSS v4 (configured in `tailwind.config.ts`)
 
 **Key patterns**:
 - Use `'use client'` only when client interactivity needed (state, hooks, browser APIs)
@@ -38,15 +44,21 @@ Guidance for Claude AI instances working on this Sales Studio repository. Follow
 ### Backend (Convex)
 
 **Database schema** (`convex/schema.ts`):
-- `clients`: name, contactEmail, notes
-- `files`: storageId, clientId, name, type ("PEO"/"ACA"/"Other"), uploadedAt with `by_clientId` index
-- `census_uploads`: clientId, fileName, uploadedAt, columns, rowCount with `by_clientId` index
-- `census_rows`: censusUploadId, data (flexible JSON), rowIndex with `by_censusUploadId` index
+- `clients`: name, contactEmail, notes, isArchived, bookmarked
+- `files`: storageId, clientId, name, type (category), teamRelevance (PEO/ACA/Both), isRequired, isVerified, uploadedAt, uploader, verifier with `by_clientId` index
+- `census_uploads`: clientId, fileName, uploadedAt, columns, rowCount, peoQualityScore, acaQualityScore with `by_clientId` index
+- `census_rows`: censusUploadId, data (flexible JSON), rowIndex, validationStatus with `by_censusUploadId` index
+- `quotes`: clientId, type (PEO/ACA), status (7-stage pipeline), isBlocked, blockReason, assignedAnalyst, startedAt, completedAt, notes, with history
+- `comments`: clientId, author, team (PEO/ACA/Sales), content, timestamp, isResolved with `by_clientId` index
+- `information_requests`: clientId, quoteTypes, status, items (list), requestedBy, requestedAt, notes
 
 **Functions**:
-- `clients.ts`: `createClient` (mutation), `getClients` (query), `getClient` (query)
-- `files.ts`: `generateUploadUrl` (mutation), `saveFile` (mutation), `getFiles` (query with index), `deleteFile` (mutation + storage cleanup)
-- `census.ts`: `saveCensus` (mutation, batch inserts rows), `getCensus` (query with pagination), `getLatestCensus` (query, orders desc)
+- `clients.ts`: `createClient`, `getClients`, `getClient`, `updateClient`, `archiveClient`, `deleteClient`, `toggleBookmark`
+- `files.ts`: `generateUploadUrl`, `saveFile`, `getFiles`, `deleteFile`, `verifyFile`, `updateFileMetadata`
+- `census.ts`: `saveCensus`, `getCensus` (paginated), `getLatestCensus`, `cloneCensus`, `validateCensusData`
+- `quotes.ts`: `createQuote`, `getQuotes`, `updateQuoteStatus`, `blockQuote`, `addStatusNote`, `getQuoteHistory`
+- `comments.ts`: `addComment`, `getComments`, `markCommentResolved`, `deleteComment`
+- `requests.ts`: `createRequest`, `getRequests`, `updateRequestStatus`, `addRequestItem`, `markItemReceived`
 
 **Patterns**:
 - Use new function syntax with `args` validator and `handler`
@@ -56,19 +68,39 @@ Guidance for Claude AI instances working on this Sales Studio repository. Follow
 
 ## Key Features & Implementation Notes
 
+### Quote Pipeline Management
+- 7-stage pipeline: Not Started → Intake → Underwriting → Proposal Ready → Presented → Accepted/Declined
+- Block quotes with custom reasons
+- Assign quotes to analysts
+- Full audit trail of status changes with timestamps and notes
+- Separate PEO and ACA quote tracking
+
 ### File Upload Flow
-1. User selects file(s) in client detail page
+1. User selects file(s) in client detail page via drag-drop or browse
 2. `isCensusFile()` heuristic checks extension + header keywords (DOB, gender, salary, zip, plan, tier, coverage)
 3. Get signed upload URL from Convex storage
 4. Upload file via HTTP POST
-5. Save metadata record in `files` table
+5. Save metadata record in `files` table with team relevance and required flags
 6. If detected as census, show `CensusImport` component for parsing/import
 
-### Census Data Management
-- CSV/XLSX files parsed on client with `xlsx` library (see app/clients/[id]/page.tsx:43-88)
-- Imported census data stored in `census_uploads` + `census_rows` tables
-- `CensusViewer` component fetches rows with pagination
-- Latest census displayed in right panel; can be replaced by uploading new file
+### Census Data Management & Validation
+- CSV/XLSX files parsed on client with `xlsx` library
+- Dual validation: PEO (Name, DOB, Zip, Salary, Coverage Tier) and ACA (PEO + Hire Date, Hours/Week)
+- Quality scoring (0-100%) for both PEO and ACA requirements
+- Row-level validation status (green=valid, yellow=issues)
+- Cell-level highlighting (red=missing, yellow=invalid)
+- Interactive census viewer with filtering and pagination
+- Version history with comparison mode
+- Census cloning between clients
+- Quality trend tracking over multiple versions
+
+### Team Collaboration
+- Internal comments by team (PEO, ACA, Sales)
+- Comment status tracking (resolved/unresolved)
+- Information requests with pre-populated validation issues
+- File verification with verifier name tracking
+- Team-specific file relevance (PEO, ACA, or Both)
+- Activity feed showing recent changes
 
 ## Code Standards & Constraints
 
@@ -149,26 +181,39 @@ const result = useQuery(api.census.getCensus, {
 
 ```
 app/
-  layout.tsx           # Root layout with Convex provider
-  page.tsx             # Dashboard (list clients)
+  layout.tsx                        # Root layout with Convex provider
+  page.tsx                          # Dashboard (client list, search, sort, bookmarking)
   clients/
-    [id]/page.tsx      # Client detail (files + census)
-  ConvexClientProvider.tsx
+    [id]/page.tsx                   # Client detail (quotes, files, census, comments)
+  archived/page.tsx                 # Archived clients view
+  statistics/page.tsx               # Analytics dashboard
+  stats/page.tsx                    # Reporting page
+  convex-client-provider.tsx        # Convex React context provider
 
 components/
-  ui/                  # Shadcn UI components (button, card, dialog, table, etc.)
-  census/              # CensusImport, CensusViewer
+  ui/                               # Shadcn UI components (button, card, dialog, table, etc.)
+  census/                           # CensusImport, CensusViewer, validation components
+  quotes/                           # Quote status components, pipeline UI
+  files/                            # File upload, file list, verification
+  comments/                         # Comment section, activity feed
+  requests/                         # Information request forms and tracking
 
 convex/
-  schema.ts            # Database schema
-  clients.ts           # Client queries/mutations
-  files.ts             # File queries/mutations
-  census.ts            # Census queries/mutations
+  schema.ts                         # Database schema (clients, files, census, quotes, comments, requests)
+  clients.ts                        # Client operations
+  files.ts                          # File upload/management
+  census.ts                         # Census data processing/validation
+  quotes.ts                         # Quote pipeline management
+  comments.ts                       # Comment/activity operations
+  requests.ts                       # Information request operations
 
 lib/
-  utils.ts             # Utility functions
+  utils.ts                          # Utility functions
+  validators.ts                     # Census validation logic
 
-.cursor/rules/         # Coding standards (next.js, convex, neverthrow, ultracite)
+.docs/                              # Development archive (tests, session summaries, notes)
+
+.cursor/rules/                      # Coding standards (next.js, convex, neverthrow, ultracite)
 ```
 
 ## Best Practices for This Project
@@ -203,9 +248,18 @@ lib/
 - Prefer Convex indexes for queries (don't use `.filter()`)
 - Paginate large result sets (use `.paginate()`)
 
-## Known Limitations & TODOs
+## Documentation & Resources
+
+- `USER_GUIDE.md` - Complete user-facing guide covering all features and workflows
+- `.docs/README.md` - Overview of testing/development archive
+- `AGENTS.md` - Project rules and standards for Claude AI agents
+- `README.md` - Project overview and quick start
+
+## Known Limitations & Future Enhancements
 
 - Census row insertion uses `Promise.all()` for batch insert; consider background jobs for >10k rows
-- External links (PEO Quoting, Perfect Quote) are currently disabled buttons
-- No toast notifications yet (currently uses console.log for errors)
 - File type detection is heuristic-based on column keywords; may need refinement for edge cases
+- Mobile responsiveness for complex census viewer may need enhancement
+- Real-time collaboration features (live co-editing) not yet implemented
+- Export functionality (CSV, Excel) for reports not yet implemented
+- Integration with external PEO/ACA quoting systems pending

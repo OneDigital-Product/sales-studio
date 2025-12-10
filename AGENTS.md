@@ -1,6 +1,6 @@
 # Sales Studio: Project Rules & Standards
 
-This repository implements **Sales Studio**, a client and census data management application for PEO/ACA quoting. These rules ensure code quality, consistency, and team alignment.
+This repository implements **Sales Studio**, a comprehensive client and census data management platform for PEO/ACA health plan quoting. It features quote pipeline management, census data validation, document organization, team collaboration, and real-time synchronization. These rules ensure code quality, consistency, and team alignment.
 
 ## Quick Reference - Development
 
@@ -8,8 +8,8 @@ This repository implements **Sales Studio**, a client and census data management
 - **Type Check**: `bun check`
 - **Lint & Format**: `bun lint` / `bun format`
 - **Build**: `bun run build`
-
-See README.md for full architecture. See CLAUDE.md for implementation patterns.
+- **Documentation**: See CLAUDE.md for patterns, USER_GUIDE.md for features, README.md for overview
+- **Testing Archive**: `.docs/` contains 200+ test scripts and session summaries from development
 
 ## 1. Global Guidelines (ALWAYS FOLLOW)
 
