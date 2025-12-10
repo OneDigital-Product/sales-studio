@@ -48,6 +48,23 @@ import type { Id } from "../../../convex/_generated/dataModel";
 
 const CENSUS_FILE_REGEX = /\.(xlsx|xls|csv)$/i;
 
+// Format timestamp to human-readable format
+const formatLastModified = (timestamp: number | undefined) => {
+  if (!timestamp) return null;
+
+  const now = Date.now();
+  const diff = now - timestamp;
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`;
+  if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+  return "just now";
+};
+
 export default function ClientDetailPage() {
   const params = useParams();
   const clientId = params.id as Id<"clients">;
@@ -491,6 +508,11 @@ export default function ClientDetailPage() {
                 )}
                 {client.notes && (
                   <p className="mt-1 text-gray-500">{client.notes}</p>
+                )}
+                {client.lastModified && (
+                  <p className="mt-1 text-gray-400 text-sm">
+                    Last modified: {formatLastModified(client.lastModified)}
+                  </p>
                 )}
               </div>
               <Button

@@ -28,6 +28,7 @@ export const getClients = query({
       contactEmail: v.optional(v.string()),
       notes: v.optional(v.string()),
       activeCensusId: v.optional(v.id("census_uploads")),
+      lastModified: v.optional(v.number()),
     })
   ),
   handler: async (ctx) => await ctx.db.query("clients").collect(),
@@ -44,6 +45,7 @@ export const getClient = query({
       contactEmail: v.optional(v.string()),
       notes: v.optional(v.string()),
       activeCensusId: v.optional(v.id("census_uploads")),
+      lastModified: v.optional(v.number()),
     })
   ),
   handler: async (ctx, args) => await ctx.db.get(args.id),
@@ -62,6 +64,17 @@ export const updateClient = mutation({
       name: args.name,
       contactEmail: args.contactEmail,
       notes: args.notes,
+      lastModified: Date.now(),
+    });
+  },
+});
+
+export const touchLastModified = mutation({
+  args: { clientId: v.id("clients") },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.clientId, {
+      lastModified: Date.now(),
     });
   },
 });
@@ -86,6 +99,7 @@ export const getClientsWithQuotes = query({
       contactEmail: v.optional(v.string()),
       notes: v.optional(v.string()),
       activeCensusId: v.optional(v.id("census_uploads")),
+      lastModified: v.optional(v.number()),
       peoQuote: v.optional(
         v.object({
           status: quoteStatusValidator,

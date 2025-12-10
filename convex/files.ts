@@ -49,6 +49,12 @@ export const saveFile = mutation({
       mimeType: args.mimeType,
       fileSize: args.fileSize,
     });
+
+    // Update client's lastModified timestamp
+    await ctx.db.patch(args.clientId, {
+      lastModified: Date.now(),
+    });
+
     return fileId;
   },
 });

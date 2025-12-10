@@ -7,6 +7,7 @@ export default defineSchema({
     contactEmail: v.optional(v.string()),
     notes: v.optional(v.string()),
     activeCensusId: v.optional(v.id("census_uploads")),
+    lastModified: v.optional(v.number()),
   }),
   files: defineTable({
     storageId: v.string(),
