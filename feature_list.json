@@ -944,7 +944,7 @@
       "Verify only blocked quotes are displayed",
       "Verify blocked reason is shown for each"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
