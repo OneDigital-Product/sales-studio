@@ -2833,3 +2833,52 @@ FEATURES PASSING: 106 of 169 (62.7%)
 FEATURES REMAINING: 63
 
 ===============================================================================
+
+===============================================================================
+SESSION 67 - Feature #108: Export Census Data to Excel
+===============================================================================
+Date: December 10, 2025
+Features Completed: Feature #108
+Status: ✓ Complete
+
+OVERVIEW:
+Added Excel export capability to the census viewer, allowing users to download
+census data in .xlsx format alongside the existing CSV export option.
+
+IMPLEMENTATION DETAILS:
+
+1. Component Changes (census-viewer.tsx):
+   - Added xlsx library import (import * as XLSX from "xlsx")
+   - Refactored export logic to share fetchAllRows helper function
+   - Implemented handleExportExcel function with XLSX.utils
+   - Changed single "Export CSV" button to dropdown menu
+   - Dropdown menu offers "Export as CSV" and "Export as Excel" options
+   
+2. Excel Export Features:
+   - Generates proper .xlsx file format
+   - Uses XLSX.utils.aoa_to_sheet() for data conversion
+   - Auto-fit column widths (minimum 12 characters)
+   - Worksheet named "Census Data"
+   - Filename pattern: [original-name]-export.xlsx
+   - Client-side generation with XLSX.writeFile()
+   
+3. UI/UX Improvements:
+   - Replaced single button with DropdownMenu component
+   - Export Census button triggers dropdown with format options
+   - Consistent loading state across both export types
+   - Same error handling for both CSV and Excel exports
+
+FEATURES PASSING: 107 of 169 (63.3%)
+FEATURES REMAINING: 62
+
+FILES MODIFIED:
+- components/census/census-viewer.tsx (+101 lines, restructured exports)
+- feature_list.json (Feature #108: passes: false → true)
+
+FILES CREATED:
+- test-feature-108-excel-export.mjs (backend verification script)
+
+COMMIT:
+df628ce - Implement Feature #108: Export census data to Excel
+
+===============================================================================
