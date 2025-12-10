@@ -1595,7 +1595,7 @@
       "Verify timestamps are readable",
       "Verify spacing between comments is comfortable"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",

@@ -53,18 +53,24 @@ export function CommentItem({
   };
 
   return (
-    <div
-      className={`rounded-lg border p-4 ${
-        isResolved
-          ? "border-gray-200 bg-gray-50 opacity-70"
-          : "border-gray-200 bg-white"
-      }`}
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-1 items-start gap-3">
-          <div className="mt-1">
-            <MessageCircle className="h-4 w-4 text-muted-foreground" />
-          </div>
+    <div className="relative flex gap-4">
+      {/* Timeline visual */}
+      <div className="relative flex flex-col items-center">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-blue-500 bg-white">
+          <MessageCircle className="h-4 w-4 text-blue-500" />
+        </div>
+        <div className="absolute top-8 h-full w-0.5 bg-gray-200" />
+      </div>
+
+      {/* Comment content */}
+      <div
+        className={`flex-1 rounded-lg border p-4 ${
+          isResolved
+            ? "border-gray-200 bg-gray-50 opacity-70"
+            : "border-gray-200 bg-white"
+        }`}
+      >
+        <div className="flex items-start justify-between gap-4">
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2">
               <span className="font-medium text-sm">{authorName}</span>
