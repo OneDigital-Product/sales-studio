@@ -203,3 +203,35 @@ export const cancelInfoRequest = mutation({
   },
   returns: v.null(),
 });
+
+// Helper mutation for testing: add items to an existing request
+export const addItemsToRequest = mutation({
+  args: {
+    requestId: v.id("info_requests"),
+    newItems: v.array(
+      v.object({
+        description: v.string(),
+        category: v.optional(v.string()),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const request = await ctx.db.get(args.requestId);
+    if (!request) {
+      throw new Error("Request not found");
+    }
+
+    const itemsToAdd = args.newItems.map((item) => ({
+      description: item.description,
+      category: item.category,
+      received: false,
+    }));
+
+    await ctx.db.patch(args.requestId, {
+      items: [...request.items, ...itemsToAdd],
+    });
+
+    return null;
+  },
+  returns: v.null(),
+});
