@@ -1,15 +1,61 @@
 #!/usr/bin/env node
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "./convex/_generated/api.js";
 
-// Direct test of clone census mutation
-// Run this to test if the mutation works at all
+const client = new ConvexHttpClient(
+  process.env.NEXT_PUBLIC_CONVEX_URL || "https://polite-coyote-754.convex.cloud"
+);
 
-console.log("This test needs to use Convex API properly");
-console.log("The clone census feature is implemented but needs verification");
-console.log("");
-console.log("To test manually:");
-console.log("1. Go to Feature 116 Workflow Test client");
-console.log("2. Click Census History tab");
-console.log("3. Click Clone Census button");
-console.log("4. Select a target client");
-console.log("5. Click Clone Census in the dialog");
-console.log("6. Navigate to target client and check Census History");
+async function testClone() {
+  try {
+    // Get Test Client (has census)
+    const clients = await client.query(api.clients.getClients, {
+      includeArchived: false,
+    });
+
+    const testClient = clients.find((c) => c.name === "Test Client");
+    const testClient2 = clients.find((c) => c.name === "Test Client 2");
+
+    if (!testClient) {
+      console.error("Test Client not found");
+      return;
+    }
+
+    if (!testClient2) {
+      console.error("Test Client 2 not found");
+      return;
+    }
+
+    console.log("Source:", testClient.name, testClient._id);
+    console.log("Target:", testClient2.name, testClient2._id);
+
+    // Get census uploads for source
+    const censusUploads = await client.query(api.census.getCensusUploads, {
+      clientId: testClient._id,
+    });
+
+    if (!censusUploads || censusUploads.length === 0) {
+      console.error("No census uploads found for Test Client");
+      return;
+    }
+
+    const sourceCensus = censusUploads[0];
+    console.log("Census to clone:", sourceCensus._id, sourceCensus.fileName);
+
+    // Clone it
+    console.log("\nCloning...");
+    const result = await client.mutation(api.census.cloneCensus, {
+      censusUploadId: sourceCensus._id,
+      targetClientId: testClient2._id,
+    });
+
+    console.log("✅ Success! New census ID:", result.newCensusId);
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+    if (error.data) {
+      console.error("Error data:", error.data);
+    }
+  }
+}
+
+testClone();
