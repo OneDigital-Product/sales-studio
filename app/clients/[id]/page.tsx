@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "convex/react";
 import {
   Bookmark,
   BookmarkCheck,
+  Copy,
   FileText,
   Pencil,
   Table as TableIcon,
@@ -97,6 +98,7 @@ export default function ClientDetailPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const CENSUS_KEYWORDS = [
     "dob",
@@ -388,6 +390,19 @@ export default function ClientDetailPage() {
     }
   };
 
+  const handleCopyClientInfo = async () => {
+    try {
+      const clientInfo = `Client Name: ${client.name}
+Email: ${client.contactEmail || "N/A"}
+Notes: ${client.notes || "N/A"}`;
+      await navigator.clipboard.writeText(clientInfo);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch {
+      // Copy error silently handled
+    }
+  };
+
   if (client === undefined) {
     return <div className="p-8">Loading...</div>;
   }
@@ -545,6 +560,18 @@ export default function ClientDetailPage() {
                     Bookmark
                   </>
                 )}
+              </Button>
+              <Button
+                className={
+                  copySuccess
+                    ? "border-green-500 bg-green-50 text-green-600"
+                    : ""
+                }
+                onClick={handleCopyClientInfo}
+                variant="outline"
+              >
+                <Copy className="mr-2 h-4 w-4" />
+                {copySuccess ? "Copied!" : "Copy Client Info"}
               </Button>
               <CreateRequestDialog clientId={clientId} />
               <Button className="bg-green-600 hover:bg-green-700" disabled>

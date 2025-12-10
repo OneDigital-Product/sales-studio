@@ -1368,7 +1368,7 @@
       "Paste from clipboard",
       "Verify client name, email, and notes are copied"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
