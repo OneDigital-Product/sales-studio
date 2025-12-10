@@ -275,3 +275,116 @@ export const getQuotesDashboard = query({
     });
   },
 });
+
+export const generateQuoteReport = query({
+  args: {
+    startDate: v.optional(v.number()),
+    endDate: v.optional(v.number()),
+  },
+  returns: v.object({
+    quotes: v.array(
+      v.object({
+        _id: v.id("quotes"),
+        clientName: v.string(),
+        type: quoteTypeValidator,
+        status: quoteStatusValidator,
+        isBlocked: v.optional(v.boolean()),
+        blockedReason: v.optional(v.string()),
+        startedAt: v.optional(v.number()),
+        completedAt: v.optional(v.number()),
+        daysToComplete: v.optional(v.number()),
+      })
+    ),
+    summary: v.object({
+      totalQuotes: v.number(),
+      peoQuotes: v.number(),
+      acaQuotes: v.number(),
+      acceptedQuotes: v.number(),
+      declinedQuotes: v.number(),
+      activeQuotes: v.number(),
+      blockedQuotes: v.number(),
+      avgDaysToComplete: v.optional(v.number()),
+    }),
+  }),
+  handler: async (ctx, args) => {
+    const clients = await ctx.db.query("clients").collect();
+    const allQuotes = await ctx.db.query("quotes").collect();
+
+    // Filter quotes by date range if provided
+    let filteredQuotes = allQuotes;
+    if (args.startDate || args.endDate) {
+      filteredQuotes = allQuotes.filter((quote) => {
+        const quoteDate = quote.startedAt ?? quote._creationTime;
+        if (args.startDate && quoteDate < args.startDate) return false;
+        if (args.endDate && quoteDate > args.endDate) return false;
+        return true;
+      });
+    }
+
+    // Build client lookup map
+    const clientMap = new Map(clients.map((c) => [c._id, c]));
+
+    // Transform quotes with client names
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const quotesWithDetails = filteredQuotes.map((quote) => {
+      const client = clientMap.get(quote.clientId);
+      const daysToComplete =
+        quote.completedAt && quote.startedAt
+          ? Math.floor((quote.completedAt - quote.startedAt) / msPerDay)
+          : undefined;
+
+      return {
+        _id: quote._id,
+        clientName: client?.name ?? "Unknown",
+        type: quote.type,
+        status: quote.status,
+        isBlocked: quote.isBlocked,
+        blockedReason: quote.blockedReason,
+        startedAt: quote.startedAt,
+        completedAt: quote.completedAt,
+        daysToComplete,
+      };
+    });
+
+    // Calculate summary statistics
+    const totalQuotes = filteredQuotes.length;
+    const peoQuotes = filteredQuotes.filter((q) => q.type === "PEO").length;
+    const acaQuotes = filteredQuotes.filter((q) => q.type === "ACA").length;
+    const acceptedQuotes = filteredQuotes.filter(
+      (q) => q.status === "accepted"
+    ).length;
+    const declinedQuotes = filteredQuotes.filter(
+      (q) => q.status === "declined"
+    ).length;
+    const activeQuotes = filteredQuotes.filter(
+      (q) => q.status !== "accepted" && q.status !== "declined"
+    ).length;
+    const blockedQuotes = filteredQuotes.filter((q) => q.isBlocked).length;
+
+    // Calculate average days to complete for completed quotes
+    const completedQuotesWithTime = quotesWithDetails.filter(
+      (q) => q.daysToComplete !== undefined
+    );
+    const avgDaysToComplete =
+      completedQuotesWithTime.length > 0
+        ? completedQuotesWithTime.reduce(
+            (sum, q) => sum + (q.daysToComplete ?? 0),
+            0
+          ) / completedQuotesWithTime.length
+        : undefined;
+
+    return {
+      quotes: quotesWithDetails,
+      summary: {
+        totalQuotes,
+        peoQuotes,
+        acaQuotes,
+        acceptedQuotes,
+        declinedQuotes,
+        activeQuotes,
+        blockedQuotes,
+        avgDaysToComplete,
+      },
+    };
+  },
+});

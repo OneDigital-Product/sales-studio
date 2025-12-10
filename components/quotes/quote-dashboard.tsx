@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
-import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, FileDown } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -51,9 +53,6 @@ type QuoteStatus =
 type QuoteType = "PEO" | "ACA" | "all";
 
 export function QuoteDashboard() {
-  const dashboard = useQuery(api.quotes.getQuotesDashboard);
-  const batchUpdate = useMutation(api.quotes.batchUpdateQuoteStatus);
-
   const [statusFilter, setStatusFilter] = useState<QuoteStatus | "all">("all");
   const [typeFilter, setTypeFilter] = useState<QuoteType>("all");
   const [blockedOnly, setBlockedOnly] = useState(false);
@@ -63,6 +62,46 @@ export function QuoteDashboard() {
   const [showBulkDialog, setShowBulkDialog] = useState(false);
   const [bulkStatus, setBulkStatus] = useState<QuoteStatus>("intake");
   const [bulkNotes, setBulkNotes] = useState("");
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [reportStartDate, setReportStartDate] = useState("");
+  const [reportEndDate, setReportEndDate] = useState("");
+  const [generatedReport, setGeneratedReport] = useState<{
+    quotes: Array<{
+      _id: Id<"quotes">;
+      clientName: string;
+      type: "PEO" | "ACA";
+      status: QuoteStatus;
+      isBlocked?: boolean;
+      blockedReason?: string;
+      startedAt?: number;
+      completedAt?: number;
+      daysToComplete?: number;
+    }>;
+    summary: {
+      totalQuotes: number;
+      peoQuotes: number;
+      acaQuotes: number;
+      acceptedQuotes: number;
+      declinedQuotes: number;
+      activeQuotes: number;
+      blockedQuotes: number;
+      avgDaysToComplete?: number;
+    };
+  } | null>(null);
+
+  const dashboard = useQuery(api.quotes.getQuotesDashboard);
+  const batchUpdate = useMutation(api.quotes.batchUpdateQuoteStatus);
+  const reportData = useQuery(
+    api.quotes.generateQuoteReport,
+    showReportDialog && reportStartDate && reportEndDate
+      ? {
+          startDate: new Date(reportStartDate).getTime(),
+          endDate: new Date(reportEndDate).getTime(),
+        }
+      : showReportDialog
+        ? {}
+        : "skip"
+  );
 
   if (!dashboard) {
     return (
@@ -159,6 +198,120 @@ export function QuoteDashboard() {
     setSelectedQuotes(new Set());
     setShowBulkDialog(false);
     setBulkNotes("");
+  };
+
+  const handleGenerateReport = () => {
+    if (reportData) {
+      setGeneratedReport(reportData);
+    }
+  };
+
+  const handleExportPDF = () => {
+    if (!generatedReport) return;
+
+    // Create HTML for PDF export
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Quote Status Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1 { color: #333; }
+            .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 20px 0; }
+            .summary-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
+            .summary-card h3 { margin: 0 0 10px 0; color: #666; font-size: 14px; }
+            .summary-card p { margin: 0; font-size: 24px; font-weight: bold; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            th { background-color: #f5f5f5; font-weight: 600; }
+            .peo-badge { background: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+            .aca-badge { background: #8b5cf6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+            @media print { button { display: none; } }
+          </style>
+        </head>
+        <body>
+          <h1>Quote Status Report</h1>
+          <p>Generated: ${new Date().toLocaleString()}</p>
+          ${reportStartDate ? `<p>Start Date: ${reportStartDate}</p>` : ""}
+          ${reportEndDate ? `<p>End Date: ${reportEndDate}</p>` : ""}
+
+          <div class="summary">
+            <div class="summary-card">
+              <h3>Total Quotes</h3>
+              <p>${generatedReport.summary.totalQuotes}</p>
+            </div>
+            <div class="summary-card">
+              <h3>PEO Quotes</h3>
+              <p>${generatedReport.summary.peoQuotes}</p>
+            </div>
+            <div class="summary-card">
+              <h3>ACA Quotes</h3>
+              <p>${generatedReport.summary.acaQuotes}</p>
+            </div>
+            <div class="summary-card">
+              <h3>Accepted</h3>
+              <p style="color: #22c55e">${generatedReport.summary.acceptedQuotes}</p>
+            </div>
+            <div class="summary-card">
+              <h3>Declined</h3>
+              <p style="color: #ef4444">${generatedReport.summary.declinedQuotes}</p>
+            </div>
+            <div class="summary-card">
+              <h3>Active</h3>
+              <p style="color: #3b82f6">${generatedReport.summary.activeQuotes}</p>
+            </div>
+            <div class="summary-card">
+              <h3>Blocked</h3>
+              <p style="color: #f59e0b">${generatedReport.summary.blockedQuotes}</p>
+            </div>
+            <div class="summary-card">
+              <h3>Avg Days to Complete</h3>
+              <p>${generatedReport.summary.avgDaysToComplete?.toFixed(1) ?? "N/A"}</p>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Started</th>
+                <th>Completed</th>
+                <th>Days to Complete</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${generatedReport.quotes
+                .map(
+                  (quote) => `
+                <tr>
+                  <td>${quote.clientName}</td>
+                  <td><span class="${quote.type.toLowerCase()}-badge">${quote.type}</span></td>
+                  <td>${quote.status.replace("_", " ").toUpperCase()}</td>
+                  <td>${quote.startedAt ? new Date(quote.startedAt).toLocaleDateString() : "—"}</td>
+                  <td>${quote.completedAt ? new Date(quote.completedAt).toLocaleDateString() : "—"}</td>
+                  <td>${quote.daysToComplete ?? "—"}</td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+
+          <button onclick="window.print()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Print / Save as PDF
+          </button>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
   };
 
   const getStatusColor = (status: QuoteStatus) => {
@@ -282,6 +435,9 @@ export function QuoteDashboard() {
                 Bulk Update Status ({selectedQuotes.size})
               </Button>
             )}
+            <Button onClick={() => setShowReportDialog(true)} variant="outline">
+              Generate Report
+            </Button>
           </div>
         </div>
 
@@ -504,6 +660,182 @@ export function QuoteDashboard() {
                 Cancel
               </Button>
               <Button onClick={handleBulkUpdate}>Apply Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Generate Report Dialog */}
+        <Dialog onOpenChange={setShowReportDialog} open={showReportDialog}>
+          <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Generate Quote Status Report</DialogTitle>
+              <DialogDescription>
+                Generate a comprehensive report of quote activity within a date
+                range
+              </DialogDescription>
+            </DialogHeader>
+
+            {generatedReport ? (
+              <div className="space-y-4 py-4">
+                {/* Summary Statistics */}
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p className="text-gray-600 text-xs">Total Quotes</p>
+                    <p className="font-bold text-xl">
+                      {generatedReport.summary.totalQuotes}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p className="text-gray-600 text-xs">PEO</p>
+                    <p className="font-bold text-blue-600 text-xl">
+                      {generatedReport.summary.peoQuotes}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p className="text-gray-600 text-xs">ACA</p>
+                    <p className="font-bold text-purple-600 text-xl">
+                      {generatedReport.summary.acaQuotes}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p className="text-gray-600 text-xs">Accepted</p>
+                    <p className="font-bold text-green-600 text-xl">
+                      {generatedReport.summary.acceptedQuotes}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p className="text-gray-600 text-xs">Declined</p>
+                    <p className="font-bold text-red-600 text-xl">
+                      {generatedReport.summary.declinedQuotes}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p className="text-gray-600 text-xs">Active</p>
+                    <p className="font-bold text-blue-600 text-xl">
+                      {generatedReport.summary.activeQuotes}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p className="text-gray-600 text-xs">Blocked</p>
+                    <p className="font-bold text-orange-600 text-xl">
+                      {generatedReport.summary.blockedQuotes}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p className="text-gray-600 text-xs">Avg Days</p>
+                    <p className="font-bold text-xl">
+                      {generatedReport.summary.avgDaysToComplete?.toFixed(1) ??
+                        "—"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quotes Table */}
+                <div className="max-h-[300px] overflow-y-auto rounded-lg border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Client</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Started</TableHead>
+                        <TableHead>Completed</TableHead>
+                        <TableHead>Days</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {generatedReport.quotes.map((quote) => (
+                        <TableRow key={quote._id}>
+                          <TableCell className="font-medium">
+                            {quote.clientName}
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              className={`rounded px-2 py-1 font-medium text-white text-xs ${
+                                quote.type === "PEO"
+                                  ? "bg-blue-600"
+                                  : "bg-purple-600"
+                              }`}
+                            >
+                              {quote.type}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {quote.status.replace("_", " ").toUpperCase()}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {quote.startedAt
+                              ? new Date(quote.startedAt).toLocaleDateString()
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {quote.completedAt
+                              ? new Date(quote.completedAt).toLocaleDateString()
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {quote.daysToComplete ?? "—"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="start-date">Start Date (optional)</Label>
+                    <Input
+                      id="start-date"
+                      onChange={(e) => setReportStartDate(e.target.value)}
+                      type="date"
+                      value={reportStartDate}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="end-date">End Date (optional)</Label>
+                    <Input
+                      id="end-date"
+                      onChange={(e) => setReportEndDate(e.target.value)}
+                      type="date"
+                      value={reportEndDate}
+                    />
+                  </div>
+                </div>
+                <p className="text-gray-500 text-sm">
+                  Leave dates blank to include all quotes
+                </p>
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button
+                onClick={() => {
+                  setShowReportDialog(false);
+                  setGeneratedReport(null);
+                  setReportStartDate("");
+                  setReportEndDate("");
+                }}
+                variant="outline"
+              >
+                Close
+              </Button>
+              {generatedReport ? (
+                <Button onClick={handleExportPDF} variant="default">
+                  <FileDown className="mr-2 h-4 w-4" />
+                  Export to PDF
+                </Button>
+              ) : (
+                <Button
+                  disabled={!reportData}
+                  onClick={handleGenerateReport}
+                  variant="default"
+                >
+                  {reportData ? "Generate" : "Loading..."}
+                </Button>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>

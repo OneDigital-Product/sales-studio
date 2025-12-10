@@ -1517,7 +1517,7 @@
       "Verify summary statistics are shown",
       "Verify report can be exported to PDF"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
