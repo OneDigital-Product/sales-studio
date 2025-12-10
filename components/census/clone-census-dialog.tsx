@@ -62,17 +62,27 @@ export function CloneCensusDialog({
     setIsCloning(true);
 
     try {
-      await cloneCensus({
+      console.log("[Dialog] Starting clone:", {
         censusUploadId,
         targetClientId,
       });
 
-      toast.success("Census data cloned successfully");
+      const result = await cloneCensus({
+        censusUploadId,
+        targetClientId,
+      });
+
+      console.log("[Dialog] Clone result:", result);
+      toast.success(
+        `Census cloned successfully! New ID: ${result.newCensusId}`
+      );
       setOpen(false);
       setTargetClientId(null);
     } catch (error) {
-      console.error("Failed to clone census:", error);
-      toast.error("Failed to clone census data");
+      console.error("[Dialog] Failed to clone census:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Failed to clone census: ${errorMessage}`);
     } finally {
       setIsCloning(false);
     }
