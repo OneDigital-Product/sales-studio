@@ -1543,7 +1543,7 @@
       "Verify information hierarchy is clear",
       "Verify no visual clutter"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
