@@ -1249,7 +1249,7 @@
       "Cancel deletion",
       "Verify client is not deleted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
