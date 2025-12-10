@@ -811,7 +811,7 @@
       "Verify relevantTo includes both teams",
       "Verify both teams see file highlighted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

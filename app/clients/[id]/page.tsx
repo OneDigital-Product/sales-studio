@@ -21,6 +21,7 @@ import { FileUploadDialog } from "@/components/files/file-upload-dialog";
 import { CreateRequestDialog } from "@/components/info-requests/create-request-dialog";
 import { RequestsPanel } from "@/components/info-requests/requests-panel";
 import { QuoteStatusCard } from "@/components/quotes/quote-status-card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
