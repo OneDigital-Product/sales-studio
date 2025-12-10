@@ -1712,7 +1712,7 @@
       "Verify max-width constraints are applied",
       "Verify layout is balanced"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
