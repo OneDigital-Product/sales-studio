@@ -921,7 +921,7 @@
       "Verify only quotes in underwriting are displayed",
       "Verify count matches"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

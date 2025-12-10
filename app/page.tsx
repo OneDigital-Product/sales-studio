@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { useState } from "react";
 import { OutstandingRequestsWidget } from "@/components/info-requests/outstanding-requests-widget";
+import { QuoteDashboard } from "@/components/quotes/quote-dashboard";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -31,6 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "../convex/_generated/api";
 
@@ -42,6 +44,7 @@ export default function Home() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
+  const [activeTab, setActiveTab] = useState("clients");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,7 +120,7 @@ export default function Home() {
 
         <OutstandingRequestsWidget />
 
-        <Tabs defaultValue="clients">
+        <Tabs onValueChange={setActiveTab} value={activeTab}>
           <TabsList>
             <TabsTrigger value="clients">Clients</TabsTrigger>
             <TabsTrigger value="dashboard">Quote Dashboard</TabsTrigger>
