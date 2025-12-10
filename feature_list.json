@@ -1621,7 +1621,7 @@
       "Verify danger buttons use same style",
       "Verify hover states are consistent"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
