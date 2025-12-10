@@ -1378,7 +1378,7 @@
       "Verify 'Assigned To' field is displayed",
       "Verify analyst name is shown if assigned"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

@@ -120,6 +120,19 @@ export const getQuoteHistory = query({
       .collect(),
 });
 
+export const updateQuoteAssignment = mutation({
+  args: {
+    quoteId: v.id("quotes"),
+    assignedTo: v.optional(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.quoteId, {
+      assignedTo: args.assignedTo,
+    });
+  },
+});
+
 export const getQuotesDashboard = query({
   args: {},
   returns: v.array(
