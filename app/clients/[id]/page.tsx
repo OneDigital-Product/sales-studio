@@ -18,6 +18,7 @@ import { read, utils } from "xlsx";
 import { CensusImport } from "@/components/census/census-import";
 import { CensusValidationSummary } from "@/components/census/census-validation-summary";
 import { CensusViewer } from "@/components/census/census-viewer";
+import { CloneCensusDialog } from "@/components/census/clone-census-dialog";
 import { CommentFeed } from "@/components/comments/comment-feed";
 import { DocumentCenter } from "@/components/files/document-center";
 import { DocumentCompletenessIndicator } from "@/components/files/document-completeness-indicator";
@@ -608,6 +609,13 @@ Notes: ${client.notes || "N/A"}`;
                         {censusHistory.length !== 1 ? "s" : ""} found
                       </div>
                       <div className="flex items-center gap-2">
+                        {!comparisonMode && activeCensus && (
+                          <CloneCensusDialog
+                            censusFileName={activeCensus.fileName}
+                            censusUploadId={activeCensus._id}
+                            currentClientId={clientId}
+                          />
+                        )}
                         {!comparisonMode && censusHistory.length >= 2 && (
                           <Button
                             onClick={() => {

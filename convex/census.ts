@@ -267,3 +267,66 @@ export const insertCensusRowsBatch = internalMutation({
     );
   },
 });
+
+// Clone census data from one client to another
+export const cloneCensus = mutation({
+  args: {
+    censusUploadId: v.id("census_uploads"),
+    targetClientId: v.id("clients"),
+  },
+  returns: v.object({
+    newCensusId: v.id("census_uploads"),
+  }),
+  handler: async (ctx, args) => {
+    // Get the source census upload
+    const sourceCensus = await ctx.db.get(args.censusUploadId);
+    if (!sourceCensus) {
+      throw new Error("Source census not found");
+    }
+
+    // Verify target client exists
+    const targetClient = await ctx.db.get(args.targetClientId);
+    if (!targetClient) {
+      throw new Error("Target client not found");
+    }
+
+    // Create new census upload for target client
+    const newCensusId = await ctx.db.insert("census_uploads", {
+      clientId: args.targetClientId,
+      fileName: `${sourceCensus.fileName} (cloned)`,
+      uploadedAt: Date.now(),
+      columns: sourceCensus.columns,
+      rowCount: sourceCensus.rowCount,
+    });
+
+    // Get all rows from source census
+    const sourceRows = await ctx.db
+      .query("census_rows")
+      .withIndex("by_censusUploadId", (q) =>
+        q.eq("censusUploadId", args.censusUploadId)
+      )
+      .order("asc")
+      .collect();
+
+    // Clone all rows to new census
+    await Promise.all(
+      sourceRows.map((row) =>
+        ctx.db.insert("census_rows", {
+          censusUploadId: newCensusId,
+          data: row.data,
+          rowIndex: row.rowIndex,
+        })
+      )
+    );
+
+    // Set as active census for target client
+    await ctx.db.patch(args.targetClientId, { activeCensusId: newCensusId });
+
+    // Trigger validation for the cloned census
+    await ctx.scheduler.runAfter(0, internal.censusValidation.runValidation, {
+      censusUploadId: newCensusId,
+    });
+
+    return { newCensusId };
+  },
+});
