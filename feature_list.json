@@ -1199,7 +1199,7 @@
       "Verify description is stored",
       "Verify description is displayed in file list"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

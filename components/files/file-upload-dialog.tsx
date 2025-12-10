@@ -45,7 +45,8 @@ interface FileUploadDialogProps {
     file: File,
     category: FileCategory,
     relevantTo?: string[],
-    isRequired?: boolean
+    isRequired?: boolean,
+    description?: string
   ) => Promise<void>;
   trigger?: React.ReactNode;
 }
@@ -58,6 +59,7 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
   const [relevantToPEO, setRelevantToPEO] = useState(false);
   const [relevantToACA, setRelevantToACA] = useState(false);
   const [isRequired, setIsRequired] = useState(false);
+  const [description, setDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,7 +108,8 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
         selectedFile,
         category,
         relevantTo.length > 0 ? relevantTo : undefined,
-        isRequired
+        isRequired,
+        description || undefined
       );
       setOpen(false);
       setSelectedFile(null);
@@ -114,6 +117,7 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
       setRelevantToPEO(false);
       setRelevantToACA(false);
       setIsRequired(false);
+      setDescription("");
       setError(null);
     } catch (error) {
       // Display user-friendly error message
@@ -137,6 +141,7 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
     setRelevantToPEO(false);
     setRelevantToACA(false);
     setIsRequired(false);
+    setDescription("");
     setError(null);
   };
 
@@ -208,6 +213,18 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description (Optional)</Label>
+            <Input
+              disabled={uploading}
+              id="description"
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Brief description of the file..."
+              type="text"
+              value={description}
+            />
           </div>
 
           <div className="space-y-2">

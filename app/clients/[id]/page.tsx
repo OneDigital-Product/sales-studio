@@ -200,7 +200,8 @@ export default function ClientDetailPage() {
       | "contract"
       | "other",
     relevantTo?: string[],
-    isRequired?: boolean
+    isRequired?: boolean,
+    description?: string
   ) => {
     try {
       const isCensus = category === "census" || (await isCensusFile(file));
@@ -228,6 +229,7 @@ export default function ClientDetailPage() {
         category,
         relevantTo,
         isRequired,
+        description,
         mimeType: file.type,
         fileSize: file.size,
       });

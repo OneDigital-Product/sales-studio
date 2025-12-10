@@ -268,6 +268,13 @@ export function DocumentCenter({
                               </span>
                             )}
                           </div>
+                          {file.description && (
+                            <div className="mt-1">
+                              <span className="text-gray-600 text-sm italic">
+                                {file.description}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="text-gray-600 text-sm">
