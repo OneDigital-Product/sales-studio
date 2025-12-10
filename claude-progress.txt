@@ -552,3 +552,211 @@ FEATURES PASSING: 58 of 169 (34.3%)
 FEATURES REMAINING: 111
 
 ===============================================================================
+===============================================================================
+CLAUDE AGENT SESSION 32 - AUTO-BLOCK/UNBLOCK QUOTES FROM INFO REQUESTS
+Session Date: 2024-12-09
+===============================================================================
+
+MISSION: Implement Feature #59 - Link info request to quote blocked status
+
+===============================================================================
+COMPLETED TASKS
+===============================================================================
+
+✅ 1. VERIFIED APPLICATION STATE (REGRESSION TEST)
+   - Dev servers confirmed running on port 3000
+   - Navigated to Test Client 2 detail page
+   - All previous features working correctly:
+     * Quote status cards displayed (PEO Not Created, ACA Not Started)
+     * Outstanding Requests panel showing (empty with green checkmark)
+     * No regression issues detected
+
+✅ 2. ANALYZED FEATURE REQUIREMENTS
+   - Reviewed Feature #59 test requirements
+   - Examined database schema (quotes table with isBlocked/blockedReason)
+   - Reviewed existing convex/info_requests.ts mutations
+   - Reviewed existing convex/quotes.ts mutations
+   - Identified integration points for auto-blocking logic
+
+✅ 3. IMPLEMENTED AUTO-BLOCKING ON REQUEST CREATION
+   Implementation: convex/info_requests.ts - createInfoRequest mutation
+   
+   Logic Added:
+   ✅ Determine which quotes to block based on quoteType:
+      - "PEO" → block PEO quote only
+      - "ACA" → block ACA quote only  
+      - "both" → block both PEO and ACA quotes
+      - undefined → block both quotes (default behavior)
+   ✅ Query for relevant quote(s) using by_clientId_and_type index
+   ✅ Patch quote with:
+      - isBlocked: true
+      - blockedReason: includes Request ID for reference
+   ✅ Automatic execution after request insertion
+
+✅ 4. IMPLEMENTED AUTO-UNBLOCKING ON REQUEST COMPLETION
+   Implementation: convex/info_requests.ts - markItemReceived mutation
+   
+   Logic Added:
+   ✅ Check if all items are received after marking item
+   ✅ If all received, determine which quotes to unblock (same logic as blocking)
+   ✅ Query for relevant quote(s) using index
+   ✅ Patch quote with:
+      - isBlocked: false
+      - blockedReason: undefined
+   ✅ Only unblocks if quote.isBlocked is true (prevents overwriting)
+
+✅ 5. IMPLEMENTED RE-BLOCKING ON ITEM UNCHECKED
+   Implementation: convex/info_requests.ts - markItemNotReceived mutation
+   
+   Logic Added:
+   ✅ When item is unchecked, request status returns to "pending"
+   ✅ Re-block relevant quote(s) with same logic as creation
+   ✅ Updates blockedReason to reference the request ID
+   ✅ Ensures quote stays blocked while items are pending
+
+✅ 6. IMPLEMENTED UNBLOCKING ON REQUEST CANCELLATION
+   Implementation: convex/info_requests.ts - cancelInfoRequest mutation
+   
+   Logic Added:
+   ✅ Get request details before cancellation
+   ✅ Determine which quotes to unblock based on quoteType
+   ✅ Query for relevant quote(s)
+   ✅ Unblock if quote.isBlocked is true
+   ✅ Clear blockedReason
+   ✅ Allows quote work to continue after cancellation
+
+✅ 7. END-TO-END TESTING WITH BROWSER AUTOMATION
+   
+   Test Scenario: Create ACA info request and verify auto-blocking/unblocking
+   
+   Step 1: Initial State
+   ✅ Navigated to Test Client 2
+   ✅ ACA Quote status: "Not Started" (not blocked)
+   ✅ Outstanding Requests: Empty (green checkmark)
+   
+   Step 2: Create Info Request
+   ✅ Clicked "Request Missing Info" button
+   ✅ Selected quote type: "ACA"
+   ✅ Entered requested by: "Test Manager"
+   ✅ Entered description: "Need updated employee census data"
+   ✅ Clicked "Create Request"
+   
+   Step 3: Verify Auto-Blocking
+   ✅ ACA Quote now shows "Blocked" badge (red)
+   ✅ Blocked reason displayed: "Blocked: Waiting for client to provide requested information (Request ID: k574zyd91f0xdxs6mnxphd8y8n7x0nnh)"
+   ✅ Outstanding Requests shows "1 pending"
+   ✅ Request card displayed with pending status (yellow background)
+   ✅ Request shows "0/1 items" progress
+   
+   Step 4: Mark Item as Received
+   ✅ Clicked checkbox for "Need updated employee census data"
+   ✅ Item marked with checkmark and strikethrough
+   ✅ "Received just now" timestamp displayed
+   ✅ Request status changed to "received" (green badge)
+   ✅ Progress updated to "1/1 items"
+   ✅ "Completed just now" timestamp shown
+   
+   Step 5: Verify Auto-Unblocking
+   ✅ ACA Quote no longer shows "Blocked" badge
+   ✅ Quote status returned to "Not Started" (gray)
+   ✅ Blocked reason removed (no red alert box)
+   ✅ Quote is now unblocked and ready for work
+   
+   Screenshots Captured:
+   - session32-homepage-verification.png
+   - session32-client-detail-verification.png
+   - session32-test-client2-initial.png
+   - session32-request-dialog-open.png
+   - session32-dropdown-opened.png
+   - session32-aca-selected.png
+   - session32-form-filled.png
+   - session32-create-button-visible.png
+   - session32-after-create-request.png (auto-blocked!)
+   - session32-outstanding-requests-panel.png
+   - session32-requests-panel-visible.png
+   - session32-item-marked-received.png
+   - session32-quote-unblocked.png (auto-unblocked!)
+
+===============================================================================
+TECHNICAL IMPLEMENTATION NOTES
+===============================================================================
+
+Quote Blocking Logic:
+- Uses quoteType field from info_request to determine which quotes to block
+- Queries quotes using by_clientId_and_type index for efficiency
+- Only patches existing quotes (doesn't create new quotes)
+- Blocked reason format: "Waiting for client to provide requested information (Request ID: {id})"
+
+Quote Unblocking Logic:
+- Triggers when all request items marked as received
+- Also triggers when request is cancelled
+- Checks quote.isBlocked before unblocking (safety check)
+- Clears blockedReason field completely
+
+Edge Cases Handled:
+- Multiple quotes per client (PEO/ACA independent)
+- Quote not yet created (mutation skips if quote doesn't exist)
+- Request with no quoteType specified (defaults to blocking both)
+- Re-checking/unchecking items (re-blocks quote)
+- Cancelling request (unblocks quote)
+
+Real-Time Sync:
+- All mutations trigger Convex real-time updates
+- Quote status cards update immediately when blocked/unblocked
+- Outstanding Requests panel updates immediately
+- No page refresh needed
+
+===============================================================================
+CODE CHANGES
+===============================================================================
+
+Modified:
+- convex/info_requests.ts
+  * createInfoRequest: Added auto-blocking logic (lines 34-61)
+  * markItemReceived: Added auto-unblocking logic (lines 185-214)
+  * markItemNotReceived: Added re-blocking logic (lines 249-276)
+  * cancelInfoRequest: Added unblocking logic (lines 298-325)
+
+Updated:
+- feature_list.json - marked Feature #59 as passing
+
+Committed:
+- git commit 673b719: "Implement Feature #59: Link info request to quote blocked status"
+
+===============================================================================
+SESSION SUMMARY
+===============================================================================
+
+Starting Status: 58 features passing (34.3%)
+Ending Status: 59 features passing (34.9%)
+
+Features Completed:
+- Feature #59: Link info request to quote blocked status ✅
+
+Test Verification (All Steps Passing):
+✅ Create information request for client
+✅ Verify quote status automatically updates to blocked
+✅ Verify blockedReason references the info request
+✅ Mark request as received
+✅ Verify quote is unblocked automatically
+
+Quality Metrics:
+- Zero console errors
+- Real-time updates working perfectly
+- Clean backend implementation with proper validators
+- Efficient database queries using indexes
+- Edge cases handled (multiple quotes, cancellation, re-checking)
+- Proper TypeScript types maintained
+
+Impact:
+- This feature creates a critical integration between info requests and quote status
+- Account Managers can now see why a quote is blocked
+- Analysts know when they can resume work after receiving client data
+- Reduces "what's the status?" inquiries significantly
+- Provides audit trail via blockedReason with Request ID
+
+FEATURES PASSING: 59 of 169 (34.9%)
+FEATURES REMAINING: 110
+
+===============================================================================
+
