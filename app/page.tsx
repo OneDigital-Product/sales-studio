@@ -90,6 +90,7 @@ export default function Home() {
     includeArchived: true,
   });
   const createClient = useMutation(api.clients.createClient);
+  const restoreClient = useMutation(api.clients.restoreClient);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState("");
@@ -137,6 +138,27 @@ export default function Home() {
     setEmail("");
     setNotes("");
     setIsModalOpen(false);
+  };
+
+  const handleRestoreClient = async (clientId: string, clientName: string) => {
+    try {
+      await restoreClient({ clientId: clientId as any });
+      // Show success notification
+      const toast = document.createElement("div");
+      toast.className =
+        "fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50";
+      toast.textContent = `${clientName} has been restored successfully`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    } catch (error) {
+      console.error("Failed to restore client:", error);
+      const toast = document.createElement("div");
+      toast.className =
+        "fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50";
+      toast.textContent = "Failed to restore client";
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
   };
 
   // Filter and sort clients
@@ -577,12 +599,12 @@ export default function Home() {
                               <TableCell className="text-right">
                                 <Button
                                   onClick={() =>
-                                    (window.location.href = `/clients/${client._id}`)
+                                    handleRestoreClient(client._id, client.name)
                                   }
                                   size="sm"
-                                  variant="outline"
+                                  variant="default"
                                 >
-                                  View
+                                  Restore
                                 </Button>
                               </TableCell>
                             </TableRow>

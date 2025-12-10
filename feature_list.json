@@ -1928,7 +1928,7 @@
       "Verify client is moved back to active list",
       "Verify all data is intact"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
