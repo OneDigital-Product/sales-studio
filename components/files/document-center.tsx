@@ -19,7 +19,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileCommentButton } from "../comments/file-comment-button";
+import { RequirementsChecklist } from "./requirements-checklist";
 import { VerifyFileDialog } from "./verify-file-dialog";
 
 // File type based on schema
@@ -72,6 +74,8 @@ export function DocumentCenter({
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   // Team filter state: "all", "PEO", or "ACA"
   const [teamFilter, setTeamFilter] = useState<string>("all");
+  // Tab state
+  const [activeTab, setActiveTab] = useState<string>("files");
 
   // Apply team filter to files first
   const teamFilteredFiles =
@@ -141,171 +145,182 @@ export function DocumentCenter({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-6">
-        {/* Category Filter */}
-        <div className="flex items-center gap-3">
-          <label
-            className="font-medium text-gray-700 text-sm"
-            htmlFor="category-filter"
-          >
-            Filter by Category:
-          </label>
-          <Select onValueChange={setCategoryFilter} value={categoryFilter}>
-            <SelectTrigger className="w-[200px]" id="category-filter">
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {Object.entries(CATEGORY_CONFIG)
-                .sort((a, b) => a[1].order - b[1].order)
-                .map(([value, config]) => (
-                  <SelectItem key={value} value={value}>
-                    {config.label}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+    <Tabs onValueChange={setActiveTab} value={activeTab}>
+      <TabsList>
+        <TabsTrigger value="files">Files</TabsTrigger>
+        <TabsTrigger value="requirements">Requirements</TabsTrigger>
+      </TabsList>
+
+      <TabsContent className="space-y-6" value="files">
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-6">
+          {/* Category Filter */}
+          <div className="flex items-center gap-3">
+            <label
+              className="font-medium text-gray-700 text-sm"
+              htmlFor="category-filter"
+            >
+              Filter by Category:
+            </label>
+            <Select onValueChange={setCategoryFilter} value={categoryFilter}>
+              <SelectTrigger className="w-[200px]" id="category-filter">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {Object.entries(CATEGORY_CONFIG)
+                  .sort((a, b) => a[1].order - b[1].order)
+                  .map(([value, config]) => (
+                    <SelectItem key={value} value={value}>
+                      {config.label}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Team Filter */}
+          <div className="flex items-center gap-3">
+            <label
+              className="font-medium text-gray-700 text-sm"
+              htmlFor="team-filter"
+            >
+              Filter by Team:
+            </label>
+            <Select onValueChange={setTeamFilter} value={teamFilter}>
+              <SelectTrigger className="w-[200px]" id="team-filter">
+                <SelectValue placeholder="All Teams" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Teams</SelectItem>
+                <SelectItem value="PEO">PEO Team</SelectItem>
+                <SelectItem value="ACA">ACA Team</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        {/* Team Filter */}
-        <div className="flex items-center gap-3">
-          <label
-            className="font-medium text-gray-700 text-sm"
-            htmlFor="team-filter"
-          >
-            Filter by Team:
-          </label>
-          <Select onValueChange={setTeamFilter} value={teamFilter}>
-            <SelectTrigger className="w-[200px]" id="team-filter">
-              <SelectValue placeholder="All Teams" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Teams</SelectItem>
-              <SelectItem value="PEO">PEO Team</SelectItem>
-              <SelectItem value="ACA">ACA Team</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+        {/* Category Sections */}
+        {filteredCategories.map((category) => (
+          <div className="space-y-2" key={category}>
+            {/* Category Header */}
+            <h3 className="font-semibold text-gray-700 text-lg">
+              {CATEGORY_CONFIG[category].label}
+            </h3>
 
-      {/* Category Sections */}
-      {filteredCategories.map((category) => (
-        <div className="space-y-2" key={category}>
-          {/* Category Header */}
-          <h3 className="font-semibold text-gray-700 text-lg">
-            {CATEGORY_CONFIG[category].label}
-          </h3>
-
-          {/* Files Table for Category */}
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50%]">Name</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {groupedFiles[category]?.map((file) => (
-                  <TableRow key={file._id}>
-                    <TableCell className="font-medium">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                          <span className="block">{file.name}</span>
-                          {file.isVerified && (
-                            <Badge
-                              className="bg-green-600 text-xs"
-                              variant="default"
-                            >
-                              ✓ Verified
-                            </Badge>
-                          )}
-                          {file.isRequired && (
-                            <Badge className="text-xs" variant="destructive">
-                              Required
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-500 text-xs">
-                            {new Date(file.uploadedAt).toLocaleDateString()}
-                          </span>
-                          {file.relevantTo && file.relevantTo.length > 0 && (
-                            <div className="flex gap-1">
-                              {file.relevantTo.map((team) => (
-                                <Badge
-                                  className="text-xs"
-                                  key={team}
-                                  variant={
-                                    team === "PEO" ? "default" : "secondary"
-                                  }
-                                >
-                                  {team}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                          {file.isVerified && file.verifiedBy && (
+            {/* Files Table for Category */}
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50%]">Name</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {groupedFiles[category]?.map((file) => (
+                    <TableRow key={file._id}>
+                      <TableCell className="font-medium">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="block">{file.name}</span>
+                            {file.isVerified && (
+                              <Badge
+                                className="bg-green-600 text-xs"
+                                variant="default"
+                              >
+                                ✓ Verified
+                              </Badge>
+                            )}
+                            {file.isRequired && (
+                              <Badge className="text-xs" variant="destructive">
+                                Required
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
                             <span className="text-gray-500 text-xs">
-                              by {file.verifiedBy}
+                              {new Date(file.uploadedAt).toLocaleDateString()}
                             </span>
-                          )}
+                            {file.relevantTo && file.relevantTo.length > 0 && (
+                              <div className="flex gap-1">
+                                {file.relevantTo.map((team) => (
+                                  <Badge
+                                    className="text-xs"
+                                    key={team}
+                                    variant={
+                                      team === "PEO" ? "default" : "secondary"
+                                    }
+                                  >
+                                    {team}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                            {file.isVerified && file.verifiedBy && (
+                              <span className="text-gray-500 text-xs">
+                                by {file.verifiedBy}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <FileCommentButton
-                          clientId={clientId}
-                          fileId={file._id}
-                          fileName={file.name}
-                        />
-                        {!file.isVerified && (
-                          <VerifyFileDialog
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <FileCommentButton
+                            clientId={clientId}
+                            fileId={file._id}
                             fileName={file.name}
-                            onVerify={(verifiedBy) =>
-                              onVerifyFile(file._id, verifiedBy)
-                            }
                           />
-                        )}
-                        {file.url && (
+                          {!file.isVerified && (
+                            <VerifyFileDialog
+                              fileName={file.name}
+                              onVerify={(verifiedBy) =>
+                                onVerifyFile(file._id, verifiedBy)
+                              }
+                            />
+                          )}
+                          {file.url && (
+                            <Button
+                              aria-label={`Download ${file.name}`}
+                              asChild
+                              className="h-8 w-8"
+                              size="icon"
+                              variant="ghost"
+                            >
+                              <a
+                                href={file.url}
+                                rel="noopener noreferrer"
+                                target="_blank"
+                              >
+                                <Download className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
                           <Button
-                            aria-label={`Download ${file.name}`}
-                            asChild
-                            className="h-8 w-8"
+                            aria-label={`Delete ${file.name}`}
+                            className="h-8 w-8 text-red-600 hover:text-red-700"
+                            onClick={() => onDeleteFile(file._id)}
                             size="icon"
                             variant="ghost"
                           >
-                            <a
-                              href={file.url}
-                              rel="noopener noreferrer"
-                              target="_blank"
-                            >
-                              <Download className="h-4 w-4" />
-                            </a>
+                            <Trash className="h-4 w-4" />
+                            <span className="sr-only">Delete {file.name}</span>
                           </Button>
-                        )}
-                        <Button
-                          aria-label={`Delete ${file.name}`}
-                          className="h-8 w-8 text-red-600 hover:text-red-700"
-                          onClick={() => onDeleteFile(file._id)}
-                          size="icon"
-                          variant="ghost"
-                        >
-                          <Trash className="h-4 w-4" />
-                          <span className="sr-only">Delete {file.name}</span>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </TabsContent>
+
+      <TabsContent value="requirements">
+        <RequirementsChecklist files={files} />
+      </TabsContent>
+    </Tabs>
   );
 }

@@ -897,7 +897,7 @@
       "Verify checkmark for uploaded types",
       "Verify missing types are highlighted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
