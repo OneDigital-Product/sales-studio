@@ -1647,7 +1647,7 @@
       "Verify close button is visible",
       "Verify content is not cramped"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
@@ -1660,7 +1660,7 @@
       "Verify Sales badge is teal",
       "Verify colors are distinguishable"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
