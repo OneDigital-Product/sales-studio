@@ -195,6 +195,7 @@ export default function Home() {
           </div>
 
           <div className="flex gap-3">
+            <MergeClientsDialog />
             <Link href="/stats">
               <Button variant="outline">📊 Statistics</Button>
             </Link>

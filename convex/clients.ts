@@ -317,3 +317,105 @@ export const restoreClient = mutation({
     });
   },
 });
+
+export const mergeClients = mutation({
+  args: {
+    primaryClientId: v.id("clients"),
+    secondaryClientId: v.id("clients"),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    // Prevent merging a client with itself
+    if (args.primaryClientId === args.secondaryClientId) {
+      throw new Error("Cannot merge a client with itself");
+    }
+
+    // Verify both clients exist
+    const primaryClient = await ctx.db.get(args.primaryClientId);
+    const secondaryClient = await ctx.db.get(args.secondaryClientId);
+
+    if (!(primaryClient && secondaryClient)) {
+      throw new Error("One or both clients not found");
+    }
+
+    // 1. Move all files from secondary to primary
+    const files = await ctx.db
+      .query("files")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.secondaryClientId))
+      .collect();
+
+    for (const file of files) {
+      await ctx.db.patch(file._id, {
+        clientId: args.primaryClientId,
+      });
+    }
+
+    // 2. Move all census uploads from secondary to primary
+    const censusUploads = await ctx.db
+      .query("census_uploads")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.secondaryClientId))
+      .collect();
+
+    for (const census of censusUploads) {
+      await ctx.db.patch(census._id, {
+        clientId: args.primaryClientId,
+      });
+    }
+
+    // 3. Move all quotes from secondary to primary
+    const quotes = await ctx.db
+      .query("quotes")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.secondaryClientId))
+      .collect();
+
+    for (const quote of quotes) {
+      await ctx.db.patch(quote._id, {
+        clientId: args.primaryClientId,
+      });
+    }
+
+    // 4. Move all comments from secondary to primary
+    const comments = await ctx.db
+      .query("comments")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.secondaryClientId))
+      .collect();
+
+    for (const comment of comments) {
+      await ctx.db.patch(comment._id, {
+        clientId: args.primaryClientId,
+      });
+    }
+
+    // 5. Move all info requests from secondary to primary
+    const infoRequests = await ctx.db
+      .query("info_requests")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.secondaryClientId))
+      .collect();
+
+    for (const request of infoRequests) {
+      await ctx.db.patch(request._id, {
+        clientId: args.primaryClientId,
+      });
+    }
+
+    // 6. Move bookmarks from secondary to primary (if any)
+    const bookmarks = await ctx.db
+      .query("bookmarks")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.secondaryClientId))
+      .collect();
+
+    for (const bookmark of bookmarks) {
+      await ctx.db.patch(bookmark._id, {
+        clientId: args.primaryClientId,
+      });
+    }
+
+    // 7. Update primary client's lastModified
+    await ctx.db.patch(args.primaryClientId, {
+      lastModified: Date.now(),
+    });
+
+    // 8. Delete the secondary client
+    await ctx.db.delete(args.secondaryClientId);
+  },
+});

@@ -5222,3 +5222,33 @@
 {"arguments":{"name":"test-client-2-census-check-final"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 12:34:39.029","tool":"puppeteer_screenshot"}
 {"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-10 12:36:02.686"}
 {"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-10 12:36:02.687"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-10 12:48:40.762"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-10 12:48:40.763"}
+{"arguments":{"url":"http://localhost:3000"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 12:49:38.845","tool":"puppeteer_navigate"}
+{"0":"n","1":"p","2":"x","level":"info","message":"Launching browser with config:","service":"mcp-puppeteer","timestamp":"2025-12-10 12:49:38.845"}
+{"level":"info","message":"Browser launched successfully","service":"mcp-puppeteer","timestamp":"2025-12-10 12:49:39.267"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 12:49:39.268","url":"http://localhost:3000"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-10 12:49:41.472","url":"http://localhost:3000"}
+{"arguments":{"height":900,"name":"home-page-verification","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 12:49:46.732","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 500)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 12:49:56.416","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":23,"service":"mcp-puppeteer","timestamp":"2025-12-10 12:49:56.416"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 12:49:56.419"}
+{"arguments":{"height":900,"name":"client-list-verification","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 12:49:56.438","tool":"puppeteer_screenshot"}
+{"level":"info","message":"Puppeteer MCP Server closing","service":"mcp-puppeteer","timestamp":"2025-12-10 12:52:57.349"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-10 12:53:02.745"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-10 12:53:02.746"}
+{"arguments":{"url":"http://localhost:3001"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 12:54:21.244","tool":"puppeteer_navigate"}
+{"0":"n","1":"p","2":"x","level":"info","message":"Launching browser with config:","service":"mcp-puppeteer","timestamp":"2025-12-10 12:54:21.244"}
+{"level":"info","message":"Browser launched successfully","service":"mcp-puppeteer","timestamp":"2025-12-10 12:54:21.640"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 12:54:21.640","url":"http://localhost:3001"}
+{"error":"net::ERR_CONNECTION_REFUSED at http://localhost:3001","level":"error","message":"Navigation failed","service":"mcp-puppeteer","timestamp":"2025-12-10 12:54:21.645","url":"http://localhost:3001"}
+{"arguments":{"url":"http://localhost:3000"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 12:54:25.475","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 12:54:25.475","url":"http://localhost:3000"}
+{"error":"Navigation timeout of 30000 ms exceeded","level":"error","message":"Navigation failed","service":"mcp-puppeteer","timestamp":"2025-12-10 12:54:55.477","url":"http://localhost:3000"}
+{"arguments":{"url":"http://localhost:3000"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 12:55:17.827","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 12:55:17.827","url":"http://localhost:3000"}
+{"error":"Navigation timeout of 30000 ms exceeded","level":"error","message":"Navigation failed","service":"mcp-puppeteer","timestamp":"2025-12-10 12:55:47.829","url":"http://localhost:3000"}
+{"arguments":{"url":"file:///Users/andrewharvey/dev/sales-studio/test-connection.html"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 12:56:23.467","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 12:56:23.467","url":"file:///Users/andrewharvey/dev/sales-studio/test-connection.html"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-10 12:56:24.513","url":"file:///Users/andrewharvey/dev/sales-studio/test-connection.html"}
+{"arguments":{"name":"app-loaded"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 12:56:31.712","tool":"puppeteer_screenshot"}
