@@ -1119,7 +1119,7 @@
       "Verify pagination works correctly",
       "Verify performance is acceptable"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

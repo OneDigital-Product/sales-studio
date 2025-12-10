@@ -1,7 +1,7 @@
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 
 export const saveCensus = mutation({
   args: {
@@ -25,24 +25,45 @@ export const saveCensus = mutation({
     // Update the client's active census to this new upload
     await ctx.db.patch(args.clientId, { activeCensusId: censusUploadId });
 
-    // Insert rows in batches to avoid hitting size limits if necessary,
-    // though Convex handles large transactions relatively well, keeping it simple for now.
-    // For extremely large files, client-side batching or background jobs would be better.
-    // Here we assume a reasonable file size for an interactive upload.
-    await Promise.all(
-      args.rows.map((row, index) =>
-        ctx.db.insert("census_rows", {
+    // For large imports (>1000 rows), use background jobs to avoid timeouts
+    // For smaller imports, insert synchronously for immediate feedback
+    const BATCH_SIZE = 500;
+    const USE_BACKGROUND_JOBS_THRESHOLD = 1000;
+
+    if (args.rows.length > USE_BACKGROUND_JOBS_THRESHOLD) {
+      // Schedule batch insertions as background jobs for large imports
+      for (let i = 0; i < args.rows.length; i += BATCH_SIZE) {
+        const batch = args.rows.slice(i, i + BATCH_SIZE);
+        await ctx.scheduler.runAfter(0, internal.census.insertCensusRowsBatch, {
           censusUploadId,
-          data: row,
-          rowIndex: index,
-        })
-      )
-    );
+          rows: batch,
+          startIndex: i,
+        });
+      }
+    } else {
+      // For smaller imports, insert directly for immediate user feedback
+      await Promise.all(
+        args.rows.map((row, index) =>
+          ctx.db.insert("census_rows", {
+            censusUploadId,
+            data: row,
+            rowIndex: index,
+          })
+        )
+      );
+    }
 
     // Schedule validation to run after save completes
-    await ctx.scheduler.runAfter(0, internal.censusValidation.runValidation, {
-      censusUploadId,
-    });
+    // For large imports, add a delay to ensure all batches are inserted first
+    const validationDelay =
+      args.rows.length > USE_BACKGROUND_JOBS_THRESHOLD ? 5000 : 0;
+    await ctx.scheduler.runAfter(
+      validationDelay,
+      internal.censusValidation.runValidation,
+      {
+        censusUploadId,
+      }
+    );
 
     return censusUploadId;
   },
@@ -167,5 +188,28 @@ export const getLatestCensus = query({
       .first();
 
     return upload;
+  },
+});
+
+// Internal mutation for batch row insertion
+// Handles large census imports by processing rows in batches
+export const insertCensusRowsBatch = internalMutation({
+  args: {
+    censusUploadId: v.id("census_uploads"),
+    rows: v.array(v.any()),
+    startIndex: v.number(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    // Insert all rows in this batch
+    await Promise.all(
+      args.rows.map((row, batchIndex) =>
+        ctx.db.insert("census_rows", {
+          censusUploadId: args.censusUploadId,
+          data: row,
+          rowIndex: args.startIndex + batchIndex,
+        })
+      )
+    );
   },
 });
