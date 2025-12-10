@@ -1053,3 +1053,86 @@
 {"level":"debug","message":"Executing script in browser","scriptLength":328,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:32:25.805"}
 {"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:32:25.821"}
 {"arguments":{"height":1200,"name":"11-employee-name-sorted","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:32:26.941","tool":"puppeteer_screenshot"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-10 03:36:17.588"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-10 03:36:17.589"}
+{"arguments":{"url":"http://localhost:3000"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:36:56.321","tool":"puppeteer_navigate"}
+{"0":"n","1":"p","2":"x","level":"info","message":"Launching browser with config:","service":"mcp-puppeteer","timestamp":"2025-12-10 03:36:56.321"}
+{"level":"info","message":"Browser launched successfully","service":"mcp-puppeteer","timestamp":"2025-12-10 03:36:56.665"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 03:36:56.665","url":"http://localhost:3000"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-10 03:36:57.413","url":"http://localhost:3000"}
+{"arguments":{"name":"home-page-initial"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:37:04.893","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollBy(0, 500)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:37:10.951","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":23,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:37:10.951"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:37:10.953"}
+{"arguments":{"name":"home-page-scrolled"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:37:10.964","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollBy(0, 500)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:37:15.564","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":23,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:37:15.564"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:37:15.566"}
+{"arguments":{"name":"home-page-clients"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:37:15.577","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"http://localhost:3000"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:38:54.341","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 03:38:54.341","url":"http://localhost:3000"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-10 03:38:55.057","url":"http://localhost:3000"}
+{"arguments":{"name":"home-page"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:38:59.673","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, document.body.scrollHeight)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:38:59.747","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":46,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:38:59.747"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:38:59.748"}
+{"arguments":{"name":"home-page-clients-list"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:38:59.758","tool":"puppeteer_screenshot"}
+{"arguments":{"selector":"a:has-text(\"Test Client\")"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:04.690","tool":"puppeteer_click"}
+{"arguments":{"name":"client-detail-page"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:04.706","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Find a \"Test Client\" link in the table\nconst links = Array.from(document.querySelectorAll('a'));\nconst testClientLink = links.find(a => a.textContent.trim() === 'Test Client');\nif (testClientLink) {\n  return testClientLink.href;\n}\nreturn null;\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:09.485","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":248,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:09.485"}
+{"hasResult":true,"level":"debug","logCount":0,"message":"Script execution result","resultType":"string","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:09.486"}
+{"arguments":{"url":"http://localhost:3000/clients/j9709n9bpxxbrnqdxy5dnd1k8n7vq791"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:14.349","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:14.349","url":"http://localhost:3000/clients/j9709n9bpxxbrnqdxy5dnd1k8n7vq791"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-10 03:39:15.625","url":"http://localhost:3000/clients/j9709n9bpxxbrnqdxy5dnd1k8n7vq791"}
+{"arguments":{"name":"client-detail-loaded"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:15.639","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"http://localhost:3000/clients/j9709n9bpxxbrnqdxy5dnd1k8n7vq791"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:37.788","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:37.788","url":"http://localhost:3000/clients/j9709n9bpxxbrnqdxy5dnd1k8n7vq791"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-10 03:39:38.589","url":"http://localhost:3000/clients/j9709n9bpxxbrnqdxy5dnd1k8n7vq791"}
+{"arguments":{"name":"client-detail-after-fix"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:38.600","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollBy(0, 800)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:43.664","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":23,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:43.664"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:43.665"}
+{"arguments":{"name":"scrolled-to-census"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:43.677","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollBy(0, 1000)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:49.337","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":24,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:49.337"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:49.337"}
+{"arguments":{"name":"census-viewer-section"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:49.348","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollBy(0, 1000)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:55.363","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":24,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:55.363"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:55.364"}
+{"arguments":{"name":"census-table-section"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:39:55.377","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollBy(0, 1200)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:00.935","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":24,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:00.935"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:00.937"}
+{"arguments":{"name":"census-data-viewer"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:00.947","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollBy(0, 800)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:10.973","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":23,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:10.973"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:10.974"}
+{"arguments":{"name":"census-table-visible"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:10.986","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Find the Employee Name column header and look for the filter icon button\nconst headers = Array.from(document.querySelectorAll('th'));\nconst employeeNameHeader = headers.find(h => h.textContent.includes('Employee Name'));\nif (employeeNameHeader) {\n  const filterButton = employeeNameHeader.querySelector('button[title=\"Filter by column value\"]');\n  if (filterButton) {\n    filterButton.click();\n    return 'Clicked filter button for Employee Name';\n  }\n  return 'Filter button not found';\n}\nreturn 'Employee Name header not found';\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:26.497","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":535,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:26.497"}
+{"hasResult":true,"level":"debug","logCount":0,"message":"Script execution result","resultType":"string","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:26.533"}
+{"arguments":{"name":"filter-popover-opened"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:30.714","tool":"puppeteer_screenshot"}
+{"arguments":{"selector":"input[placeholder=\"Enter filter value...\"]","value":"Sarah"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:37.584","tool":"puppeteer_fill"}
+{"arguments":{"name":"filter-value-entered"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:37.728","tool":"puppeteer_screenshot"}
+{"arguments":{"selector":"button:has-text(\"Apply Filter\")"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:43.245","tool":"puppeteer_click"}
+{"arguments":{"name":"filter-applied"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:43.260","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Find and click the Apply Filter button\nconst buttons = Array.from(document.querySelectorAll('button'));\nconst applyButton = buttons.find(b => b.textContent.trim() === 'Apply Filter');\nif (applyButton) {\n  applyButton.click();\n  return 'Clicked Apply Filter button';\n}\nreturn 'Apply Filter button not found';\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:49.754","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":312,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:49.754"}
+{"hasResult":true,"level":"debug","logCount":0,"message":"Script execution result","resultType":"string","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:49.780"}
+{"arguments":{"name":"filter-applied-result"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:40:53.878","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Click the \"Clear all\" button to remove the filter\nconst buttons = Array.from(document.querySelectorAll('button'));\nconst clearButton = buttons.find(b => b.textContent.includes('Clear all'));\nif (clearButton) {\n  clearButton.click();\n  return 'Clicked Clear all button';\n}\nreturn 'Clear all button not found';\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:02.523","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":313,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:02.523"}
+{"hasResult":true,"level":"debug","logCount":0,"message":"Script execution result","resultType":"string","service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:02.547"}
+{"arguments":{"name":"filter-cleared"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:06.482","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Find the Salary column header and click the filter icon\nconst headers = Array.from(document.querySelectorAll('th'));\nconst salaryHeader = headers.find(h => h.textContent.includes('Salary'));\nif (salaryHeader) {\n  const filterButton = salaryHeader.querySelector('button[title=\"Filter by column value\"]');\n  if (filterButton) {\n    filterButton.click();\n    return 'Clicked filter button for Salary';\n  }\n  return 'Filter button not found';\n}\nreturn 'Salary header not found';\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:13.800","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":479,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:13.800"}
+{"hasResult":true,"level":"debug","logCount":0,"message":"Script execution result","resultType":"string","service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:13.831"}
+{"arguments":{"name":"salary-filter-opened"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:19.675","tool":"puppeteer_screenshot"}
+{"arguments":{"selector":"input[placeholder=\"Enter filter value...\"]","value":"65000"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:19.748","tool":"puppeteer_fill"}
+{"arguments":{"name":"salary-filter-value"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:19.884","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Find and click the Apply Filter button\nconst buttons = Array.from(document.querySelectorAll('button'));\nconst applyButton = buttons.find(b => b.textContent.trim() === 'Apply Filter');\nif (applyButton) {\n  applyButton.click();\n  return 'Clicked Apply Filter button';\n}\nreturn 'Apply Filter button not found';\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:25.913","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":312,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:25.913"}
+{"hasResult":true,"level":"debug","logCount":0,"message":"Script execution result","resultType":"string","service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:25.937"}
+{"arguments":{"name":"salary-filter-applied"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:41:30.866","tool":"puppeteer_screenshot"}

@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Download,
   Filter,
+  FilterX,
   Loader2,
   Mail,
   XCircle,
@@ -23,6 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -161,6 +163,11 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
   const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [columnFilters, setColumnFilters] = useState<Map<string, string>>(
+    new Map()
+  );
+  const [filterColumn, setFilterColumn] = useState<string | null>(null);
+  const [filterInput, setFilterInput] = useState("");
 
   // Fetch all census rows for export
   const fetchAllRows = async () => {
@@ -418,15 +425,31 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
     }
 
     let filtered = data.rows.page.filter((row) => {
-      if (filterMode === "all") {
-        return true;
+      // Filter by validation status
+      if (filterMode === "valid" && !validRows.has(row.rowIndex)) {
+        return false;
       }
-      if (filterMode === "valid") {
-        return validRows.has(row.rowIndex);
+      if (filterMode === "issues" && !rowsWithIssues.has(row.rowIndex)) {
+        return false;
       }
-      if (filterMode === "issues") {
-        return rowsWithIssues.has(row.rowIndex);
+
+      // Filter by column values
+      const rowData = row.data as Record<string, unknown>;
+      for (const [column, filterValue] of columnFilters.entries()) {
+        if (!filterValue) {
+          continue;
+        }
+        const cellValue = rowData[column];
+        const cellStr =
+          cellValue === null || cellValue === undefined
+            ? ""
+            : String(cellValue).toLowerCase();
+        const filterStr = filterValue.toLowerCase();
+        if (!cellStr.includes(filterStr)) {
+          return false;
+        }
       }
+
       return true;
     });
 
@@ -462,7 +485,15 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
     }
 
     return filtered;
-  }, [data, filterMode, validRows, rowsWithIssues, sortColumn, sortDirection]);
+  }, [
+    data,
+    filterMode,
+    validRows,
+    rowsWithIssues,
+    sortColumn,
+    sortDirection,
+    columnFilters,
+  ]);
 
   if (!data) {
     return (
@@ -711,6 +742,85 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
                         <Popover
                           onOpenChange={(open) => {
                             if (open) {
+                              setFilterColumn(col);
+                              setFilterInput(columnFilters.get(col) ?? "");
+                            } else {
+                              setFilterColumn(null);
+                            }
+                          }}
+                          open={filterColumn === col}
+                        >
+                          <PopoverTrigger asChild>
+                            <button
+                              className={cn(
+                                "hover:text-primary",
+                                columnFilters.has(col) && columnFilters.get(col)
+                                  ? "text-primary"
+                                  : "opacity-50"
+                              )}
+                              title="Filter by column value"
+                              type="button"
+                            >
+                              <Filter className="h-3 w-3" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent align="start" className="w-80">
+                            <div className="space-y-3">
+                              <div>
+                                <h4 className="font-semibold">Filter: {col}</h4>
+                                <p className="text-muted-foreground text-sm">
+                                  Enter value to filter rows
+                                </p>
+                              </div>
+                              <div className="space-y-2">
+                                <Input
+                                  onChange={(e) =>
+                                    setFilterInput(e.target.value)
+                                  }
+                                  placeholder="Enter filter value..."
+                                  value={filterInput}
+                                />
+                                <div className="flex gap-2">
+                                  <Button
+                                    className="flex-1"
+                                    onClick={() => {
+                                      const newFilters = new Map(columnFilters);
+                                      if (filterInput.trim()) {
+                                        newFilters.set(col, filterInput.trim());
+                                      } else {
+                                        newFilters.delete(col);
+                                      }
+                                      setColumnFilters(newFilters);
+                                      setFilterColumn(null);
+                                    }}
+                                    size="sm"
+                                  >
+                                    Apply Filter
+                                  </Button>
+                                  {columnFilters.has(col) && (
+                                    <Button
+                                      onClick={() => {
+                                        const newFilters = new Map(
+                                          columnFilters
+                                        );
+                                        newFilters.delete(col);
+                                        setColumnFilters(newFilters);
+                                        setFilterInput("");
+                                      }}
+                                      size="sm"
+                                      variant="outline"
+                                    >
+                                      Clear
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                        <Popover
+                          onOpenChange={(open) => {
+                            if (open) {
                               setSelectedColumn(col);
                             } else if (isSelected) {
                               setSelectedColumn(null);
@@ -899,10 +1009,32 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
           </Table>
         </div>
         <div className="flex items-center justify-between text-muted-foreground text-sm">
-          <span>
-            Showing {filteredRows.length} of {rows.page.length} rows
-            {filterMode !== "all" && ` (filtered: ${filterMode})`}
-          </span>
+          <div className="flex items-center gap-2">
+            <span>
+              Showing {filteredRows.length} of {rows.page.length} rows
+              {filterMode !== "all" && ` (filtered: ${filterMode})`}
+            </span>
+            {columnFilters.size > 0 && (
+              <div className="flex items-center gap-1">
+                <Filter className="h-3 w-3" />
+                <span>
+                  {columnFilters.size} column filter
+                  {columnFilters.size !== 1 ? "s" : ""} active
+                </span>
+                <Button
+                  className="h-6 px-2"
+                  onClick={() => {
+                    setColumnFilters(new Map());
+                  }}
+                  size="sm"
+                  variant="ghost"
+                >
+                  <FilterX className="h-3 w-3" />
+                  Clear all
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

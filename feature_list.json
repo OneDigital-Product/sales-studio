@@ -1309,7 +1309,7 @@
       "Apply filter",
       "Verify only matching rows are displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
