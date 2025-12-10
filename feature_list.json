@@ -2061,7 +2061,7 @@
       "Verify indicator color suggests importance",
       "Verify tooltip explains requirement"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
