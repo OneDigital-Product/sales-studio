@@ -44,6 +44,7 @@ interface FileData {
   relevantTo?: ("PEO" | "ACA")[];
   isVerified?: boolean;
   verifiedBy?: string;
+  uploadedBy?: string;
   fileSize?: number;
   mimeType?: string;
 }
@@ -247,6 +248,11 @@ export function DocumentCenter({
                             <span className="text-gray-500 text-xs">
                               {new Date(file.uploadedAt).toLocaleDateString()}
                             </span>
+                            {file.uploadedBy && (
+                              <span className="text-gray-500 text-xs">
+                                • Uploaded by {file.uploadedBy}
+                              </span>
+                            )}
                             {file.relevantTo && file.relevantTo.length > 0 && (
                               <div className="flex gap-1">
                                 {file.relevantTo.map((team) => (
@@ -264,7 +270,7 @@ export function DocumentCenter({
                             )}
                             {file.isVerified && file.verifiedBy && (
                               <span className="text-gray-500 text-xs">
-                                by {file.verifiedBy}
+                                • Verified by {file.verifiedBy}
                               </span>
                             )}
                           </div>

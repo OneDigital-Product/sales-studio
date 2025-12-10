@@ -159,6 +159,7 @@ export default function ClientDetailPage() {
       name: file.name,
       type: isCensus ? "Census" : "Quote Data",
       category: isCensus ? "census" : (detectedCategory ?? "other"),
+      uploadedBy: "Current User", // TODO: Replace with actual user name when auth is implemented
       mimeType: file.type,
       fileSize: file.size,
     });
@@ -230,6 +231,7 @@ export default function ClientDetailPage() {
         relevantTo,
         isRequired,
         description,
+        uploadedBy: "Current User", // TODO: Replace with actual user name when auth is implemented
         mimeType: file.type,
         fileSize: file.size,
       });

@@ -1210,7 +1210,7 @@
       "View file in document list",
       "Verify uploader name is displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
