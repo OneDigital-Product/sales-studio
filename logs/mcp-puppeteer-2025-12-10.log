@@ -5220,3 +5220,5 @@
 {"level":"debug","message":"Executing script in browser","scriptLength":385,"service":"mcp-puppeteer","timestamp":"2025-12-10 12:34:35.897"}
 {"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 12:34:35.898"}
 {"arguments":{"name":"test-client-2-census-check-final"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 12:34:39.029","tool":"puppeteer_screenshot"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-10 12:36:02.686"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-10 12:36:02.687"}
