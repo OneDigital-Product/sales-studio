@@ -885,7 +885,7 @@
       "Upload missing required document",
       "Verify percentage increases"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

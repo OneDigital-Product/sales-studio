@@ -11,6 +11,7 @@ import { CensusValidationSummary } from "@/components/census/census-validation-s
 import { CensusViewer } from "@/components/census/census-viewer";
 import { CommentFeed } from "@/components/comments/comment-feed";
 import { DocumentCenter } from "@/components/files/document-center";
+import { DocumentCompletenessIndicator } from "@/components/files/document-completeness-indicator";
 import { FileUploadDialog } from "@/components/files/file-upload-dialog";
 import { CreateRequestDialog } from "@/components/info-requests/create-request-dialog";
 import { RequestsPanel } from "@/components/info-requests/requests-panel";
@@ -458,6 +459,9 @@ export default function ClientDetailPage() {
             type="ACA"
           />
         </div>
+
+        {/* Document Completeness Indicator */}
+        <DocumentCompletenessIndicator files={files ?? []} />
 
         {/* Outstanding Requests Section */}
         <RequestsPanel clientId={clientId} />
