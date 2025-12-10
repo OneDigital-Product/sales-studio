@@ -3891,3 +3891,56 @@
 {"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 09:27:33.577"}
 {"arguments":{"height":900,"name":"f148-scrolled-down","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:27:33.589","tool":"puppeteer_screenshot"}
 {"arguments":{"selector":"button:has-text(\"Clients\"), [role=\"tab\"]:has-text(\"Clients\")"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:27:33.709","tool":"puppeteer_click"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-10 09:30:53.438"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-10 09:30:53.439"}
+{"arguments":{"url":"http://localhost:3000"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:31:44.055","tool":"puppeteer_navigate"}
+{"0":"n","1":"p","2":"x","level":"info","message":"Launching browser with config:","service":"mcp-puppeteer","timestamp":"2025-12-10 09:31:44.056"}
+{"level":"info","message":"Browser launched successfully","service":"mcp-puppeteer","timestamp":"2025-12-10 09:31:44.513"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 09:31:44.513","url":"http://localhost:3000"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-10 09:31:45.424","url":"http://localhost:3000"}
+{"arguments":{"name":"verification-home-page"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:31:48.774","tool":"puppeteer_screenshot"}
+{"arguments":{"name":"f149-typography-home-page"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:16.309","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Check typography settings across the page\nconst styles = window.getComputedStyle(document.body);\nconst headings = {};\n['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].forEach(tag => {\n  const el = document.querySelector(tag);\n  if (el) {\n    const s = window.getComputedStyle(el);\n    headings[tag] = {\n      fontSize: s.fontSize,\n      fontWeight: s.fontWeight,\n      lineHeight: s.lineHeight\n    };\n  }\n});\n\nconst bodyText = {\n  fontSize: styles.fontSize,\n  fontWeight: styles.fontWeight,\n  lineHeight: styles.lineHeight\n};\n\nJSON.stringify({ bodyText, headings }, null, 2);\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:16.372","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":568,"service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:16.372"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:16.373"}
+{"arguments":{"script":"\nconst styles = window.getComputedStyle(document.body);\nconst h1 = document.querySelector('h1');\nconst h1Styles = h1 ? window.getComputedStyle(h1) : null;\nconst result = {\n  body: {\n    fontSize: styles.fontSize,\n    lineHeight: styles.lineHeight,\n    fontWeight: styles.fontWeight\n  },\n  h1: h1Styles ? {\n    fontSize: h1Styles.fontSize,\n    lineHeight: h1Styles.lineHeight,\n    fontWeight: h1Styles.fontWeight\n  } : null\n};\nresult;\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:22.353","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":434,"service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:22.353"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:22.354"}
+{"arguments":{"selector":"a[href*=\"/clients/\"]"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:27.195","tool":"puppeteer_click"}
+{"arguments":{"name":"f149-typography-client-detail"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:29.362","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 500);"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:37.163","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":24,"service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:37.163"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:37.164"}
+{"arguments":{"name":"f149-typography-scrolled"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:32:37.176","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"http://localhost:3000"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:33:42.289","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 09:33:42.289","url":"http://localhost:3000"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-10 09:33:42.978","url":"http://localhost:3000"}
+{"arguments":{"name":"f149-typography-after-home"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:33:42.992","tool":"puppeteer_screenshot"}
+{"arguments":{"selector":"a[href*=\"/clients/\"]"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:33:51.690","tool":"puppeteer_click"}
+{"arguments":{"name":"f149-typography-after-client-detail"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:33:53.830","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 600);"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:03.370","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":24,"service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:03.370"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:03.371"}
+{"arguments":{"name":"f149-typography-after-scrolled-1"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:03.385","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 1200);"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:03.454","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":25,"service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:03.454"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:03.455"}
+{"arguments":{"name":"f149-typography-after-scrolled-2"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:03.466","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 1800);"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:10.661","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":25,"service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:10.661"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:10.662"}
+{"arguments":{"name":"f149-typography-after-scrolled-3"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:10.674","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 2400);"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:10.736","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":25,"service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:10.736"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:10.737"}
+{"arguments":{"name":"f149-typography-after-scrolled-4"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:10.749","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 3000);"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:18.995","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":25,"service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:18.995"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:18.996"}
+{"arguments":{"name":"f149-typography-after-activity"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:19.008","tool":"puppeteer_screenshot"}
+{"arguments":{"selector":"a[href=\"/\"]"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:28.135","tool":"puppeteer_click"}
+{"arguments":{"name":"f149-typography-dashboard-view"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:30.274","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 800);"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:30.336","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":24,"service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:30.336"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:30.336"}
+{"arguments":{"name":"f149-typography-dashboard-scrolled"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 09:34:30.348","tool":"puppeteer_screenshot"}

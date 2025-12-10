@@ -117,7 +117,36 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-base leading-relaxed;
+  }
+
+  /* Typography Scale - Harmonious hierarchy */
+  h1 {
+    @apply font-bold text-4xl leading-tight;
+  }
+
+  h2 {
+    @apply font-semibold text-2xl leading-snug;
+  }
+
+  h3 {
+    @apply font-semibold text-xl leading-normal;
+  }
+
+  h4 {
+    @apply font-medium text-lg leading-normal;
+  }
+
+  h5 {
+    @apply font-medium text-base leading-normal;
+  }
+
+  h6 {
+    @apply font-medium text-sm leading-normal;
+  }
+
+  p {
+    @apply leading-relaxed;
   }
 
   /* Global focus-visible styles for keyboard navigation accessibility */

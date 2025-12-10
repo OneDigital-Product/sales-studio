@@ -1826,7 +1826,7 @@
       "Verify line-height provides comfortable reading",
       "Verify font weights create proper emphasis"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
