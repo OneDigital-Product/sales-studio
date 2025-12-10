@@ -318,7 +318,10 @@ export default function ClientDetailPage() {
               </p>
             </div>
           </div>
-          <CensusValidationSummary censusUploadId={activeCensus._id} />
+          <CensusValidationSummary
+            censusUploadId={activeCensus._id}
+            clientId={clientId}
+          />
           <CensusViewer censusUploadId={activeCensus._id} />
         </div>
       );

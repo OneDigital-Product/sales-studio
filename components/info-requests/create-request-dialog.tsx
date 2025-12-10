@@ -2,7 +2,7 @@
 
 import { useMutation } from "convex/react";
 import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,16 +29,20 @@ import type { Id } from "@/convex/_generated/dataModel";
 interface CreateRequestDialogProps {
   clientId: Id<"clients">;
   trigger?: React.ReactNode;
+  prePopulatedItems?: Array<{ description: string; category?: string }>;
+  defaultQuoteType?: "PEO" | "ACA" | "both";
 }
 
 export function CreateRequestDialog({
   clientId,
   trigger,
+  prePopulatedItems,
+  defaultQuoteType,
 }: CreateRequestDialogProps) {
   const [open, setOpen] = useState(false);
   const [quoteType, setQuoteType] = useState<
     "PEO" | "ACA" | "both" | undefined
-  >(undefined);
+  >(defaultQuoteType);
   const [requestedBy, setRequestedBy] = useState("");
   const [notes, setNotes] = useState("");
   const [items, setItems] = useState<
@@ -46,6 +50,16 @@ export function CreateRequestDialog({
   >([{ description: "", category: "" }]);
 
   const createRequest = useMutation(api.info_requests.createInfoRequest);
+
+  // Pre-populate items when dialog opens with validation issues
+  useEffect(() => {
+    if (open && prePopulatedItems && prePopulatedItems.length > 0) {
+      setItems(prePopulatedItems);
+      if (defaultQuoteType) {
+        setQuoteType(defaultQuoteType);
+      }
+    }
+  }, [open, prePopulatedItems, defaultQuoteType]);
 
   const addItem = () => {
     setItems([...items, { description: "", category: "" }]);

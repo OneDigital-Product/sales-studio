@@ -656,7 +656,7 @@
       "Verify each issue becomes a request item",
       "Submit request"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

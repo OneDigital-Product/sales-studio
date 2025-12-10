@@ -8,14 +8,44 @@ import type { Id } from "@/convex/_generated/dataModel";
 
 type CensusValidationSummaryProps = {
   censusUploadId: Id<"census_uploads">;
+  clientId: Id<"clients">;
 };
 
 export function CensusValidationSummary({
   censusUploadId,
+  clientId,
 }: CensusValidationSummaryProps) {
   const validation = useQuery(api.censusValidation.getValidation, {
     censusUploadId,
   });
+
+  // Convert validation issues to request items
+  const prePopulatedItems = useMemo(() => {
+    if (!validation || validation.issues.length === 0) {
+      return [];
+    }
+    return validation.issues.map((issue) => ({
+      description: `${issue.message} (${issue.issueType === "missing_column" ? "affects all rows" : `affects ${issue.affectedRows.length} rows`})`,
+      category: "Census Data",
+    }));
+  }, [validation]);
+
+  // Determine default quote type based on issues
+  const defaultQuoteType = useMemo(() => {
+    if (!validation || validation.issues.length === 0) {
+      return;
+    }
+    const hasPeoIssues = validation.issues.some(
+      (i) => i.requiredFor === "PEO" || i.requiredFor === "both"
+    );
+    const hasAcaIssues = validation.issues.some(
+      (i) => i.requiredFor === "ACA" || i.requiredFor === "both"
+    );
+    if (hasPeoIssues && hasAcaIssues) return "both";
+    if (hasPeoIssues) return "PEO";
+    if (hasAcaIssues) return "ACA";
+    return;
+  }, [validation]);
 
   if (!validation) {
     return (
@@ -46,7 +76,22 @@ export function CensusValidationSummary({
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Census Validation Summary</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Census Validation Summary</CardTitle>
+            {validation.issues.length > 0 && (
+              <CreateRequestDialog
+                clientId={clientId}
+                defaultQuoteType={defaultQuoteType}
+                prePopulatedItems={prePopulatedItems}
+                trigger={
+                  <Button size="sm" variant="outline">
+                    <FileQuestion className="mr-2 h-4 w-4" />
+                    Request Missing Info
+                  </Button>
+                }
+              />
+            )}
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Scores */}
