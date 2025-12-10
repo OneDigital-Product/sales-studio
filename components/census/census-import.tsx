@@ -162,9 +162,23 @@ export function CensusImport({
           <CardTitle>Confirm Census Import</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {error && <div className="text-red-500 text-sm">{error}</div>}
+          {error && (
+            <div className="space-y-3">
+              <div className="rounded-md border border-red-200 bg-red-50 p-4">
+                <p className="font-medium text-red-800 text-sm">Error</p>
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+              {previewData.length === 0 && (
+                <div className="flex gap-2">
+                  <Button onClick={onCancel} variant="outline">
+                    Try Again
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
 
-          {previewData.length > 0 ? (
+          {previewData.length > 0 && !error ? (
             <div className="space-y-4">
               <div className="max-h-[300px] overflow-auto rounded-md border">
                 <Table>
