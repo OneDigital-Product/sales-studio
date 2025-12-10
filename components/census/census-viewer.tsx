@@ -3,6 +3,8 @@
 import { useQuery } from "convex/react";
 import {
   AlertCircle,
+  ArrowDown,
+  ArrowUp,
   BarChart3,
   CheckCircle2,
   Download,
@@ -28,6 +30,7 @@ import {
 } from "@/components/ui/popover";
 import {
   Table,
+  TableBody,
   TableCell,
   TableHead,
   TableHeader,
@@ -408,36 +411,13 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
     };
   }, [validation, data]);
 
-  if (!data) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">
-            Loading census data...
-          </span>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const { upload, rows } = data;
-
-  // Handle column sort
-  const handleSort = (column: string) => {
-    if (sortColumn === column) {
-      // Toggle direction if same column
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      // New column, start with ascending
-      setSortColumn(column);
-      setSortDirection("asc");
-    }
-  };
-
-  // Filter and sort rows
+  // Filter and sort rows - MUST be before early return to maintain hooks order
   const filteredRows = useMemo(() => {
-    let filtered = rows.page.filter((row) => {
+    if (!data) {
+      return [];
+    }
+
+    let filtered = data.rows.page.filter((row) => {
       if (filterMode === "all") {
         return true;
       }
@@ -482,14 +462,34 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
     }
 
     return filtered;
-  }, [
-    rows.page,
-    filterMode,
-    validRows,
-    rowsWithIssues,
-    sortColumn,
-    sortDirection,
-  ]);
+  }, [data, filterMode, validRows, rowsWithIssues, sortColumn, sortDirection]);
+
+  if (!data) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <span className="ml-2 text-muted-foreground">
+            Loading census data...
+          </span>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const { upload, rows } = data;
+
+  // Handle column sort
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      // Toggle direction if same column
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // New column, start with ascending
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
 
   const getCellClassName = (column: string, rowIndex: number) => {
     const field = findFieldForColumn(column);

@@ -1297,7 +1297,7 @@
       "Click again",
       "Verify data is sorted descending"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
