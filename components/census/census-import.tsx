@@ -167,10 +167,9 @@ export function CensusImport({
         <CardContent className="space-y-4">
           {error && (
             <div className="space-y-3">
-              <div className="rounded-md border border-red-200 bg-red-50 p-4">
-                <p className="font-medium text-red-800 text-sm">Error</p>
-                <p className="text-red-700 text-sm">{error}</p>
-              </div>
+              <Alert title="Error" variant="error">
+                {error}
+              </Alert>
               {previewData.length === 0 && (
                 <div className="flex gap-2">
                   <Button onClick={onCancel} variant="outline">

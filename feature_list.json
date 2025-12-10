@@ -1750,7 +1750,7 @@
       "Verify message text is clear",
       "Verify error doesn't blend into background"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
