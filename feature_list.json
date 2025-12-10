@@ -1490,7 +1490,7 @@
       "Verify trend line is displayed",
       "Verify dates and scores are accurate"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

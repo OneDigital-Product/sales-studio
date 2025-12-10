@@ -4202,3 +4202,61 @@ Tests Passing: 126/169 (74.6%)
 Tests Failing: 43
 Progress: +1 test passing this session
 Session End State: Clean, all changes committed, Feature #121 verified and passing
+
+===============================================================================
+SESSION 85 - Feature #123 Implementation
+===============================================================================
+Date: 2025-12-10
+Tests at Start: 127/169 passing (75.1%)
+Tests at End: 128/169 passing (75.7%)
+Tests Completed: 1 (Feature #123)
+
+COMPLETED FEATURE
+===============================================================================
+
+Feature #123: View data quality trend over time ✅
+
+Implementation:
+1. Backend Query (convex/censusValidation.ts):
+   - Added getQualityHistory query to fetch all census validations for a client
+   - Returns array with censusUploadId, fileName, uploadedAt, validatedAt, peoScore, acaScore, totalRows
+   - Joins census_uploads with census_validations tables
+   - Filters out census uploads without validations
+
+2. Frontend State (app/clients/[id]/page.tsx):
+   - Updated censusTab state type to include "trend" option
+   - Added qualityHistory query using api.censusValidation.getQualityHistory
+   - Updated Tabs component to accept "trend" value
+
+3. UI Components (app/clients/[id]/page.tsx):
+   - Added "Quality Trend" tab to Census Data section
+   - Implemented custom bar chart visualization:
+     * Y-axis: Quality Score (%) with grid lines at 0, 25, 50, 75, 100
+     * X-axis: Census Versions with dates and version numbers (v1, v2, etc.)
+     * Blue bars for PEO scores, purple bars for ACA scores
+     * Hover tooltips showing exact scores
+     * Axis labels and responsive layout
+   - Added legend showing PEO Score (blue) and ACA Score (purple)
+   - Added data summary table below chart:
+     * Columns: Version, Upload Date, File Name, Rows, PEO Score, ACA Score
+     * Color-coded score badges (green ≥90%, yellow ≥70%, red <70%)
+     * Full timestamp display for upload dates
+   - Empty state message when no quality history available
+
+Browser Verification:
+- Verified "Quality Trend" tab appears in Census Data section ✓
+- Verified clicking tab shows chart visualization ✓
+- Verified chart displays quality scores over time with correct scales ✓
+- Verified bars show both PEO and ACA scores side-by-side ✓
+- Verified dates and version labels are accurate ✓
+- Verified data table shows all census versions with correct scores ✓
+- Verified color coding matches score ranges ✓
+Screenshots: f123-01 through f123-06
+
+CURRENT STATUS
+===============================================================================
+Tests Passing: 128/169 (75.7%)
+Tests Failing: 41
+Progress: +1 test passing this session
+Session End State: Clean, all changes committed, Feature #123 verified and passing
+

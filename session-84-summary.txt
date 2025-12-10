@@ -1,0 +1,69 @@
+===============================================================================
+SESSION 84 - Feature #132 Implementation (Undo Census Replacement)
+===============================================================================
+Date: 2025-12-10
+Tests at Start: 126/169 passing (74.6%)
+Tests at End: 127/169 passing (75.1%)
+Tests Completed: 1 (Feature #132: Undo census replacement)
+
+COMPLETED FEATURE
+===============================================================================
+
+Feature #132: Undo census replacement ✅
+
+Implementation Details:
+This feature allows users to undo a census replacement immediately after importing a new census file. When a new census is imported, a blue notification banner appears with options to "Undo Replacement" or "Dismiss".
+
+Backend Changes (convex/census.ts):
+- Modified saveCensus mutation to track and return previous census ID
+- Changed return type from v.id("census_uploads") to v.object({ censusUploadId, previousCensusId })
+- Captures client's activeCensusId before updating to new census
+- Returns both new and previous census IDs for undo tracking
+
+Frontend Changes (components/census/census-import.tsx):
+- Updated CensusImportProps onSuccess callback to receive result object
+- Modified handleImport to pass full result (including previousCensusId) to parent
+- Maintains backward compatibility with existing onSuccess patterns
+
+Frontend Changes (app/clients/[id]/page.tsx):
+- Added undoInfo state to track replacement operations
+- Implemented handleUndoCensusReplacement to restore previous census
+- Added blue notification banner that appears after census replacement
+- Banner includes:
+  * Visual indicator with table icon
+  * "Census data has been replaced" message
+  * "Undo Replacement" button (calls setActiveCensus with previous ID)
+  * "Dismiss" button (clears undo notification)
+- Auto-dismisses after 30 seconds
+- Uses existing setActiveCensus mutation to switch active census
+
+User Experience:
+1. User uploads and imports new census file
+2. System saves new census and sets it as active
+3. Blue banner immediately appears below Information Requests section
+4. User can click "Undo Replacement" to restore previous census
+5. Or click "Dismiss" to accept the change and hide banner
+6. Banner auto-dismisses after 30 seconds if no action taken
+
+Technical Implementation:
+- Leverages existing census history infrastructure
+- No data deletion - all census versions preserved in history
+- Undo simply changes which census is marked as "active"
+- Real-time updates via Convex reactivity
+- Clean separation between backend logic and UI presentation
+
+Files Modified:
+- convex/census.ts (saveCensus mutation return type and logic)
+- components/census/census-import.tsx (onSuccess callback)
+- app/clients/[id]/page.tsx (undo UI and handler)
+- feature_list.json (marked Feature #132 as passing)
+
+CURRENT STATUS
+===============================================================================
+Tests Passing: 127/169 (75.1%)
+Tests Failing: 42
+Progress: +1 test passing this session
+Session Focus: Census replacement undo functionality
+
+All changes committed and verified.
+Session End State: Clean, Feature #132 complete and marked as passing.

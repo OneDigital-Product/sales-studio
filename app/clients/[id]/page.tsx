@@ -76,6 +76,9 @@ export default function ClientDetailPage() {
   const files = useQuery(api.files.getFiles, { clientId });
   const activeCensus = useQuery(api.census.getActiveCensus, { clientId });
   const censusHistory = useQuery(api.census.getCensusHistory, { clientId });
+  const qualityHistory = useQuery(api.censusValidation.getQualityHistory, {
+    clientId,
+  });
   const quotes = useQuery(api.quotes.getQuotesByClient, { clientId });
   const isBookmarked = useQuery(api.bookmarks.isBookmarked, { clientId });
 
@@ -101,7 +104,9 @@ export default function ClientDetailPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [copySuccess, setCopySuccess] = useState(false);
-  const [censusTab, setCensusTab] = useState<"active" | "history">("active");
+  const [censusTab, setCensusTab] = useState<"active" | "history" | "trend">(
+    "active"
+  );
   const [selectedHistoricalCensusId, setSelectedHistoricalCensusId] =
     useState<Id<"census_uploads"> | null>(null);
   const [comparisonMode, setComparisonMode] = useState(false);
@@ -474,12 +479,15 @@ Notes: ${client.notes || "N/A"}`;
           </CardHeader>
           <CardContent>
             <Tabs
-              onValueChange={(v) => setCensusTab(v as "active" | "history")}
+              onValueChange={(v) =>
+                setCensusTab(v as "active" | "history" | "trend")
+              }
               value={censusTab}
             >
               <TabsList className="mb-4">
                 <TabsTrigger value="active">Active Census</TabsTrigger>
                 <TabsTrigger value="history">Census History</TabsTrigger>
+                <TabsTrigger value="trend">Quality Trend</TabsTrigger>
               </TabsList>
 
               <TabsContent className="space-y-4" value="active">
@@ -751,6 +759,207 @@ Notes: ${client.notes || "N/A"}`;
                   <div className="flex flex-col items-center justify-center rounded-lg border-2 border-gray-300 border-dashed bg-gray-50 p-8 text-center">
                     <TableIcon className="mb-2 h-8 w-8 text-gray-400" />
                     <p className="text-gray-600">No census history found</p>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent className="space-y-4" value="trend">
+                {qualityHistory && qualityHistory.length > 0 ? (
+                  <div className="space-y-6">
+                    <div className="rounded-lg border bg-white p-6">
+                      <h3 className="mb-4 font-semibold text-lg">
+                        Data Quality Over Time
+                      </h3>
+                      <div className="space-y-6">
+                        {/* Chart visualization */}
+                        <div className="relative h-[400px] rounded-lg border bg-gray-50 p-4">
+                          {/* Y-axis label */}
+                          <div className="-translate-y-1/2 -rotate-90 absolute top-1/2 left-2 font-medium text-gray-600 text-sm">
+                            Quality Score (%)
+                          </div>
+
+                          {/* Chart area */}
+                          <div className="relative ml-8 h-full">
+                            {/* Y-axis grid lines and labels */}
+                            <div className="absolute inset-0 flex flex-col justify-between border-gray-300 border-b border-l pr-4 pb-6">
+                              {[100, 75, 50, 25, 0].map((value) => (
+                                <div
+                                  className="relative flex items-center"
+                                  key={value}
+                                >
+                                  <span className="-left-10 absolute text-gray-600 text-xs">
+                                    {value}
+                                  </span>
+                                  <div className="w-full border-gray-200 border-t" />
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Plot area */}
+                            <div className="absolute inset-0 flex items-end justify-around pr-4 pb-6 pl-0">
+                              {qualityHistory.map((point, index) => {
+                                const maxScore = Math.max(
+                                  point.peoScore,
+                                  point.acaScore
+                                );
+                                const peoHeight = `${point.peoScore}%`;
+                                const acaHeight = `${point.acaScore}%`;
+
+                                return (
+                                  <div
+                                    className="flex flex-1 flex-col items-center justify-end gap-1"
+                                    key={point.censusUploadId}
+                                  >
+                                    {/* Data points */}
+                                    <div className="relative flex w-full items-end justify-center gap-2">
+                                      {/* PEO score bar */}
+                                      <div
+                                        className="group relative w-6 cursor-pointer rounded-t bg-blue-500 transition-opacity hover:opacity-80"
+                                        style={{ height: peoHeight }}
+                                        title={`PEO: ${point.peoScore}%`}
+                                      >
+                                        <div className="-top-6 -translate-x-1/2 pointer-events-none absolute left-1/2 hidden whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-white text-xs group-hover:block">
+                                          PEO: {point.peoScore}%
+                                        </div>
+                                      </div>
+
+                                      {/* ACA score bar */}
+                                      <div
+                                        className="group relative w-6 cursor-pointer rounded-t bg-purple-500 transition-opacity hover:opacity-80"
+                                        style={{ height: acaHeight }}
+                                        title={`ACA: ${point.acaScore}%`}
+                                      >
+                                        <div className="-top-6 -translate-x-1/2 pointer-events-none absolute left-1/2 hidden whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-white text-xs group-hover:block">
+                                          ACA: {point.acaScore}%
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* X-axis label */}
+                                    <div className="mt-2 w-full text-center text-gray-600 text-xs">
+                                      <div className="truncate font-medium">
+                                        {new Date(
+                                          point.uploadedAt
+                                        ).toLocaleDateString()}
+                                      </div>
+                                      <div className="text-gray-400">
+                                        v{index + 1}
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* X-axis label */}
+                          <div className="-translate-x-1/2 absolute bottom-0 left-1/2 font-medium text-gray-600 text-sm">
+                            Census Versions
+                          </div>
+                        </div>
+
+                        {/* Legend */}
+                        <div className="flex items-center justify-center gap-6">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded bg-blue-500" />
+                            <span className="text-gray-700 text-sm">
+                              PEO Score
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded bg-purple-500" />
+                            <span className="text-gray-700 text-sm">
+                              ACA Score
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Data summary table */}
+                        <div className="overflow-x-auto">
+                          <table className="w-full">
+                            <thead>
+                              <tr className="border-b bg-gray-50">
+                                <th className="px-4 py-2 text-left font-medium text-gray-700 text-sm">
+                                  Version
+                                </th>
+                                <th className="px-4 py-2 text-left font-medium text-gray-700 text-sm">
+                                  Upload Date
+                                </th>
+                                <th className="px-4 py-2 text-left font-medium text-gray-700 text-sm">
+                                  File Name
+                                </th>
+                                <th className="px-4 py-2 text-center font-medium text-gray-700 text-sm">
+                                  Rows
+                                </th>
+                                <th className="px-4 py-2 text-center font-medium text-gray-700 text-sm">
+                                  PEO Score
+                                </th>
+                                <th className="px-4 py-2 text-center font-medium text-gray-700 text-sm">
+                                  ACA Score
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {qualityHistory.map((point, index) => (
+                                <tr
+                                  className="border-b hover:bg-gray-50"
+                                  key={point.censusUploadId}
+                                >
+                                  <td className="px-4 py-2 text-gray-900 text-sm">
+                                    v{index + 1}
+                                  </td>
+                                  <td className="px-4 py-2 text-gray-600 text-sm">
+                                    {new Date(
+                                      point.uploadedAt
+                                    ).toLocaleString()}
+                                  </td>
+                                  <td className="px-4 py-2 text-gray-900 text-sm">
+                                    {point.fileName}
+                                  </td>
+                                  <td className="px-4 py-2 text-center text-gray-600 text-sm">
+                                    {point.totalRows}
+                                  </td>
+                                  <td className="px-4 py-2 text-center">
+                                    <span
+                                      className={`inline-flex rounded-full px-2 py-1 font-semibold text-xs ${
+                                        point.peoScore >= 90
+                                          ? "bg-green-100 text-green-800"
+                                          : point.peoScore >= 70
+                                            ? "bg-yellow-100 text-yellow-800"
+                                            : "bg-red-100 text-red-800"
+                                      }`}
+                                    >
+                                      {point.peoScore}%
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-2 text-center">
+                                    <span
+                                      className={`inline-flex rounded-full px-2 py-1 font-semibold text-xs ${
+                                        point.acaScore >= 90
+                                          ? "bg-green-100 text-green-800"
+                                          : point.acaScore >= 70
+                                            ? "bg-yellow-100 text-yellow-800"
+                                            : "bg-red-100 text-red-800"
+                                      }`}
+                                    >
+                                      {point.acaScore}%
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center rounded-lg border-2 border-gray-300 border-dashed bg-gray-50 p-8 text-center">
+                    <TableIcon className="mb-2 h-8 w-8 text-gray-400" />
+                    <p className="text-gray-600">
+                      No quality history available. Upload multiple census
+                      versions to see quality trends.
+                    </p>
                   </div>
                 )}
               </TabsContent>

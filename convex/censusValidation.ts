@@ -452,3 +452,65 @@ export const getValidation = query({
       )
       .first(),
 });
+
+export const getQualityHistory = query({
+  args: {
+    clientId: v.id("clients"),
+  },
+  returns: v.array(
+    v.object({
+      censusUploadId: v.id("census_uploads"),
+      fileName: v.string(),
+      uploadedAt: v.number(),
+      validatedAt: v.number(),
+      peoScore: v.number(),
+      acaScore: v.number(),
+      totalRows: v.number(),
+    })
+  ),
+  handler: async (ctx, args) => {
+    // Get all census uploads for this client
+    const censusUploads = await ctx.db
+      .query("census_uploads")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.clientId))
+      .order("asc")
+      .collect();
+
+    // Get validations for each census upload
+    const qualityHistory = await Promise.all(
+      censusUploads.map(async (upload) => {
+        const validation = await ctx.db
+          .query("census_validations")
+          .withIndex("by_censusUploadId", (q) =>
+            q.eq("censusUploadId", upload._id)
+          )
+          .first();
+
+        if (!validation) {
+          return null;
+        }
+
+        return {
+          censusUploadId: upload._id,
+          fileName: upload.fileName,
+          uploadedAt: upload.uploadedAt,
+          validatedAt: validation.validatedAt,
+          peoScore: validation.peoScore,
+          acaScore: validation.acaScore,
+          totalRows: validation.totalRows,
+        };
+      })
+    );
+
+    // Filter out null values (uploads without validations) and return sorted by date
+    return qualityHistory.filter((q) => q !== null) as Array<{
+      censusUploadId: (typeof censusUploads)[0]["_id"];
+      fileName: string;
+      uploadedAt: number;
+      validatedAt: number;
+      peoScore: number;
+      acaScore: number;
+      totalRows: number;
+    }>;
+  },
+});
