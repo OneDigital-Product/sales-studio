@@ -1,8 +1,16 @@
 "use client";
 
 import { Download, Trash } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -60,6 +68,9 @@ export function DocumentCenter({
   onVerifyFile,
   onDeleteFile,
 }: DocumentCenterProps) {
+  // Filter state: "all" or specific category
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+
   // Group files by category
   const groupedFiles = files.reduce(
     (acc, file) => {
@@ -79,6 +90,12 @@ export function DocumentCenter({
       CATEGORY_CONFIG[a as FileCategory].order -
       CATEGORY_CONFIG[b as FileCategory].order
   ) as FileCategory[];
+
+  // Filter categories based on selection
+  const filteredCategories =
+    categoryFilter === "all"
+      ? sortedCategories
+      : sortedCategories.filter((cat) => cat === categoryFilter);
 
   if (files.length === 0) {
     return (
@@ -104,7 +121,33 @@ export function DocumentCenter({
 
   return (
     <div className="space-y-6">
-      {sortedCategories.map((category) => (
+      {/* Category Filter */}
+      <div className="flex items-center gap-3">
+        <label
+          className="font-medium text-gray-700 text-sm"
+          htmlFor="category-filter"
+        >
+          Filter by Category:
+        </label>
+        <Select onValueChange={setCategoryFilter} value={categoryFilter}>
+          <SelectTrigger className="w-[200px]" id="category-filter">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            {Object.entries(CATEGORY_CONFIG)
+              .sort((a, b) => a[1].order - b[1].order)
+              .map(([value, config]) => (
+                <SelectItem key={value} value={value}>
+                  {config.label}
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Category Sections */}
+      {filteredCategories.map((category) => (
         <div className="space-y-2" key={category}>
           {/* Category Header */}
           <h3 className="font-semibold text-gray-700 text-lg">

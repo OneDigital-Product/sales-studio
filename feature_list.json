@@ -861,7 +861,7 @@
       "Verify only plan summary files are displayed",
       "Verify other categories are hidden"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
