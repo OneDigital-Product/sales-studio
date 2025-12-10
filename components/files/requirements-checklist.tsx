@@ -70,9 +70,9 @@ export function RequirementsChecklist({ files }: RequirementsChecklistProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[50px]">Status</TableHead>
+              <TableHead className="w-[50px] pl-6">Status</TableHead>
               <TableHead>Document Type</TableHead>
-              <TableHead>Description</TableHead>
+              <TableHead className="pr-6">Description</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -83,7 +83,7 @@ export function RequirementsChecklist({ files }: RequirementsChecklistProps) {
                   className={isUploaded ? "bg-green-50" : "bg-yellow-50"}
                   key={doc.category}
                 >
-                  <TableCell>
+                  <TableCell className="pl-6">
                     {isUploaded ? (
                       <CheckCircle2 className="h-5 w-5 text-green-600" />
                     ) : (
@@ -100,7 +100,7 @@ export function RequirementsChecklist({ files }: RequirementsChecklistProps) {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-gray-600 text-sm">
+                  <TableCell className="pr-6 text-gray-600 text-sm">
                     {doc.description}
                   </TableCell>
                 </TableRow>

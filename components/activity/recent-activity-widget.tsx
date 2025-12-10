@@ -4,7 +4,13 @@ import { useQuery } from "convex/react";
 import { Inbox, MessageSquare, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/convex/_generated/api";
@@ -17,9 +23,9 @@ function formatRelativeTime(timestamp: number) {
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 
-  if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`;
-  if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-  if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+  if (days > 0) return `${days}d ago`;
+  if (hours > 0) return `${hours}h ago`;
+  if (minutes > 0) return `${minutes}m ago`;
   return "just now";
 }
 
@@ -46,11 +52,13 @@ export function RecentActivityWidget() {
 
   if (activities === undefined) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+      <Card className="overflow-hidden py-0">
+        <CardHeader className="border-b px-6 py-4">
+          <CardTitle className="text-base text-primary">
+            Recent Activity
+          </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center py-8">
+        <CardContent className="flex items-center justify-center py-12">
           <Spinner />
         </CardContent>
       </Card>
@@ -59,11 +67,13 @@ export function RecentActivityWidget() {
 
   if (activities.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+      <Card className="overflow-hidden py-0">
+        <CardHeader className="border-b px-6 py-4">
+          <CardTitle className="text-base text-primary">
+            Recent Activity
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="py-8">
           <EmptyState
             description="Activity will appear here as team members add comments and update quote statuses."
             icon={Inbox}
@@ -75,86 +85,75 @@ export function RecentActivityWidget() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
+    <Card className="overflow-hidden py-0">
+      <CardHeader className="border-b px-6 py-4">
+        <CardTitle className="text-base text-primary">
+          Recent Activity
+        </CardTitle>
+        <CardDescription>Latest comments and status changes</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
+      <CardContent className="p-0">
+        <div className="divide-y divide-border">
           {activities.map((activity, index) => (
-            <div
-              className="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3"
-              key={index}
-            >
-              {activity.type === "comment" ? (
-                <div className="mt-1 flex-shrink-0">
-                  <MessageSquare className="h-4 w-4 text-gray-500" />
-                </div>
-              ) : (
-                <div className="mt-1 flex-shrink-0">
-                  <TrendingUp className="h-4 w-4 text-gray-500" />
-                </div>
-              )}
-
-              <div className="flex-1 space-y-1">
-                <div className="flex items-center gap-2">
-                  <Link
-                    className="font-medium text-primary text-sm hover:underline"
-                    href={`/clients/${activity.clientId}`}
-                  >
-                    {activity.clientName}
-                  </Link>
-                  {activity.type === "comment" && (
-                    <Badge
-                      className={`text-xs ${getTeamBadgeColor(activity.authorTeam)}`}
-                      variant="outline"
-                    >
-                      {activity.authorTeam}
-                    </Badge>
+            <div className="px-6 py-3" key={index}>
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex-shrink-0">
+                  {activity.type === "comment" ? (
+                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
                   )}
-                  {activity.type === "status_change" && (
-                    <Badge
-                      className={`text-xs ${activity.quoteType === "PEO" ? "bg-primary/10 text-foreground" : "bg-secondary text-foreground"}`}
-                      variant="outline"
-                    >
-                      {activity.quoteType}
-                    </Badge>
-                  )}
-                  <span className="text-muted-foreground text-xs">
-                    {formatRelativeTime(activity.timestamp)}
-                  </span>
                 </div>
-
-                {activity.type === "comment" ? (
-                  <div className="space-y-0.5">
-                    <p className="text-gray-600 text-xs">
-                      <span className="font-medium">{activity.authorName}</span>{" "}
-                      commented:
-                    </p>
-                    <p className="text-gray-800 text-sm">
-                      {activity.content.length > 100
-                        ? `${activity.content.slice(0, 100)}...`
-                        : activity.content}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-gray-800 text-sm">
-                    Quote status changed from{" "}
-                    <span className="font-medium">
-                      {formatStatus(activity.previousStatus)}
-                    </span>{" "}
-                    to{" "}
-                    <span className="font-medium">
-                      {formatStatus(activity.newStatus)}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <Link
+                      className="font-medium text-primary hover:underline"
+                      href={`/clients/${activity.clientId}`}
+                    >
+                      {activity.clientName}
+                    </Link>
+                    {activity.type === "comment" && (
+                      <Badge
+                        className={`text-xs ${getTeamBadgeColor(activity.authorTeam)}`}
+                        variant="outline"
+                      >
+                        {activity.authorTeam}
+                      </Badge>
+                    )}
+                    {activity.type === "status_change" && (
+                      <Badge
+                        className={`text-xs ${activity.quoteType === "PEO" ? "bg-primary/10 text-foreground" : "bg-secondary text-foreground"}`}
+                        variant="outline"
+                      >
+                        {activity.quoteType}
+                      </Badge>
+                    )}
+                    <span className="text-muted-foreground text-xs">
+                      {formatRelativeTime(activity.timestamp)}
                     </span>
-                    {activity.changedBy && (
-                      <span className="text-gray-600">
-                        {" "}
-                        by {activity.changedBy}
-                      </span>
+                  </div>
+                  <p className="mt-1 text-foreground text-sm">
+                    {activity.type === "comment" ? (
+                      <>
+                        <span className="font-medium">
+                          {activity.authorName}:
+                        </span>{" "}
+                        {activity.content}
+                      </>
+                    ) : (
+                      <>
+                        Status changed from{" "}
+                        <span className="font-medium">
+                          {formatStatus(activity.previousStatus)}
+                        </span>{" "}
+                        to{" "}
+                        <span className="font-medium">
+                          {formatStatus(activity.newStatus)}
+                        </span>
+                      </>
                     )}
                   </p>
-                )}
+                </div>
               </div>
             </div>
           ))}

@@ -152,7 +152,7 @@ export function DocumentCenter({
           {/* Category Filter */}
           <div className="flex items-center gap-3">
             <label
-              className="font-medium text-foreground text-sm"
+              className="font-medium text-primary text-sm"
               htmlFor="category-filter"
             >
               Filter by Category:
@@ -177,7 +177,7 @@ export function DocumentCenter({
           {/* Team Filter */}
           <div className="flex items-center gap-3">
             <label
-              className="font-medium text-foreground text-sm"
+              className="font-medium text-primary text-sm"
               htmlFor="team-filter"
             >
               Filter by Team:
@@ -199,7 +199,7 @@ export function DocumentCenter({
         {filteredCategories.map((category) => (
           <div className="space-y-2" key={category}>
             {/* Category Header */}
-            <h3 className="font-sans font-semibold text-base text-foreground">
+            <h3 className="font-sans font-semibold text-base text-primary">
               {CATEGORY_CONFIG[category].label}
             </h3>
 
@@ -208,15 +208,15 @@ export function DocumentCenter({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[45%]">Name</TableHead>
+                    <TableHead className="w-[45%] pl-6">Name</TableHead>
                     <TableHead className="w-[15%]">Size</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
+                    <TableHead className="pr-6 text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {groupedFiles[category]?.map((file) => (
                     <TableRow className="hover:bg-muted/80" key={file._id}>
-                      <TableCell className="font-medium">
+                      <TableCell className="pl-6 font-medium">
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-2">
                             <span className="block">{file.name}</span>
@@ -268,7 +268,7 @@ export function DocumentCenter({
                       <TableCell className="text-sm">
                         {formatFileSize(file.fileSize)}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="pr-6 text-right">
                         <div className="flex items-center justify-end gap-2">
                           {!file.isVerified && (
                             <VerifyFileDialog
@@ -280,7 +280,7 @@ export function DocumentCenter({
                           )}
                           {file.isVerified && (
                             <Badge
-                              className="mr-2 gap-1 bg-green-100 text-green-700 hover:bg-green-100"
+                              className="mr-2 gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-green-700 hover:bg-green-100"
                               variant="secondary"
                             >
                               <CheckCircle2 className="h-4 w-4" />

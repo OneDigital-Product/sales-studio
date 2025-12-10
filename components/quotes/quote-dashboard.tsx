@@ -12,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -51,6 +50,12 @@ type QuoteStatus =
   | "declined";
 
 type QuoteType = "PEO" | "ACA" | "all";
+
+const formatStatus = (status: string) =>
+  status
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
 export function QuoteDashboard() {
   const [statusFilter, setStatusFilter] = useState<QuoteStatus | "all">("all");
@@ -368,18 +373,20 @@ export function QuoteDashboard() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Quote Dashboard</CardTitle>
+    <Card className="overflow-hidden py-0">
+      <CardHeader className="border-b px-6 py-4">
+        <CardTitle className="text-base text-primary">
+          Quote Dashboard
+        </CardTitle>
         <CardDescription>
           View and track all active quotes across all clients
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 p-6">
         {/* Filters and Bulk Actions */}
         <div className="flex flex-wrap gap-4">
           <div className="min-w-[200px] flex-1">
-            <label className="mb-2 block font-medium text-gray-700 text-sm">
+            <label className="mb-2 block font-medium text-primary text-sm">
               Status
             </label>
             <Select
@@ -405,7 +412,7 @@ export function QuoteDashboard() {
           </div>
 
           <div className="min-w-[200px] flex-1">
-            <label className="mb-2 block font-medium text-gray-700 text-sm">
+            <label className="mb-2 block font-medium text-primary text-sm">
               Quote Type
             </label>
             <Select
@@ -443,18 +450,20 @@ export function QuoteDashboard() {
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <p className="text-gray-600 text-sm">Total Quotes</p>
-            <p className="font-bold text-2xl">{filteredQuotes.length}</p>
+          <div className="rounded-lg border border-border bg-white p-4">
+            <p className="text-muted-foreground text-sm">Total Quotes</p>
+            <p className="font-bold text-2xl text-foreground">
+              {filteredQuotes.length}
+            </p>
           </div>
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <p className="text-gray-600 text-sm">Blocked Quotes</p>
+          <div className="rounded-lg border border-border bg-white p-4">
+            <p className="text-muted-foreground text-sm">Blocked Quotes</p>
             <p className="font-bold text-2xl text-red-600">
               {filteredQuotes.filter((q) => q.isBlocked).length}
             </p>
           </div>
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <p className="text-gray-600 text-sm">Active Quotes</p>
+          <div className="rounded-lg border border-border bg-white p-4">
+            <p className="text-muted-foreground text-sm">Active Quotes</p>
             <p className="font-bold text-2xl text-primary">
               {
                 filteredQuotes.filter(
@@ -476,44 +485,27 @@ export function QuoteDashboard() {
           <div className="space-y-6">
             {Object.entries(groupedByStatus).map(([status, quotes]) => (
               <div key={status}>
-                <h3 className="mb-3 flex items-center font-semibold text-gray-900 text-lg">
+                <h3 className="mb-3 flex items-center font-semibold text-lg text-primary">
                   {getStatusIcon(status as QuoteStatus)}
-                  {status.replace("_", " ").toUpperCase()} ({quotes.length})
+                  {formatStatus(status)} ({quotes.length})
                 </h3>
-                <div className="overflow-hidden rounded-lg border border-gray-200">
+                <div className="overflow-hidden rounded-lg border border-border">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-12">
-                          <Checkbox
-                            checked={
-                              quotes.length > 0 &&
-                              quotes.every((q) => selectedQuotes.has(q.quoteId))
-                            }
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                const newSelected = new Set(selectedQuotes);
-                                for (const q of quotes) {
-                                  newSelected.add(q.quoteId);
-                                }
-                                setSelectedQuotes(newSelected);
-                              } else {
-                                const newSelected = new Set(selectedQuotes);
-                                for (const q of quotes) {
-                                  newSelected.delete(q.quoteId);
-                                }
-                                setSelectedQuotes(newSelected);
-                              }
-                            }}
-                          />
+                        <TableHead className="w-[18%] pl-6">Client</TableHead>
+                        <TableHead className="w-[8%]">Type</TableHead>
+                        <TableHead className="w-[12%]">Status</TableHead>
+                        <TableHead className="w-[28%]">
+                          Blocked Reason
                         </TableHead>
-                        <TableHead>Client</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Blocked Reason</TableHead>
-                        <TableHead>Days Open</TableHead>
-                        <TableHead>Time to Complete</TableHead>
-                        <TableHead className="text-right">Action</TableHead>
+                        <TableHead className="w-[10%]">Days Open</TableHead>
+                        <TableHead className="w-[14%]">
+                          Time to Complete
+                        </TableHead>
+                        <TableHead className="w-[10%] pr-6 text-center">
+                          Action
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -522,18 +514,7 @@ export function QuoteDashboard() {
                           className={quote.isBlocked ? "bg-red-50" : ""}
                           key={`${quote.clientId}-${quote.type}`}
                         >
-                          <TableCell>
-                            <Checkbox
-                              checked={selectedQuotes.has(quote.quoteId)}
-                              onCheckedChange={(checked) =>
-                                handleSelectQuote(
-                                  quote.quoteId,
-                                  checked as boolean
-                                )
-                              }
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">
+                          <TableCell className="pl-6 font-medium">
                             {quote.clientName}
                             {quote.isBlocked && (
                               <span className="ml-2 rounded bg-red-100 px-2 py-1 font-normal text-red-800 text-xs">
@@ -592,7 +573,7 @@ export function QuoteDashboard() {
                               <span className="text-gray-400">—</span>
                             )}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="pr-6 text-center">
                             <Link href={`/clients/${quote.clientId}`}>
                               <Button size="sm" variant="outline">
                                 View
@@ -680,49 +661,51 @@ export function QuoteDashboard() {
                 {/* Summary Statistics */}
                 <div className="grid grid-cols-4 gap-3">
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p className="text-gray-600 text-xs">Total Quotes</p>
+                    <p className="text-muted-foreground text-xs">
+                      Total Quotes
+                    </p>
                     <p className="font-bold text-xl">
                       {generatedReport.summary.totalQuotes}
                     </p>
                   </div>
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p className="text-gray-600 text-xs">PEO</p>
+                    <p className="text-muted-foreground text-xs">PEO</p>
                     <p className="font-bold text-primary text-xl">
                       {generatedReport.summary.peoQuotes}
                     </p>
                   </div>
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p className="text-gray-600 text-xs">ACA</p>
+                    <p className="text-muted-foreground text-xs">ACA</p>
                     <p className="font-bold text-accent text-xl">
                       {generatedReport.summary.acaQuotes}
                     </p>
                   </div>
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p className="text-gray-600 text-xs">Accepted</p>
+                    <p className="text-muted-foreground text-xs">Accepted</p>
                     <p className="font-bold text-green-600 text-xl">
                       {generatedReport.summary.acceptedQuotes}
                     </p>
                   </div>
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p className="text-gray-600 text-xs">Declined</p>
+                    <p className="text-muted-foreground text-xs">Declined</p>
                     <p className="font-bold text-red-600 text-xl">
                       {generatedReport.summary.declinedQuotes}
                     </p>
                   </div>
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p className="text-gray-600 text-xs">Active</p>
+                    <p className="text-muted-foreground text-xs">Active</p>
                     <p className="font-bold text-primary text-xl">
                       {generatedReport.summary.activeQuotes}
                     </p>
                   </div>
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p className="text-gray-600 text-xs">Blocked</p>
+                    <p className="text-muted-foreground text-xs">Blocked</p>
                     <p className="font-bold text-orange-600 text-xl">
                       {generatedReport.summary.blockedQuotes}
                     </p>
                   </div>
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p className="text-gray-600 text-xs">Avg Days</p>
+                    <p className="text-muted-foreground text-xs">Avg Days</p>
                     <p className="font-bold text-xl">
                       {generatedReport.summary.avgDaysToComplete?.toFixed(1) ??
                         "—"}
@@ -735,18 +718,18 @@ export function QuoteDashboard() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Client</TableHead>
+                        <TableHead className="pl-6">Client</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Started</TableHead>
                         <TableHead>Completed</TableHead>
-                        <TableHead>Days</TableHead>
+                        <TableHead className="pr-6">Days</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {generatedReport.quotes.map((quote) => (
                         <TableRow key={quote._id}>
-                          <TableCell className="font-medium">
+                          <TableCell className="pl-6 font-medium">
                             {quote.clientName}
                           </TableCell>
                           <TableCell>
@@ -773,7 +756,7 @@ export function QuoteDashboard() {
                               ? new Date(quote.completedAt).toLocaleDateString()
                               : "—"}
                           </TableCell>
-                          <TableCell className="text-sm">
+                          <TableCell className="pr-6 text-sm">
                             {quote.daysToComplete ?? "—"}
                           </TableCell>
                         </TableRow>

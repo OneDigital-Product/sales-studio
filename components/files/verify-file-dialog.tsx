@@ -54,11 +54,11 @@ export function VerifyFileDialog({
       <DialogTrigger asChild>
         {trigger || (
           <Button
-            className="mr-2 gap-1 bg-gray-100 text-gray-700 text-xs hover:bg-gray-200"
+            className="mr-2 h-auto gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-gray-700 text-xs hover:bg-gray-200"
             size="sm"
             variant="ghost"
           >
-            <CheckCircle2 className="h-3 w-3" />
+            <CheckCircle2 className="h-4 w-4" />
             Mark as Verified
           </Button>
         )}
