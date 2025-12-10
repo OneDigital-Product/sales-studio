@@ -1995,7 +1995,7 @@
       "Verify hover state changes appearance",
       "Verify active drag state is distinct"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
