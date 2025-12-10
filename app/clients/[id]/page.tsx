@@ -553,8 +553,8 @@ Notes: ${client.notes || "N/A"}`;
               </TabsList>
 
               <TabsContent className="space-y-4" value="active">
-                <div className="flex items-start gap-3 rounded-lg border border-blue-100 bg-primary/10 p-4">
-                  <div className="rounded-full bg-blue-100 p-2">
+                <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/10 p-4">
+                  <div className="rounded-full bg-primary/10 p-2">
                     <TableIcon className="h-5 w-5 text-primary" />
                   </div>
                   <div className="flex-1">
@@ -738,11 +738,11 @@ Notes: ${client.notes || "N/A"}`;
                               comparisonMode
                                 ? "cursor-pointer hover:bg-gray-50"
                                 : selectedHistoricalCensusId === upload._id
-                                  ? "cursor-pointer border-blue-500 bg-primary/10"
+                                  ? "cursor-pointer border-primary bg-primary/10"
                                   : "cursor-pointer hover:bg-gray-50"
                             } ${
                               selectedForComparison.includes(upload._id)
-                                ? "border-blue-500 bg-primary/10"
+                                ? "border-primary bg-primary/10"
                                 : ""
                             }`}
                             key={upload._id}
@@ -1191,7 +1191,7 @@ Notes: ${client.notes || "N/A"}`;
                   aria-label="File upload dropzone"
                   className={`rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
                     isDragging
-                      ? "border-blue-500 bg-primary/10"
+                      ? "border-primary bg-primary/10"
                       : "border-border bg-card hover:bg-secondary"
                   }`}
                   onDragEnter={handleDragEnter}
@@ -1253,10 +1253,10 @@ Notes: ${client.notes || "N/A"}`;
 
             {/* Undo Census Replacement Banner */}
             {undoInfo && (
-              <Card className="border-blue-200 bg-primary/10">
+              <Card className="border-primary/20 bg-primary/10">
                 <CardContent className="flex items-center justify-between py-4">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-full bg-blue-100 p-2">
+                    <div className="rounded-full bg-primary/10 p-2">
                       <TableIcon className="h-5 w-5 text-primary" />
                     </div>
                     <div>
@@ -1271,7 +1271,7 @@ Notes: ${client.notes || "N/A"}`;
                   </div>
                   <div className="flex gap-2">
                     <Button
-                      className="border-primary bg-white text-primary hover:bg-blue-100"
+                      className="border-primary bg-white text-primary hover:bg-primary/10"
                       onClick={handleUndoCensusReplacement}
                       size="sm"
                       variant="outline"
@@ -1279,7 +1279,7 @@ Notes: ${client.notes || "N/A"}`;
                       Undo Replacement
                     </Button>
                     <Button
-                      className="text-primary hover:bg-blue-100"
+                      className="text-primary hover:bg-primary/10"
                       onClick={() => setUndoInfo(null)}
                       size="sm"
                       variant="ghost"

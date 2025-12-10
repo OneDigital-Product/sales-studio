@@ -56,8 +56,8 @@ export function CommentItem({
     <div className="relative flex gap-4">
       {/* Timeline visual */}
       <div className="flex flex-col items-center">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-blue-500 bg-white">
-          <MessageCircle className="h-4 w-4 text-blue-500" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-primary bg-white">
+          <MessageCircle className="h-4 w-4 text-primary" />
         </div>
       </div>
 

@@ -45,7 +45,7 @@ function getDotClassName(
     return "bg-primary";
   }
   if (isCurrent) {
-    return "bg-highlight ring-2 ring-highlight/50";
+    return "bg-primary ring-2 ring-primary/30";
   }
   return "bg-gray-200";
 }

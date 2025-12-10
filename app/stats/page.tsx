@@ -123,7 +123,7 @@ Generated: ${new Date().toLocaleString()}
       title: "Total Clients",
       value: stats.totalClients,
       icon: Users,
-      color: "text-blue-500",
+      color: "text-primary",
       bgColor: "bg-primary/10",
     },
     {
@@ -321,7 +321,7 @@ Generated: ${new Date().toLocaleString()}
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-lg border bg-card p-4">
                   <div className="mb-2 flex items-center gap-2">
-                    <Users className="h-4 w-4 text-blue-500" />
+                    <Users className="h-4 w-4 text-primary" />
                     <h3 className="font-semibold text-sm">Clients Created</h3>
                   </div>
                   <p className="font-bold text-3xl">

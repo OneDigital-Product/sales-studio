@@ -64,7 +64,7 @@ const getStatusColor = (status: QuoteStatus, isBlocked?: boolean) => {
     case "not_started":
       return "bg-gray-100 text-gray-700 border-gray-300";
     case "intake":
-      return "bg-blue-100 text-foreground border-blue-300";
+      return "bg-primary/10 text-foreground border-primary/20";
     case "underwriting":
       return "bg-secondary text-foreground border-secondary";
     case "proposal_ready":
