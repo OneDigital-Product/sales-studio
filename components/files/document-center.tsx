@@ -70,9 +70,21 @@ export function DocumentCenter({
 }: DocumentCenterProps) {
   // Filter state: "all" or specific category
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  // Team filter state: "all", "PEO", or "ACA"
+  const [teamFilter, setTeamFilter] = useState<string>("all");
+
+  // Apply team filter to files first
+  const teamFilteredFiles =
+    teamFilter === "all"
+      ? files
+      : files.filter(
+          (file) =>
+            file.relevantTo &&
+            file.relevantTo.includes(teamFilter as "PEO" | "ACA")
+        );
 
   // Group files by category
-  const groupedFiles = files.reduce(
+  const groupedFiles = teamFilteredFiles.reduce(
     (acc, file) => {
       const category = (file.category || "other") as FileCategory;
       if (!acc[category]) {
@@ -119,31 +131,63 @@ export function DocumentCenter({
     );
   }
 
+  // Show message if teamFilteredFiles is empty after filtering
+  if (teamFilteredFiles.length === 0) {
+    return (
+      <div className="rounded-md border p-8 text-center text-gray-500">
+        No files match the selected team filter.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Category Filter */}
-      <div className="flex items-center gap-3">
-        <label
-          className="font-medium text-gray-700 text-sm"
-          htmlFor="category-filter"
-        >
-          Filter by Category:
-        </label>
-        <Select onValueChange={setCategoryFilter} value={categoryFilter}>
-          <SelectTrigger className="w-[200px]" id="category-filter">
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {Object.entries(CATEGORY_CONFIG)
-              .sort((a, b) => a[1].order - b[1].order)
-              .map(([value, config]) => (
-                <SelectItem key={value} value={value}>
-                  {config.label}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-6">
+        {/* Category Filter */}
+        <div className="flex items-center gap-3">
+          <label
+            className="font-medium text-gray-700 text-sm"
+            htmlFor="category-filter"
+          >
+            Filter by Category:
+          </label>
+          <Select onValueChange={setCategoryFilter} value={categoryFilter}>
+            <SelectTrigger className="w-[200px]" id="category-filter">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {Object.entries(CATEGORY_CONFIG)
+                .sort((a, b) => a[1].order - b[1].order)
+                .map(([value, config]) => (
+                  <SelectItem key={value} value={value}>
+                    {config.label}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Team Filter */}
+        <div className="flex items-center gap-3">
+          <label
+            className="font-medium text-gray-700 text-sm"
+            htmlFor="team-filter"
+          >
+            Filter by Team:
+          </label>
+          <Select onValueChange={setTeamFilter} value={teamFilter}>
+            <SelectTrigger className="w-[200px]" id="team-filter">
+              <SelectValue placeholder="All Teams" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Teams</SelectItem>
+              <SelectItem value="PEO">PEO Team</SelectItem>
+              <SelectItem value="ACA">ACA Team</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Category Sections */}

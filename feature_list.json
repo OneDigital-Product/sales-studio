@@ -873,7 +873,7 @@
       "Verify only PEO-relevant files are displayed",
       "Verify ACA-only files are hidden"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
