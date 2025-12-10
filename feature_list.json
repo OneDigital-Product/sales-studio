@@ -694,7 +694,7 @@
       "Verify request status changes to cancelled",
       "Verify request is removed from outstanding panel"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

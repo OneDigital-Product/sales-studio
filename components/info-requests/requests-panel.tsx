@@ -1,8 +1,9 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
-import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { api } from "@/convex/_generated/api";
@@ -35,6 +36,7 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
   const markItemNotReceived = useMutation(
     api.info_requests.markItemNotReceived
   );
+  const cancelRequest = useMutation(api.info_requests.cancelInfoRequest);
 
   if (!requests) {
     return (
@@ -50,6 +52,7 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
   }
 
   const pendingRequests = requests.filter((r) => r.status === "pending");
+  const outstandingRequests = requests.filter((r) => r.status !== "cancelled");
 
   const handleToggleItem = async (
     requestId: Id<"info_requests">,
@@ -60,6 +63,12 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
       await markItemNotReceived({ requestId, itemIndex });
     } else {
       await markItemReceived({ requestId, itemIndex });
+    }
+  };
+
+  const handleCancelRequest = async (requestId: Id<"info_requests">) => {
+    if (confirm("Are you sure you want to cancel this request?")) {
+      await cancelRequest({ requestId });
     }
   };
 
@@ -74,7 +83,7 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {requests.length === 0 ? (
+        {outstandingRequests.length === 0 ? (
           <div className="py-8 text-center text-muted-foreground">
             <CheckCircle2 className="mx-auto mb-3 h-12 w-12 text-green-500" />
             <p>No information requests</p>
@@ -84,7 +93,7 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
           </div>
         ) : (
           <div className="space-y-4">
-            {requests.map((request) => {
+            {outstandingRequests.map((request) => {
               const receivedCount = request.items.filter(
                 (item) => item.received
               ).length;
@@ -135,8 +144,20 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
                         {request.requestedBy && ` by ${request.requestedBy}`}
                       </div>
                     </div>
-                    <div className="font-medium text-sm">
-                      {receivedCount}/{totalCount} items
+                    <div className="flex items-center gap-3">
+                      <div className="font-medium text-sm">
+                        {receivedCount}/{totalCount} items
+                      </div>
+                      {request.status === "pending" && (
+                        <Button
+                          onClick={() => handleCancelRequest(request._id)}
+                          size="icon-sm"
+                          title="Cancel request"
+                          variant="ghost"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
 
