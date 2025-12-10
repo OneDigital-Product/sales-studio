@@ -1556,7 +1556,7 @@
       "Verify typography hierarchy is clear",
       "Verify card has subtle elevation"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
