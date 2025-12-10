@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, FileText, Trash } from "lucide-react";
+import { CheckCircle2, Download, FileText, Trash } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -222,10 +222,11 @@ export function DocumentCenter({
                             <span className="block">{file.name}</span>
                             {file.isVerified && (
                               <Badge
-                                className="bg-green-600 text-xs"
+                                className="flex items-center gap-1 bg-green-600 text-xs"
                                 variant="default"
                               >
-                                ✓ Verified
+                                <CheckCircle2 className="h-3 w-3" />
+                                Verified
                               </Badge>
                             )}
                             {file.isRequired && (
