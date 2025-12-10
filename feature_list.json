@@ -1838,7 +1838,7 @@
       "Verify padding is consistent within component types",
       "Verify margins between sections are consistent"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",

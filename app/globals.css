@@ -166,3 +166,27 @@
     @apply outline-2 outline-offset-2 outline-ring;
   }
 }
+
+/*
+ * Spacing System - Consistent scale based on 4px base unit
+ *
+ * This application uses Tailwind's default spacing scale which follows an 8-point grid system:
+ * - 0 = 0px
+ * - 1 = 4px (0.25rem)   - Tight spacing, small gaps
+ * - 2 = 8px (0.5rem)    - Compact spacing, close elements
+ * - 3 = 12px (0.75rem)  - Default small spacing
+ * - 4 = 16px (1rem)     - Standard spacing (body text size)
+ * - 5 = 20px (1.25rem)  - Medium spacing
+ * - 6 = 24px (1.5rem)   - Large spacing, section breaks
+ * - 8 = 32px (2rem)     - Extra large spacing, major sections
+ * - 12 = 48px (3rem)    - Extra extra large spacing, page-level margins
+ *
+ * Usage Guidelines:
+ * - Component internal spacing (cards, buttons): gap-2, gap-4, gap-6
+ * - Card padding: px-6 py-6 (24px horizontal and vertical)
+ * - Button padding: px-3 to px-6, py-2 (8-24px horizontal, 8px vertical)
+ * - Section spacing: space-y-4 or space-y-6 (16-24px between sections)
+ * - Page margins: p-8 (32px all around)
+ * - Tight lists/menus: gap-1 or gap-2 (4-8px)
+ * - Form fields: space-y-3 or space-y-4 (12-16px)
+ */
