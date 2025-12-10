@@ -20,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatFileSize } from "@/lib/utils";
 import { FileCommentButton } from "../comments/file-comment-button";
 import { RequirementsChecklist } from "./requirements-checklist";
 import { VerifyFileDialog } from "./verify-file-dialog";
