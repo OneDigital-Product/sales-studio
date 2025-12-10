@@ -1061,7 +1061,7 @@
       "Verify all sections are accessible",
       "Verify buttons are touch-friendly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

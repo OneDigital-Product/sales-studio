@@ -405,8 +405,8 @@ export default function ClientDetailPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
-      <div className="mx-auto max-w-7xl space-y-8">
+    <main className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="mx-auto max-w-7xl space-y-4 md:space-y-8">
         <div className="flex flex-col gap-4">
           <Link className="w-fit text-blue-700 hover:underline" href="/">
             &larr; Back to Dashboard
@@ -434,7 +434,7 @@ export default function ClientDetailPage() {
                 <Pencil className="h-4 w-4" />
               </Button>
             </div>
-            <div className="flex gap-3">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:gap-3">
               <CreateRequestDialog clientId={clientId} />
               <Button className="bg-green-600 hover:bg-green-700" disabled>
                 PEO Quoting
