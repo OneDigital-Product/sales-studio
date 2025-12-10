@@ -1273,7 +1273,7 @@
       "Verify XLSX file is downloaded",
       "Verify data is correctly formatted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
