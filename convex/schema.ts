@@ -8,6 +8,8 @@ export default defineSchema({
     notes: v.optional(v.string()),
     activeCensusId: v.optional(v.id("census_uploads")),
     lastModified: v.optional(v.number()),
+    isArchived: v.optional(v.boolean()),
+    archivedAt: v.optional(v.number()),
   }),
   files: defineTable({
     storageId: v.string(),

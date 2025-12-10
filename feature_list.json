@@ -1916,7 +1916,7 @@
       "Verify archived client is hidden from main list",
       "Verify archived client is still accessible via archive section"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

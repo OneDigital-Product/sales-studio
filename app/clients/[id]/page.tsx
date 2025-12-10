@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "convex/react";
 import {
+  Archive,
   Bookmark,
   BookmarkCheck,
   Copy,
@@ -93,6 +94,7 @@ export default function ClientDetailPage() {
   const setActiveCensus = useMutation(api.census.setActiveCensus);
   const updateClient = useMutation(api.clients.updateClient);
   const deleteClientMutation = useMutation(api.clients.deleteClient);
+  const archiveClientMutation = useMutation(api.clients.archiveClient);
   const addBookmark = useMutation(api.bookmarks.addBookmark);
   const removeBookmark = useMutation(api.bookmarks.removeBookmark);
 
@@ -107,6 +109,7 @@ export default function ClientDetailPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [censusTab, setCensusTab] = useState<"active" | "history" | "trend">(
     "active"
@@ -442,6 +445,24 @@ export default function ClientDetailPage() {
       }, 1000);
     } catch {
       toast.error("Failed to delete client. Please try again.");
+    }
+  };
+
+  const handleArchiveClick = () => {
+    setIsArchiveDialogOpen(true);
+  };
+
+  const handleArchiveConfirm = async () => {
+    try {
+      await archiveClientMutation({ clientId });
+      toast.success("Client archived successfully");
+      setIsArchiveDialogOpen(false);
+      // Navigate back to home page after archiving
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
+    } catch {
+      toast.error("Failed to archive client. Please try again.");
     }
   };
 
@@ -1096,6 +1117,14 @@ Notes: ${client.notes || "N/A"}`;
                 Perfect Quote
               </Button>
               <Button
+                className="bg-orange-600 hover:bg-orange-700"
+                onClick={handleArchiveClick}
+                variant="outline"
+              >
+                <Archive className="mr-2 h-4 w-4" />
+                Archive Client
+              </Button>
+              <Button
                 className="bg-red-600 hover:bg-red-700"
                 onClick={handleDeleteClick}
                 variant="destructive"
@@ -1282,6 +1311,44 @@ Notes: ${client.notes || "N/A"}`;
               <Button type="submit">Save Changes</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Archive Client Dialog */}
+      <Dialog onOpenChange={setIsArchiveDialogOpen} open={isArchiveDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Archive Client</DialogTitle>
+            <DialogDescription>
+              This will move the client to the archived section. The client and
+              all associated data will be preserved, but hidden from the main
+              client list. You can restore it later if needed.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-md border border-orange-200 bg-orange-50 p-4">
+              <p className="font-medium text-orange-900 text-sm">
+                Are you sure you want to archive this client?
+              </p>
+              <p className="mt-2 text-orange-800 text-sm">
+                Client: <span className="font-semibold">{client?.name}</span>
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => setIsArchiveDialogOpen(false)}
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-orange-600 hover:bg-orange-700"
+              onClick={handleArchiveConfirm}
+            >
+              Archive Client
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

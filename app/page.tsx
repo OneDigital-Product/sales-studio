@@ -83,7 +83,12 @@ const formatStatus = (status: QuoteStatus) =>
     .join(" ");
 
 export default function Home() {
-  const clients = useQuery(api.clients.getClientsWithQuotes);
+  const clients = useQuery(api.clients.getClientsWithQuotes, {
+    includeArchived: false,
+  });
+  const archivedClients = useQuery(api.clients.getClientsWithQuotes, {
+    includeArchived: true,
+  });
   const createClient = useMutation(api.clients.createClient);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -243,6 +248,7 @@ export default function Home() {
           <TabsList>
             <TabsTrigger value="clients">Clients</TabsTrigger>
             <TabsTrigger value="dashboard">Quote Dashboard</TabsTrigger>
+            <TabsTrigger value="archived">Archived</TabsTrigger>
           </TabsList>
 
           <TabsContent value="clients">
@@ -513,6 +519,80 @@ export default function Home() {
 
           <TabsContent value="dashboard">
             <QuoteDashboard />
+          </TabsContent>
+
+          <TabsContent value="archived">
+            <Card>
+              <CardHeader>
+                <CardTitle>Archived Clients</CardTitle>
+                <CardDescription>
+                  Clients that have been archived. Click on a client to restore
+                  it.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {archivedClients === undefined ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Spinner size="lg" />
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Archived Date</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {archivedClients?.filter((c) => c.isArchived).length ===
+                      0 ? (
+                        <TableRow>
+                          <TableCell
+                            className="text-center text-gray-500"
+                            colSpan={4}
+                          >
+                            No archived clients
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        archivedClients
+                          ?.filter((c) => c.isArchived)
+                          .map((client) => (
+                            <TableRow key={client._id}>
+                              <TableCell className="font-medium">
+                                {client.name}
+                              </TableCell>
+                              <TableCell>
+                                {client.contactEmail || "—"}
+                              </TableCell>
+                              <TableCell>
+                                {client.archivedAt
+                                  ? new Date(
+                                      client.archivedAt
+                                    ).toLocaleDateString()
+                                  : "—"}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  onClick={() =>
+                                    (window.location.href = `/clients/${client._id}`)
+                                  }
+                                  size="sm"
+                                  variant="outline"
+                                >
+                                  View
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

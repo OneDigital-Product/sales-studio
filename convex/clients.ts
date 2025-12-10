@@ -19,7 +19,7 @@ export const createClient = mutation({
 });
 
 export const getClients = query({
-  args: {},
+  args: { includeArchived: v.optional(v.boolean()) },
   returns: v.array(
     v.object({
       _id: v.id("clients"),
@@ -29,9 +29,17 @@ export const getClients = query({
       notes: v.optional(v.string()),
       activeCensusId: v.optional(v.id("census_uploads")),
       lastModified: v.optional(v.number()),
+      isArchived: v.optional(v.boolean()),
+      archivedAt: v.optional(v.number()),
     })
   ),
-  handler: async (ctx) => await ctx.db.query("clients").collect(),
+  handler: async (ctx, args) => {
+    const clients = await ctx.db.query("clients").collect();
+    if (args.includeArchived) {
+      return clients;
+    }
+    return clients.filter((c) => !c.isArchived);
+  },
 });
 
 export const getClient = query({
@@ -46,6 +54,8 @@ export const getClient = query({
       notes: v.optional(v.string()),
       activeCensusId: v.optional(v.id("census_uploads")),
       lastModified: v.optional(v.number()),
+      isArchived: v.optional(v.boolean()),
+      archivedAt: v.optional(v.number()),
     })
   ),
   handler: async (ctx, args) => await ctx.db.get(args.id),
@@ -90,7 +100,7 @@ const quoteStatusValidator = v.union(
 );
 
 export const getClientsWithQuotes = query({
-  args: {},
+  args: { includeArchived: v.optional(v.boolean()) },
   returns: v.array(
     v.object({
       _id: v.id("clients"),
@@ -100,6 +110,8 @@ export const getClientsWithQuotes = query({
       notes: v.optional(v.string()),
       activeCensusId: v.optional(v.id("census_uploads")),
       lastModified: v.optional(v.number()),
+      isArchived: v.optional(v.boolean()),
+      archivedAt: v.optional(v.number()),
       peoQuote: v.optional(
         v.object({
           status: quoteStatusValidator,
@@ -119,8 +131,11 @@ export const getClientsWithQuotes = query({
       }),
     })
   ),
-  handler: async (ctx) => {
-    const clients = await ctx.db.query("clients").collect();
+  handler: async (ctx, args) => {
+    const allClients = await ctx.db.query("clients").collect();
+    const clients = args.includeArchived
+      ? allClients
+      : allClients.filter((c) => !c.isArchived);
 
     return await Promise.all(
       clients.map(async (client) => {
@@ -278,5 +293,27 @@ export const deleteClient = mutation({
 
     // 6. Finally, delete the client
     await ctx.db.delete(args.clientId);
+  },
+});
+
+export const archiveClient = mutation({
+  args: { clientId: v.id("clients") },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.clientId, {
+      isArchived: true,
+      archivedAt: Date.now(),
+    });
+  },
+});
+
+export const restoreClient = mutation({
+  args: { clientId: v.id("clients") },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.clientId, {
+      isArchived: false,
+      archivedAt: undefined,
+    });
   },
 });
