@@ -849,7 +849,7 @@
       "Verify each category has a header",
       "Verify files are listed under correct category"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

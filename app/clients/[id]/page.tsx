@@ -1,13 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
-import {
-  Download,
-  FileText,
-  Pencil,
-  Table as TableIcon,
-  Trash,
-} from "lucide-react";
+import { FileText, Pencil, Table as TableIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -16,13 +10,11 @@ import { CensusImport } from "@/components/census/census-import";
 import { CensusValidationSummary } from "@/components/census/census-validation-summary";
 import { CensusViewer } from "@/components/census/census-viewer";
 import { CommentFeed } from "@/components/comments/comment-feed";
-import { FileCommentButton } from "@/components/comments/file-comment-button";
+import { DocumentCenter } from "@/components/files/document-center";
 import { FileUploadDialog } from "@/components/files/file-upload-dialog";
-import { VerifyFileDialog } from "@/components/files/verify-file-dialog";
 import { CreateRequestDialog } from "@/components/info-requests/create-request-dialog";
 import { RequestsPanel } from "@/components/info-requests/requests-panel";
 import { QuoteStatusCard } from "@/components/quotes/quote-status-card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -42,14 +34,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
@@ -479,7 +463,7 @@ export default function ClientDetailPage() {
         {/* File Management Section */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Project Files</CardTitle>
+            <CardTitle>Document Center</CardTitle>
             <FileUploadDialog onUpload={handleDialogUpload} />
           </CardHeader>
           <CardContent className="space-y-6">
@@ -532,117 +516,13 @@ export default function ClientDetailPage() {
               </form>
             </div>
 
-            {/* File List */}
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[50%]">Name</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {files?.map((file) => (
-                    <TableRow key={file._id}>
-                      <TableCell className="font-medium">
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2">
-                            <span className="block">{file.name}</span>
-                            {file.isVerified && (
-                              <Badge
-                                className="bg-green-600 text-xs"
-                                variant="default"
-                              >
-                                ✓ Verified
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-gray-500 text-xs">
-                              {new Date(file.uploadedAt).toLocaleDateString()}
-                            </span>
-                            {file.relevantTo && file.relevantTo.length > 0 && (
-                              <div className="flex gap-1">
-                                {file.relevantTo.map((team) => (
-                                  <Badge
-                                    className="text-xs"
-                                    key={team}
-                                    variant={
-                                      team === "PEO" ? "default" : "secondary"
-                                    }
-                                  >
-                                    {team}
-                                  </Badge>
-                                ))}
-                              </div>
-                            )}
-                            {file.isVerified && file.verifiedBy && (
-                              <span className="text-gray-500 text-xs">
-                                by {file.verifiedBy}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <FileCommentButton
-                            clientId={clientId}
-                            fileId={file._id}
-                            fileName={file.name}
-                          />
-                          {!file.isVerified && (
-                            <VerifyFileDialog
-                              fileName={file.name}
-                              onVerify={(verifiedBy) =>
-                                handleVerifyFile(file._id, verifiedBy)
-                              }
-                            />
-                          )}
-                          {file.url && (
-                            <Button
-                              aria-label={`Download ${file.name}`}
-                              asChild
-                              className="h-8 w-8"
-                              size="icon"
-                              variant="ghost"
-                            >
-                              <a
-                                href={file.url}
-                                rel="noopener noreferrer"
-                                target="_blank"
-                              >
-                                <Download className="h-4 w-4" />
-                              </a>
-                            </Button>
-                          )}
-                          <Button
-                            aria-label={`Delete ${file.name}`}
-                            className="h-8 w-8 text-red-600 hover:text-red-700"
-                            onClick={() => handleDelete(file._id)}
-                            size="icon"
-                            variant="ghost"
-                          >
-                            <Trash className="h-4 w-4" />
-                            <span className="sr-only">Delete {file.name}</span>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {files?.length === 0 && (
-                    <TableRow>
-                      <TableCell
-                        className="h-24 text-center text-gray-500"
-                        colSpan={2}
-                      >
-                        No files yet.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+            {/* Document Center */}
+            <DocumentCenter
+              clientId={clientId}
+              files={files || []}
+              onDeleteFile={handleDelete}
+              onVerifyFile={handleVerifyFile}
+            />
           </CardContent>
         </Card>
 
