@@ -2048,7 +2048,7 @@
       "Verify blocked reason is visible",
       "Verify icon communicates blockage"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
