@@ -933,7 +933,7 @@
       "Verify only PEO quotes are displayed",
       "Verify ACA quotes are hidden"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
