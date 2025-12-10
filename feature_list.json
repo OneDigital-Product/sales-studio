@@ -1084,7 +1084,7 @@
       "Verify new client appears in second tab without refresh",
       "Verify real-time sync is working"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -1095,7 +1095,7 @@
       "Verify file appears in document list in second tab",
       "Verify no page refresh required"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -1106,7 +1106,7 @@
       "Verify status updates in second tab instantly",
       "Verify visual indicator updates"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
