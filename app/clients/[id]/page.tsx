@@ -200,29 +200,46 @@ export default function ClientDetailPage() {
     relevantTo?: string[],
     isRequired?: boolean
   ) => {
-    const isCensus = category === "census" || (await isCensusFile(file));
+    try {
+      const isCensus = category === "census" || (await isCensusFile(file));
 
-    const postUrl = await generateUploadUrl();
-    const result = await fetch(postUrl, {
-      method: "POST",
-      headers: { "Content-Type": file.type },
-      body: file,
-    });
-    const { storageId } = await result.json();
+      const postUrl = await generateUploadUrl();
+      const result = await fetch(postUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
 
-    const fileId = await saveFile({
-      storageId,
-      clientId,
-      name: file.name,
-      type: isCensus ? "Census" : "Quote Data",
-      category,
-      relevantTo,
-      isRequired,
-    });
+      if (!result.ok) {
+        throw new Error(
+          `Upload failed with status ${result.status}. Please try again.`
+        );
+      }
 
-    if (isCensus) {
-      setPendingCensusFile(file);
-      setPendingCensusFileId(fileId);
+      const { storageId } = await result.json();
+
+      const fileId = await saveFile({
+        storageId,
+        clientId,
+        name: file.name,
+        type: isCensus ? "Census" : "Quote Data",
+        category,
+        relevantTo,
+        isRequired,
+      });
+
+      if (isCensus) {
+        setPendingCensusFile(file);
+        setPendingCensusFileId(fileId);
+      }
+    } catch (error) {
+      // Re-throw with user-friendly message
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error(
+        "Failed to upload file. Please check your internet connection and try again."
+      );
     }
   };
 

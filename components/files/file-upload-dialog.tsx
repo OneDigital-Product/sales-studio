@@ -58,10 +58,12 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
   const [relevantToPEO, setRelevantToPEO] = useState(false);
   const [relevantToACA, setRelevantToACA] = useState(false);
   const [isRequired, setIsRequired] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setError(null); // Clear any previous errors
       setSelectedFile(file);
       // Auto-detect category based on filename
       const detectedCategory = detectFileCategory(file.name);
@@ -94,6 +96,7 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
     if (!selectedFile) return;
 
     setUploading(true);
+    setError(null); // Clear any previous errors
     try {
       const relevantTo = [];
       if (relevantToPEO) relevantTo.push("PEO");
@@ -111,9 +114,17 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
       setRelevantToPEO(false);
       setRelevantToACA(false);
       setIsRequired(false);
+      setError(null);
     } catch (error) {
-      // Error handling
+      // Display user-friendly error message
       console.error("Upload failed:", error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError(
+          "An unexpected error occurred while uploading the file. Please try again."
+        );
+      }
     } finally {
       setUploading(false);
     }
@@ -126,6 +137,7 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
     setRelevantToPEO(false);
     setRelevantToACA(false);
     setIsRequired(false);
+    setError(null);
   };
 
   return (
@@ -143,6 +155,25 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
           <DialogTitle>Upload File</DialogTitle>
         </DialogHeader>
         <form className="space-y-4" onSubmit={handleSubmit}>
+          {error && (
+            <div className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-red-800 text-sm">
+              <svg
+                className="h-5 w-5 flex-shrink-0 text-red-600"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  fillRule="evenodd"
+                />
+              </svg>
+              <div className="flex-1">
+                <p className="font-medium">Upload failed</p>
+                <p className="mt-1">{error}</p>
+              </div>
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="file">Select File</Label>
             <Input

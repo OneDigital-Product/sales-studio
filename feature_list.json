@@ -1130,7 +1130,7 @@
       "Verify user is informed of the issue",
       "Verify page remains functional"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
