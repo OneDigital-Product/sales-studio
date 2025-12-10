@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { OutstandingRequestsWidget } from "@/components/info-requests/outstanding-requests-widget";
 import { QuoteDashboard } from "@/components/quotes/quote-dashboard";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -237,6 +238,7 @@ export default function Home() {
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Quote Status</TableHead>
+                      <TableHead>Documents</TableHead>
                       <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -276,6 +278,28 @@ export default function Home() {
                                 No quotes
                               </span>
                             )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="min-w-[100px] flex-1">
+                              <div className="h-2 w-full rounded-full bg-gray-200">
+                                <div
+                                  className={`h-2 rounded-full transition-all ${
+                                    client.documentCompleteness.percentage ===
+                                    100
+                                      ? "bg-green-600"
+                                      : "bg-blue-600"
+                                  }`}
+                                  style={{
+                                    width: `${client.documentCompleteness.percentage}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <span className="whitespace-nowrap text-gray-600 text-sm">
+                              {client.documentCompleteness.percentage}%
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell className="text-right">

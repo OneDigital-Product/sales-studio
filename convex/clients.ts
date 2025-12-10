@@ -98,6 +98,11 @@ export const getClientsWithQuotes = query({
           isBlocked: v.optional(v.boolean()),
         })
       ),
+      documentCompleteness: v.object({
+        percentage: v.number(),
+        uploadedRequired: v.number(),
+        totalRequired: v.number(),
+      }),
     })
   ),
   handler: async (ctx) => {
@@ -113,6 +118,34 @@ export const getClientsWithQuotes = query({
         const peoQuote = quotes.find((q) => q.type === "PEO");
         const acaQuote = quotes.find((q) => q.type === "ACA");
 
+        // Get files for document completeness calculation
+        const files = await ctx.db
+          .query("files")
+          .withIndex("by_clientId", (q) => q.eq("clientId", client._id))
+          .collect();
+
+        // Calculate document completeness
+        const REQUIRED_CATEGORIES = [
+          "census",
+          "plan_summary",
+          "renewal_letter",
+        ];
+        const totalRequired = REQUIRED_CATEGORIES.length;
+
+        const uploadedCategories = new Set(
+          files
+            .filter(
+              (f) => f.category && REQUIRED_CATEGORIES.includes(f.category)
+            )
+            .map((f) => f.category)
+        );
+
+        const uploadedRequired = uploadedCategories.size;
+        const percentage =
+          totalRequired > 0
+            ? Math.round((uploadedRequired / totalRequired) * 100)
+            : 100;
+
         return {
           ...client,
           peoQuote: peoQuote
@@ -127,6 +160,11 @@ export const getClientsWithQuotes = query({
                 isBlocked: acaQuote.isBlocked,
               }
             : undefined,
+          documentCompleteness: {
+            percentage,
+            uploadedRequired,
+            totalRequired,
+          },
         };
       })
     );
