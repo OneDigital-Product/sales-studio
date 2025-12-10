@@ -1128,3 +1128,26 @@ FEATURES REMAINING: 108
 
 ===============================================================================
 
+===============================================================================
+FEATURE #62: VIEW REQUEST HISTORY AUDIT TRAIL
+===============================================================================
+
+✅ Added view mode toggle (Outstanding / All History)
+✅ Outstanding view: shows only active requests (pending + received)
+✅ All History view: shows all requests including cancelled
+✅ Toggle buttons with visual state indication
+✅ All past requests listed with timestamps
+✅ Status badges displayed correctly
+✅ Tested end-to-end with browser automation
+
+Modified: components/info-requests/requests-panel.tsx
+- Added useState for viewMode state
+- Added toggle buttons in card header
+- Changed filtering logic to support both views
+- Updated panel title to "Information Requests"
+
+FEATURES PASSING: 62 of 169 (36.7%)
+FEATURES REMAINING: 107
+
+===============================================================================
+
