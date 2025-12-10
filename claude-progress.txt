@@ -2882,3 +2882,97 @@ COMMIT:
 df628ce - Implement Feature #108: Export census data to Excel
 
 ===============================================================================
+
+===============================================================================
+SESSION 68 - Feature #109: View Census Column Statistics
+===============================================================================
+Date: December 10, 2025
+Features Completed: Feature #109
+Status: ✓ Complete
+
+OVERVIEW:
+Added interactive column statistics to the census viewer. Users can now click
+on any column header to view detailed statistics in a popover panel.
+
+IMPLEMENTATION DETAILS:
+
+1. Component Changes (census-viewer.tsx):
+   - Added BarChart3 icon import from lucide-react
+   - Created selectedColumn state to track which column is selected
+   - Added columnStats useMemo hook to calculate statistics
+   - Modified TableHead to wrap headers in Popover with clickable button
+   - Statistics calculation includes:
+     * Total count, non-empty count, empty count
+     * Unique value count for all columns
+     * Numeric detection (all non-empty values are numbers)
+     * For numeric columns: min, max, avg, sum
+   
+2. New Component (components/ui/popover.tsx):
+   - Created Radix UI Popover wrapper component
+   - Includes PopoverRoot, PopoverTrigger, PopoverContent, PopoverAnchor
+   - Styled with Tailwind classes matching design system
+   - Proper animations and positioning
+
+3. Statistics Features:
+   - **For Numeric Columns** (e.g., Salary):
+     * Total Rows, Non-Empty, Empty, Unique Values
+     * Minimum value (formatted with commas)
+     * Maximum value (formatted with commas)
+     * Average (formatted to 2 decimal places)
+     * Sum (formatted with commas)
+   - **For Text Columns** (e.g., Gender):
+     * Total Rows, Non-Empty, Empty, Unique Values
+     * No numeric statistics section
+   
+4. UI/UX:
+   - Small chart icon (BarChart3) next to each column header
+   - Hover effect on column headers
+   - Click to open statistics popover
+   - Popover appears below column header
+   - Click elsewhere to close popover
+   - Clean, readable statistics layout
+
+5. Dependencies:
+   - Added @radix-ui/react-popover@^1.1.2 to package.json
+   - Installed via npm install
+
+TESTING:
+Verified with browser automation:
+✅ Navigate to client with census data
+✅ Scroll to census viewer table
+✅ Click "Salary" column header
+✅ Verify statistics panel appears
+✅ Verify numeric statistics: min=68,000, max=95,000, avg=78,200, sum=391,000
+✅ Verify count statistics: total=5, non-empty=5, empty=0, unique=5
+✅ Click "Gender" column header
+✅ Verify text column statistics: total=5, non-empty=5, empty=0, unique=2
+✅ Verify no numeric statistics section for text columns
+
+FEATURES PASSING: 108 of 169 (63.9%)
+FEATURES REMAINING: 61
+
+FILES MODIFIED:
+- components/census/census-viewer.tsx (+69 lines, statistics logic and UI)
+- package.json (added @radix-ui/react-popover dependency)
+- feature_list.json (Feature #109: passes: false → true)
+
+FILES CREATED:
+- components/ui/popover.tsx (new Radix UI wrapper component)
+- package-lock.json (npm dependency lock file)
+
+COMMIT:
+e1dc390 - Implement Feature #109: View census column statistics
+
+TECHNICAL NOTES:
+- Statistics are calculated client-side from visible rows
+- Only calculates stats for rows in current page (50 rows)
+- Numeric detection: all non-empty values must parse as valid numbers
+- Number formatting uses toLocaleString() for readability
+- Average formatted to 2 decimal places for precision
+- Column names matched using existing normalization logic
+
+NEXT STEPS:
+Continue with Feature #110 (Sort census data by column) or other high-priority
+features from the feature list.
+
+===============================================================================

@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/popover";
 import {
   Table,
-  TableBody,
   TableCell,
   TableHead,
   TableHeader,
@@ -157,6 +156,8 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
   const [isExporting, setIsExporting] = useState(false);
   const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Fetch all census rows for export
   const fetchAllRows = async () => {
@@ -422,19 +423,73 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
 
   const { upload, rows } = data;
 
-  // Filter rows based on filter mode
-  const filteredRows = rows.page.filter((row) => {
-    if (filterMode === "all") {
+  // Handle column sort
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      // Toggle direction if same column
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // New column, start with ascending
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  // Filter and sort rows
+  const filteredRows = useMemo(() => {
+    let filtered = rows.page.filter((row) => {
+      if (filterMode === "all") {
+        return true;
+      }
+      if (filterMode === "valid") {
+        return validRows.has(row.rowIndex);
+      }
+      if (filterMode === "issues") {
+        return rowsWithIssues.has(row.rowIndex);
+      }
       return true;
+    });
+
+    // Apply sorting
+    if (sortColumn) {
+      filtered = [...filtered].sort((a, b) => {
+        const aData = (a.data as Record<string, unknown>)[sortColumn];
+        const bData = (b.data as Record<string, unknown>)[sortColumn];
+
+        // Handle null/undefined values
+        if (aData === null || aData === undefined) {
+          return sortDirection === "asc" ? 1 : -1;
+        }
+        if (bData === null || bData === undefined) {
+          return sortDirection === "asc" ? -1 : 1;
+        }
+
+        // Try numeric comparison first
+        const aNum = Number(aData);
+        const bNum = Number(bData);
+        if (!(Number.isNaN(aNum) || Number.isNaN(bNum))) {
+          return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
+        }
+
+        // Fall back to string comparison
+        const aStr = String(aData).toLowerCase();
+        const bStr = String(bData).toLowerCase();
+        if (sortDirection === "asc") {
+          return aStr.localeCompare(bStr);
+        }
+        return bStr.localeCompare(aStr);
+      });
     }
-    if (filterMode === "valid") {
-      return validRows.has(row.rowIndex);
-    }
-    if (filterMode === "issues") {
-      return rowsWithIssues.has(row.rowIndex);
-    }
-    return true;
-  });
+
+    return filtered;
+  }, [
+    rows.page,
+    filterMode,
+    validRows,
+    rowsWithIssues,
+    sortColumn,
+    sortDirection,
+  ]);
 
   const getCellClassName = (column: string, rowIndex: number) => {
     const field = findFieldForColumn(column);
@@ -635,124 +690,138 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
                       )}
                       key={col}
                     >
-                      <Popover
-                        onOpenChange={(open) => {
-                          if (open) {
-                            setSelectedColumn(col);
-                          } else if (isSelected) {
-                            setSelectedColumn(null);
-                          }
-                        }}
-                        open={isSelected}
-                      >
-                        <PopoverTrigger asChild>
-                          <button
-                            className="flex w-full items-center gap-1 hover:text-primary"
-                            title={
-                              isMissingColumn
-                                ? `Column "${field}" has validation issues`
-                                : "Click to view column statistics"
+                      <div className="flex items-center gap-1">
+                        <button
+                          className="flex items-center gap-1 hover:text-primary"
+                          onClick={() => handleSort(col)}
+                          title="Click to sort"
+                          type="button"
+                        >
+                          <span>{col}</span>
+                          {sortColumn === col && (
+                            <>
+                              {sortDirection === "asc" ? (
+                                <ArrowUp className="h-3 w-3" />
+                              ) : (
+                                <ArrowDown className="h-3 w-3" />
+                              )}
+                            </>
+                          )}
+                        </button>
+                        <Popover
+                          onOpenChange={(open) => {
+                            if (open) {
+                              setSelectedColumn(col);
+                            } else if (isSelected) {
+                              setSelectedColumn(null);
                             }
-                            type="button"
-                          >
-                            <span>{col}</span>
-                            <BarChart3 className="h-3 w-3 opacity-50" />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent align="start" className="w-80">
-                          <div className="space-y-3">
-                            <div>
-                              <h4 className="font-semibold">{col}</h4>
-                              <p className="text-muted-foreground text-sm">
-                                Column Statistics
-                              </p>
-                            </div>
-                            {columnStats && (
-                              <div className="space-y-2 text-sm">
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">
-                                    Total Rows
-                                  </span>
-                                  <span className="font-medium">
-                                    {columnStats.totalCount}
-                                  </span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">
-                                    Non-Empty
-                                  </span>
-                                  <span className="font-medium">
-                                    {columnStats.nonEmptyCount}
-                                  </span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">
-                                    Empty
-                                  </span>
-                                  <span className="font-medium">
-                                    {columnStats.emptyCount}
-                                  </span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">
-                                    Unique Values
-                                  </span>
-                                  <span className="font-medium">
-                                    {columnStats.uniqueCount}
-                                  </span>
-                                </div>
-                                {columnStats.isNumeric && (
-                                  <>
-                                    <div className="border-t pt-2">
-                                      <p className="mb-2 font-medium">
-                                        Numeric Statistics
-                                      </p>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span className="text-muted-foreground">
-                                        Minimum
-                                      </span>
-                                      <span className="font-medium">
-                                        {columnStats.min?.toLocaleString()}
-                                      </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span className="text-muted-foreground">
-                                        Maximum
-                                      </span>
-                                      <span className="font-medium">
-                                        {columnStats.max?.toLocaleString()}
-                                      </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span className="text-muted-foreground">
-                                        Average
-                                      </span>
-                                      <span className="font-medium">
-                                        {columnStats.avg?.toLocaleString(
-                                          undefined,
-                                          {
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2,
-                                          }
-                                        )}
-                                      </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span className="text-muted-foreground">
-                                        Sum
-                                      </span>
-                                      <span className="font-medium">
-                                        {columnStats.sum?.toLocaleString()}
-                                      </span>
-                                    </div>
-                                  </>
-                                )}
+                          }}
+                          open={isSelected}
+                        >
+                          <PopoverTrigger asChild>
+                            <button
+                              className="hover:text-primary"
+                              title="View column statistics"
+                              type="button"
+                            >
+                              <BarChart3 className="h-3 w-3 opacity-50" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent align="start" className="w-80">
+                            <div className="space-y-3">
+                              <div>
+                                <h4 className="font-semibold">{col}</h4>
+                                <p className="text-muted-foreground text-sm">
+                                  Column Statistics
+                                </p>
                               </div>
-                            )}
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                              {columnStats && (
+                                <div className="space-y-2 text-sm">
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">
+                                      Total Rows
+                                    </span>
+                                    <span className="font-medium">
+                                      {columnStats.totalCount}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">
+                                      Non-Empty
+                                    </span>
+                                    <span className="font-medium">
+                                      {columnStats.nonEmptyCount}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">
+                                      Empty
+                                    </span>
+                                    <span className="font-medium">
+                                      {columnStats.emptyCount}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">
+                                      Unique Values
+                                    </span>
+                                    <span className="font-medium">
+                                      {columnStats.uniqueCount}
+                                    </span>
+                                  </div>
+                                  {columnStats.isNumeric && (
+                                    <>
+                                      <div className="border-t pt-2">
+                                        <p className="mb-2 font-medium">
+                                          Numeric Statistics
+                                        </p>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">
+                                          Minimum
+                                        </span>
+                                        <span className="font-medium">
+                                          {columnStats.min?.toLocaleString()}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">
+                                          Maximum
+                                        </span>
+                                        <span className="font-medium">
+                                          {columnStats.max?.toLocaleString()}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">
+                                          Average
+                                        </span>
+                                        <span className="font-medium">
+                                          {columnStats.avg?.toLocaleString(
+                                            undefined,
+                                            {
+                                              minimumFractionDigits: 0,
+                                              maximumFractionDigits: 2,
+                                            }
+                                          )}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">
+                                          Sum
+                                        </span>
+                                        <span className="font-medium">
+                                          {columnStats.sum?.toLocaleString()}
+                                        </span>
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
                     </TableHead>
                   );
                 })}
@@ -829,8 +898,6 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
             </TableBody>
           </Table>
         </div>
-
-        {/* Footer */}
         <div className="flex items-center justify-between text-muted-foreground text-sm">
           <span>
             Showing {filteredRows.length} of {rows.page.length} rows
