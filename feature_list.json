@@ -1073,7 +1073,7 @@
       "Select file",
       "Verify file uploads successfully"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

@@ -225,8 +225,9 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
             </Label>
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
             <Button
+              className="w-full sm:w-auto"
               disabled={uploading}
               onClick={handleCancel}
               type="button"
@@ -234,7 +235,11 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
             >
               Cancel
             </Button>
-            <Button disabled={!selectedFile || uploading} type="submit">
+            <Button
+              className="w-full sm:w-auto"
+              disabled={!selectedFile || uploading}
+              type="submit"
+            >
               {uploading ? "Uploading..." : "Upload"}
             </Button>
           </div>
