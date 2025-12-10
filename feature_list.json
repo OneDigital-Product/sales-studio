@@ -1903,7 +1903,7 @@
       "Verify all data from secondary client is moved",
       "Verify secondary client is deleted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
