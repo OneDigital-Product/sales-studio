@@ -1863,7 +1863,7 @@
       "Verify count shown for each status",
       "Verify visual progression is clear"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
