@@ -92,10 +92,39 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<"name-asc" | "name-desc" | "newest">(
     "name-asc"
   );
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+
+  const validateEmail = (email: string) => {
+    if (!email) return true; // Email is optional
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createClient({ name, contactEmail: email, notes });
+
+    // Reset errors
+    setNameError("");
+    setEmailError("");
+
+    // Validate name (required)
+    if (!name.trim()) {
+      setNameError("Client name is required");
+      return;
+    }
+
+    // Validate email format (if provided)
+    if (email && !validateEmail(email)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+
+    await createClient({
+      name: name.trim(),
+      contactEmail: email.trim(),
+      notes,
+    });
     setName("");
     setEmail("");
     setNotes("");
@@ -151,24 +180,38 @@ export default function Home() {
               </DialogHeader>
               <form className="space-y-4" onSubmit={handleSubmit}>
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">
+                    Name <span className="text-red-500">*</span>
+                  </Label>
                   <Input
+                    className={nameError ? "border-red-500" : ""}
                     id="name"
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (nameError) setNameError("");
+                    }}
                     placeholder="Acme Corp"
-                    required
                     value={name}
                   />
+                  {nameError && (
+                    <p className="text-red-500 text-sm">{nameError}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
+                    className={emailError ? "border-red-500" : ""}
                     id="email"
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (emailError) setEmailError("");
+                    }}
                     placeholder="contact@acme.com"
-                    type="email"
                     value={email}
                   />
+                  {emailError && (
+                    <p className="text-red-500 text-sm">{emailError}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="notes">Notes</Label>
