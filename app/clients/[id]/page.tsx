@@ -11,7 +11,6 @@ import {
   Table as TableIcon,
   Trash2,
 } from "lucide-react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { read, utils } from "xlsx";
@@ -25,6 +24,7 @@ import { FileUploadDialog } from "@/components/files/file-upload-dialog";
 import { CreateRequestDialog } from "@/components/info-requests/create-request-dialog";
 import { RequestsPanel } from "@/components/info-requests/requests-panel";
 import { QuoteStatusCard } from "@/components/quotes/quote-status-card";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -1020,9 +1020,12 @@ Notes: ${client.notes || "N/A"}`;
     <main className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="mx-auto max-w-7xl space-y-4 md:space-y-8">
         <div className="flex flex-col gap-4">
-          <Link className="w-fit text-blue-700 hover:underline" href="/">
-            &larr; Back to Dashboard
-          </Link>
+          <Breadcrumb
+            items={[
+              { label: "Sales Studio", href: "/" },
+              { label: client.name },
+            ]}
+          />
 
           <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div className="flex items-start gap-3">

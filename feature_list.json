@@ -2021,7 +2021,7 @@
       "Verify current page is distinct",
       "Verify clickable items have hover state"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
