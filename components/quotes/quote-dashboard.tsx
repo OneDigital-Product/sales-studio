@@ -69,6 +69,8 @@ export function QuoteDashboard() {
         isBlocked: item.peoQuote.isBlocked ?? false,
         blockedReason: item.peoQuote.blockedReason,
         daysOpen: item.daysOpen,
+        startedAt: item.peoQuote.startedAt,
+        completedAt: item.peoQuote.completedAt,
       });
     }
     if (item.acaQuote) {
@@ -81,6 +83,8 @@ export function QuoteDashboard() {
         isBlocked: item.acaQuote.isBlocked ?? false,
         blockedReason: item.acaQuote.blockedReason,
         daysOpen: item.daysOpen,
+        startedAt: item.acaQuote.startedAt,
+        completedAt: item.acaQuote.completedAt,
       });
     }
     return quotes;
@@ -144,6 +148,19 @@ export function QuoteDashboard() {
       return <AlertCircle className="mr-1 inline h-4 w-4 text-red-600" />;
     }
     return <Clock className="mr-1 inline h-4 w-4 text-gray-600" />;
+  };
+
+  const formatTimeToCompletion = (startedAt?: number, completedAt?: number) => {
+    if (!(startedAt && completedAt)) return null;
+
+    const diff = completedAt - startedAt;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+    if (days > 0) {
+      return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
+    }
+    return hours > 0 ? `${hours}h` : "< 1h";
   };
 
   return (
@@ -260,6 +277,7 @@ export function QuoteDashboard() {
                         <TableHead>Status</TableHead>
                         <TableHead>Blocked Reason</TableHead>
                         <TableHead>Days Open</TableHead>
+                        <TableHead>Time to Complete</TableHead>
                         <TableHead className="text-right">Action</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -308,6 +326,21 @@ export function QuoteDashboard() {
                                 }
                               >
                                 {quote.daysOpen} days
+                              </span>
+                            ) : (
+                              <span className="text-gray-400">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {formatTimeToCompletion(
+                              quote.startedAt,
+                              quote.completedAt
+                            ) ? (
+                              <span className="text-gray-700">
+                                {formatTimeToCompletion(
+                                  quote.startedAt,
+                                  quote.completedAt
+                                )}
                               </span>
                             ) : (
                               <span className="text-gray-400">—</span>

@@ -955,7 +955,7 @@
       "Verify time from startedAt to completedAt is shown",
       "Verify time is formatted in days/hours"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
