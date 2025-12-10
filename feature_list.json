@@ -1582,7 +1582,7 @@
       "Verify files within category are aligned",
       "Verify overall layout is clean"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
