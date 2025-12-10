@@ -2008,7 +2008,7 @@
       "Verify sample rows give good preview",
       "Verify import/cancel buttons are prominent"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
