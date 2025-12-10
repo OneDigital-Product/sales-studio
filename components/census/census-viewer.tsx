@@ -3,6 +3,7 @@
 import { useQuery } from "convex/react";
 import {
   AlertCircle,
+  BarChart3,
   CheckCircle2,
   Download,
   Filter,
@@ -11,6 +12,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -19,6 +21,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Table,
   TableBody,
@@ -149,6 +156,7 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
   });
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
   const [isExporting, setIsExporting] = useState(false);
+  const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
 
   // Fetch all census rows for export
   const fetchAllRows = async () => {
@@ -291,6 +299,78 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
       setIsExporting(false);
     }
   };
+
+  // Calculate column statistics
+  const columnStats = useMemo(() => {
+    if (!(data && selectedColumn)) {
+      return null;
+    }
+
+    const values: unknown[] = [];
+    const numericValues: number[] = [];
+    const nonEmptyValues: unknown[] = [];
+
+    for (const row of data.rows.page) {
+      const rowData = row.data as Record<string, unknown>;
+      const value = rowData[selectedColumn];
+
+      values.push(value);
+
+      if (value !== null && value !== undefined && value !== "") {
+        nonEmptyValues.push(value);
+
+        // Try to parse as number
+        const numValue = Number(value);
+        if (!Number.isNaN(numValue)) {
+          numericValues.push(numValue);
+        }
+      }
+    }
+
+    const totalCount = values.length;
+    const nonEmptyCount = nonEmptyValues.length;
+    const emptyCount = totalCount - nonEmptyCount;
+    const isNumeric =
+      numericValues.length > 0 && numericValues.length === nonEmptyCount;
+
+    // Calculate unique values
+    const uniqueValues = new Set(nonEmptyValues.map((v) => String(v)));
+
+    let stats: {
+      totalCount: number;
+      nonEmptyCount: number;
+      emptyCount: number;
+      uniqueCount: number;
+      isNumeric: boolean;
+      min?: number;
+      max?: number;
+      avg?: number;
+      sum?: number;
+    } = {
+      totalCount,
+      nonEmptyCount,
+      emptyCount,
+      uniqueCount: uniqueValues.size,
+      isNumeric,
+    };
+
+    if (isNumeric && numericValues.length > 0) {
+      const min = Math.min(...numericValues);
+      const max = Math.max(...numericValues);
+      const sum = numericValues.reduce((a, b) => a + b, 0);
+      const avg = sum / numericValues.length;
+
+      stats = {
+        ...stats,
+        min,
+        max,
+        avg,
+        sum,
+      };
+    }
+
+    return stats;
+  }, [data, selectedColumn]);
 
   // Build issue maps for efficient lookup
   const { rowIssues, columnIssues, rowsWithIssues, validRows } = useMemo(() => {
@@ -546,6 +626,7 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
                 {upload.columns.map((col) => {
                   const field = findFieldForColumn(col);
                   const isMissingColumn = field && columnIssues.has(field);
+                  const isSelected = selectedColumn === col;
                   return (
                     <TableHead
                       className={cn(
@@ -553,13 +634,125 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
                         isMissingColumn && "bg-red-50 text-red-900"
                       )}
                       key={col}
-                      title={
-                        isMissingColumn
-                          ? `Column "${field}" has validation issues`
-                          : undefined
-                      }
                     >
-                      {col}
+                      <Popover
+                        onOpenChange={(open) => {
+                          if (open) {
+                            setSelectedColumn(col);
+                          } else if (isSelected) {
+                            setSelectedColumn(null);
+                          }
+                        }}
+                        open={isSelected}
+                      >
+                        <PopoverTrigger asChild>
+                          <button
+                            className="flex w-full items-center gap-1 hover:text-primary"
+                            title={
+                              isMissingColumn
+                                ? `Column "${field}" has validation issues`
+                                : "Click to view column statistics"
+                            }
+                            type="button"
+                          >
+                            <span>{col}</span>
+                            <BarChart3 className="h-3 w-3 opacity-50" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="w-80">
+                          <div className="space-y-3">
+                            <div>
+                              <h4 className="font-semibold">{col}</h4>
+                              <p className="text-muted-foreground text-sm">
+                                Column Statistics
+                              </p>
+                            </div>
+                            {columnStats && (
+                              <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">
+                                    Total Rows
+                                  </span>
+                                  <span className="font-medium">
+                                    {columnStats.totalCount}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">
+                                    Non-Empty
+                                  </span>
+                                  <span className="font-medium">
+                                    {columnStats.nonEmptyCount}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">
+                                    Empty
+                                  </span>
+                                  <span className="font-medium">
+                                    {columnStats.emptyCount}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">
+                                    Unique Values
+                                  </span>
+                                  <span className="font-medium">
+                                    {columnStats.uniqueCount}
+                                  </span>
+                                </div>
+                                {columnStats.isNumeric && (
+                                  <>
+                                    <div className="border-t pt-2">
+                                      <p className="mb-2 font-medium">
+                                        Numeric Statistics
+                                      </p>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">
+                                        Minimum
+                                      </span>
+                                      <span className="font-medium">
+                                        {columnStats.min?.toLocaleString()}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">
+                                        Maximum
+                                      </span>
+                                      <span className="font-medium">
+                                        {columnStats.max?.toLocaleString()}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">
+                                        Average
+                                      </span>
+                                      <span className="font-medium">
+                                        {columnStats.avg?.toLocaleString(
+                                          undefined,
+                                          {
+                                            minimumFractionDigits: 0,
+                                            maximumFractionDigits: 2,
+                                          }
+                                        )}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">
+                                        Sum
+                                      </span>
+                                      <span className="font-medium">
+                                        {columnStats.sum?.toLocaleString()}
+                                      </span>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </TableHead>
                   );
                 })}

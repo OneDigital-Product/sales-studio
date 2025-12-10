@@ -1285,7 +1285,7 @@
       "Verify count, min, max for numeric columns",
       "Verify unique value count for text columns"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
