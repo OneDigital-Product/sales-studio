@@ -222,6 +222,11 @@ export function DocumentCenter({
                               ✓ Verified
                             </Badge>
                           )}
+                          {file.isRequired && (
+                            <Badge className="text-xs" variant="destructive">
+                              Required
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-500 text-xs">

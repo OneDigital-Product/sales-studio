@@ -29,6 +29,7 @@ export const saveFile = mutation({
     ),
     description: v.optional(v.string()),
     uploadedBy: v.optional(v.string()),
+    isRequired: v.optional(v.boolean()),
   },
   returns: v.id("files"),
   handler: async (ctx, args) => {
@@ -42,6 +43,7 @@ export const saveFile = mutation({
       relevantTo: args.relevantTo,
       description: args.description,
       uploadedBy: args.uploadedBy,
+      isRequired: args.isRequired,
     });
     return fileId;
   },
@@ -78,6 +80,7 @@ export const getFiles = query({
       isVerified: v.optional(v.boolean()),
       verifiedBy: v.optional(v.string()),
       verifiedAt: v.optional(v.number()),
+      isRequired: v.optional(v.boolean()),
     })
   ),
   handler: async (ctx, args) => {

@@ -196,7 +196,8 @@ export default function ClientDetailPage() {
       | "proposal"
       | "contract"
       | "other",
-    relevantTo?: string[]
+    relevantTo?: string[],
+    isRequired?: boolean
   ) => {
     const isCensus = category === "census" || (await isCensusFile(file));
 
@@ -215,6 +216,7 @@ export default function ClientDetailPage() {
       type: isCensus ? "Census" : "Quote Data",
       category,
       relevantTo,
+      isRequired,
     });
 
     if (isCensus) {

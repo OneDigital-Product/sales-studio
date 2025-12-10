@@ -44,7 +44,8 @@ interface FileUploadDialogProps {
   onUpload: (
     file: File,
     category: FileCategory,
-    relevantTo?: string[]
+    relevantTo?: string[],
+    isRequired?: boolean
   ) => Promise<void>;
   trigger?: React.ReactNode;
 }
@@ -56,6 +57,7 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
   const [uploading, setUploading] = useState(false);
   const [relevantToPEO, setRelevantToPEO] = useState(false);
   const [relevantToACA, setRelevantToACA] = useState(false);
+  const [isRequired, setIsRequired] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -100,13 +102,15 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
       await onUpload(
         selectedFile,
         category,
-        relevantTo.length > 0 ? relevantTo : undefined
+        relevantTo.length > 0 ? relevantTo : undefined,
+        isRequired
       );
       setOpen(false);
       setSelectedFile(null);
       setCategory("other");
       setRelevantToPEO(false);
       setRelevantToACA(false);
+      setIsRequired(false);
     } catch (error) {
       // Error handling
       console.error("Upload failed:", error);
@@ -121,6 +125,7 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
     setCategory("other");
     setRelevantToPEO(false);
     setRelevantToACA(false);
+    setIsRequired(false);
   };
 
   return (
@@ -206,6 +211,18 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
                 </Label>
               </div>
             </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Checkbox
+              checked={isRequired}
+              disabled={uploading}
+              id="is-required"
+              onCheckedChange={setIsRequired}
+            />
+            <Label className="cursor-pointer font-normal" htmlFor="is-required">
+              Required Document
+            </Label>
           </div>
 
           <div className="flex justify-end gap-2">

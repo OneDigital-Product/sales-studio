@@ -823,7 +823,7 @@
       "Verify isRequired is true",
       "Verify file shows required indicator"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
