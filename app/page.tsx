@@ -301,7 +301,13 @@ export default function Home() {
                       </TableHeader>
                       <TableBody>
                         {filteredClients?.map((client) => (
-                          <TableRow key={client._id}>
+                          <TableRow
+                            className="cursor-pointer transition-all hover:bg-gray-50 hover:shadow-sm"
+                            key={client._id}
+                            onClick={() =>
+                              (window.location.href = `/clients/${client._id}`)
+                            }
+                          >
                             <TableCell className="font-medium">
                               {client.name}
                             </TableCell>
@@ -360,7 +366,10 @@ export default function Home() {
                               </div>
                             </TableCell>
                             <TableCell className="text-right">
-                              <Link href={`/clients/${client._id}`}>
+                              <Link
+                                href={`/clients/${client._id}`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
                                 <Button size="sm" variant="outline">
                                   Manage Quote
                                 </Button>
@@ -393,7 +402,13 @@ export default function Home() {
                     </div>
                   ) : (
                     filteredClients?.map((client) => (
-                      <Card className="p-4" key={client._id}>
+                      <Card
+                        className="cursor-pointer p-4 transition-all hover:shadow-md"
+                        key={client._id}
+                        onClick={() =>
+                          (window.location.href = `/clients/${client._id}`)
+                        }
+                      >
                         <div className="space-y-3">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -470,6 +485,7 @@ export default function Home() {
                           <Link
                             className="block"
                             href={`/clients/${client._id}`}
+                            onClick={(e) => e.stopPropagation()}
                           >
                             <Button
                               className="w-full"

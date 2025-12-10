@@ -2035,7 +2035,7 @@
       "Verify cursor changes to pointer",
       "Verify transition is smooth"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
