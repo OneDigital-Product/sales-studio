@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
-import { FileText, Pencil, Table as TableIcon } from "lucide-react";
+import { FileText, Pencil, Table as TableIcon, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -57,6 +57,7 @@ export default function ClientDetailPage() {
   const markFileAsVerified = useMutation(api.files.markFileAsVerified);
   const setActiveCensus = useMutation(api.census.setActiveCensus);
   const updateClient = useMutation(api.clients.updateClient);
+  const deleteClientMutation = useMutation(api.clients.deleteClient);
 
   const [uploading, setUploading] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -67,6 +68,8 @@ export default function ClientDetailPage() {
   const [pendingCensusFileId, setPendingCensusFileId] =
     useState<Id<"files"> | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
   const CENSUS_KEYWORDS = [
     "dob",
@@ -328,6 +331,24 @@ export default function ClientDetailPage() {
     }
   };
 
+  const handleDeleteClick = () => {
+    setDeleteConfirmation("");
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteConfirmation !== client?.name) {
+      return;
+    }
+    try {
+      await deleteClientMutation({ clientId });
+      // Navigate back to home page after deletion
+      window.location.href = "/";
+    } catch {
+      // Delete error silently handled
+    }
+  };
+
   if (client === undefined) {
     return <div className="p-8">Loading...</div>;
   }
@@ -466,6 +487,14 @@ export default function ClientDetailPage() {
               </Button>
               <Button className="bg-purple-600 hover:bg-purple-700" disabled>
                 Perfect Quote
+              </Button>
+              <Button
+                className="bg-red-600 hover:bg-red-700"
+                onClick={handleDeleteClick}
+                variant="destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Client
               </Button>
             </div>
           </div>
@@ -607,6 +636,52 @@ export default function ClientDetailPage() {
               <Button type="submit">Save Changes</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Client Dialog */}
+      <Dialog onOpenChange={setIsDeleteDialogOpen} open={isDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Delete Client</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the
+              client and all associated data including files, census data,
+              quotes, and comments.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-md border border-red-200 bg-red-50 p-4">
+              <p className="font-medium text-red-900 text-sm">
+                To confirm deletion, please type the client name below:
+              </p>
+              <p className="mt-1 font-semibold text-red-900">{client.name}</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="delete-confirm">Client Name</Label>
+              <Input
+                id="delete-confirm"
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                placeholder="Type client name to confirm"
+                value={deleteConfirmation}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => setIsDeleteDialogOpen(false)}
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={deleteConfirmation !== client.name}
+              onClick={handleDeleteConfirm}
+              variant="destructive"
+            >
+              Delete Client
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </main>

@@ -170,3 +170,99 @@ export const getClientsWithQuotes = query({
     );
   },
 });
+
+export const deleteClient = mutation({
+  args: { clientId: v.id("clients") },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    // 1. Delete all files and their storage
+    const files = await ctx.db
+      .query("files")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.clientId))
+      .collect();
+
+    for (const file of files) {
+      await ctx.storage.delete(file.storageId);
+      await ctx.db.delete(file._id);
+    }
+
+    // 2. Delete all census uploads and their rows
+    const censusUploads = await ctx.db
+      .query("census_uploads")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.clientId))
+      .collect();
+
+    for (const census of censusUploads) {
+      // Delete all rows for this census
+      const rows = await ctx.db
+        .query("census_rows")
+        .withIndex("by_censusUploadId", (q) =>
+          q.eq("censusUploadId", census._id)
+        )
+        .collect();
+
+      for (const row of rows) {
+        await ctx.db.delete(row._id);
+      }
+
+      // Delete census validations
+      const validations = await ctx.db
+        .query("census_validations")
+        .withIndex("by_censusUploadId", (q) =>
+          q.eq("censusUploadId", census._id)
+        )
+        .collect();
+
+      for (const validation of validations) {
+        await ctx.db.delete(validation._id);
+      }
+
+      // Delete census upload
+      await ctx.db.delete(census._id);
+    }
+
+    // 3. Delete all quotes and their history
+    const quotes = await ctx.db
+      .query("quotes")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.clientId))
+      .collect();
+
+    for (const quote of quotes) {
+      // Delete quote history
+      const history = await ctx.db
+        .query("quote_history")
+        .withIndex("by_quoteId", (q) => q.eq("quoteId", quote._id))
+        .collect();
+
+      for (const historyEntry of history) {
+        await ctx.db.delete(historyEntry._id);
+      }
+
+      // Delete quote
+      await ctx.db.delete(quote._id);
+    }
+
+    // 4. Delete all comments
+    const comments = await ctx.db
+      .query("comments")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.clientId))
+      .collect();
+
+    for (const comment of comments) {
+      await ctx.db.delete(comment._id);
+    }
+
+    // 5. Delete all info requests
+    const infoRequests = await ctx.db
+      .query("info_requests")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.clientId))
+      .collect();
+
+    for (const request of infoRequests) {
+      await ctx.db.delete(request._id);
+    }
+
+    // 6. Finally, delete the client
+    await ctx.db.delete(args.clientId);
+  },
+});
