@@ -148,8 +148,8 @@ export function QuoteStatusCard({
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">{type} Quote</CardTitle>
-            <span className="rounded-full bg-gray-100 px-2.5 py-0.5 font-medium text-gray-500 text-xs">
+            <CardTitle>{type} Quote</CardTitle>
+            <span className="rounded-full bg-muted px-2.5 py-0.5 font-medium text-muted-foreground text-xs">
               Not Created
             </span>
           </div>
@@ -170,7 +170,7 @@ export function QuoteStatusCard({
       <Card className={isBlocked ? "border-red-200 bg-red-50/30" : ""}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">{type} Quote</CardTitle>
+            <CardTitle>{type} Quote</CardTitle>
             <span
               className={`rounded-full px-2.5 py-0.5 font-medium text-xs ${getStatusBadgeColor(status, isBlocked)}`}
             >
@@ -225,7 +225,7 @@ export function QuoteStatusCard({
 
           {/* Notes */}
           {quote?.notes && !isBlocked && (
-            <div className="rounded-md bg-gray-50 p-3 text-gray-600 text-sm">
+            <div className="rounded-md bg-secondary p-3 text-gray-600 text-sm">
               {quote.notes}
             </div>
           )}
@@ -367,7 +367,7 @@ export function QuoteStatusCard({
                         )}
                       </div>
                       {entry.notes && (
-                        <div className="mt-2 rounded-md bg-gray-50 p-2 text-gray-700 text-sm">
+                        <div className="mt-2 rounded-md bg-secondary p-2 text-gray-700 text-sm">
                           {entry.notes}
                         </div>
                       )}

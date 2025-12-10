@@ -82,7 +82,7 @@ export function FileCommentDialog({
         >
           <MessageSquare className="h-4 w-4" />
           {commentCount > 0 && (
-            <span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white text-xs">
+            <span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white text-xs">
               {commentCount}
             </span>
           )}

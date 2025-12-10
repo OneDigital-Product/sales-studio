@@ -39,15 +39,17 @@ export function BookmarkedClientsWidget() {
         <div className="space-y-3">
           {bookmarkedClients.map((client) => (
             <Link
-              className="block rounded-lg border border-gray-200 p-3 transition-colors hover:bg-gray-50"
+              className="block rounded-lg border border-input p-3 transition-colors hover:bg-muted/50"
               href={`/clients/${client._id}`}
               key={client._id}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-semibold text-gray-900">{client.name}</h3>
+                  <h3 className="font-sans font-semibold text-foreground text-sm">
+                    {client.name}
+                  </h3>
                   {client.contactEmail && (
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-muted-foreground text-sm">
                       {client.contactEmail}
                     </p>
                   )}

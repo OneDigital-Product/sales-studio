@@ -42,10 +42,10 @@ function getDotClassName(
     return "bg-amber-500";
   }
   if (isCompleted) {
-    return "bg-blue-500";
+    return "bg-primary";
   }
   if (isCurrent) {
-    return "bg-blue-500 ring-2 ring-blue-200";
+    return "bg-highlight ring-2 ring-highlight/50";
   }
   return "bg-gray-200";
 }
@@ -79,7 +79,7 @@ export function QuoteProgressBar({ status }: QuoteProgressBarProps) {
             {index < STAGES.length - 1 && (
               <div
                 className={`h-0.5 w-4 ${
-                  currentIndex > index ? "bg-blue-500" : "bg-gray-200"
+                  currentIndex > index ? "bg-primary" : "bg-gray-200"
                 }`}
               />
             )}

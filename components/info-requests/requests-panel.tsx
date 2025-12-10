@@ -195,7 +195,7 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
                         {request.requestedBy && ` by ${request.requestedBy}`}
                       </div>
                       {request.reminderSentAt && (
-                        <div className="mt-1 flex items-center gap-1 text-blue-600 text-xs">
+                        <div className="mt-1 flex items-center gap-1 text-primary text-xs">
                           <Bell className="h-3 w-3" />
                           <span>
                             Reminder sent{" "}

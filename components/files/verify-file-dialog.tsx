@@ -53,8 +53,12 @@ export function VerifyFileDialog({
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button size="sm" variant="outline">
-            <CheckCircle2 className="mr-2 h-4 w-4" />
+          <Button
+            className="mr-2 gap-1 bg-gray-100 text-gray-700 text-xs hover:bg-gray-200"
+            size="sm"
+            variant="ghost"
+          >
+            <CheckCircle2 className="h-3 w-3" />
             Mark as Verified
           </Button>
         )}

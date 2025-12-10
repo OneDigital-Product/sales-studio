@@ -319,9 +319,9 @@ export function QuoteDashboard() {
       case "not_started":
         return "text-gray-600";
       case "intake":
-        return "text-blue-600";
+        return "text-primary";
       case "underwriting":
-        return "text-purple-600";
+        return "text-accent";
       case "proposal_ready":
         return "text-orange-600";
       case "presented":
@@ -455,7 +455,7 @@ export function QuoteDashboard() {
           </div>
           <div className="rounded-lg border border-gray-200 bg-white p-4">
             <p className="text-gray-600 text-sm">Active Quotes</p>
-            <p className="font-bold text-2xl text-blue-600">
+            <p className="font-bold text-2xl text-primary">
               {
                 filteredQuotes.filter(
                   (q) => !["accepted", "declined"].includes(q.status)
@@ -545,8 +545,8 @@ export function QuoteDashboard() {
                             <span
                               className={`rounded px-2 py-1 font-medium text-xs ${
                                 quote.type === "PEO"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-purple-100 text-purple-800"
+                                  ? "bg-primary/10 text-foreground"
+                                  : "bg-secondary text-foreground"
                               }`}
                             >
                               {quote.type}
@@ -687,13 +687,13 @@ export function QuoteDashboard() {
                   </div>
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
                     <p className="text-gray-600 text-xs">PEO</p>
-                    <p className="font-bold text-blue-600 text-xl">
+                    <p className="font-bold text-primary text-xl">
                       {generatedReport.summary.peoQuotes}
                     </p>
                   </div>
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
                     <p className="text-gray-600 text-xs">ACA</p>
-                    <p className="font-bold text-purple-600 text-xl">
+                    <p className="font-bold text-accent text-xl">
                       {generatedReport.summary.acaQuotes}
                     </p>
                   </div>
@@ -711,7 +711,7 @@ export function QuoteDashboard() {
                   </div>
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
                     <p className="text-gray-600 text-xs">Active</p>
-                    <p className="font-bold text-blue-600 text-xl">
+                    <p className="font-bold text-primary text-xl">
                       {generatedReport.summary.activeQuotes}
                     </p>
                   </div>
@@ -753,8 +753,8 @@ export function QuoteDashboard() {
                             <span
                               className={`rounded px-2 py-1 font-medium text-white text-xs ${
                                 quote.type === "PEO"
-                                  ? "bg-blue-600"
-                                  : "bg-purple-600"
+                                  ? "bg-primary"
+                                  : "bg-accent"
                               }`}
                             >
                               {quote.type}

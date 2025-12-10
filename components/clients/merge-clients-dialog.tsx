@@ -248,7 +248,7 @@ export function MergeClientsDialog({
 
           {primaryClientId && client1 && client2 && (
             <div className="rounded-md border border-yellow-200 bg-yellow-50 p-4">
-              <h4 className="mb-2 font-medium text-sm text-yellow-900">
+              <h4 className="mb-2 font-medium font-sans text-sm text-yellow-900">
                 What will happen:
               </h4>
               <ul className="space-y-1 text-sm text-yellow-800">

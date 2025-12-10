@@ -59,7 +59,7 @@ export function RequirementsChecklist({ files }: RequirementsChecklistProps) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border bg-blue-50 p-4">
+      <div className="rounded-md border bg-primary/10 p-4">
         <p className="text-gray-700 text-sm">
           The following documents are required for a complete quote. Upload
           missing documents to improve quote processing time.

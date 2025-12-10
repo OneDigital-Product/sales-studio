@@ -29,9 +29,9 @@ export function CommentItem({
   const getTeamColor = () => {
     switch (authorTeam) {
       case "PEO":
-        return "bg-blue-100 text-blue-700";
+        return "bg-primary/10 text-primary";
       case "ACA":
-        return "bg-purple-100 text-purple-700";
+        return "bg-secondary text-foreground";
       case "Sales":
         return "bg-teal-100 text-teal-700";
     }
@@ -55,19 +55,18 @@ export function CommentItem({
   return (
     <div className="relative flex gap-4">
       {/* Timeline visual */}
-      <div className="relative flex flex-col items-center">
+      <div className="flex flex-col items-center">
         <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-blue-500 bg-white">
           <MessageCircle className="h-4 w-4 text-blue-500" />
         </div>
-        <div className="absolute top-8 h-full w-0.5 bg-gray-200" />
       </div>
 
       {/* Comment content */}
       <div
         className={`flex-1 rounded-lg border p-4 ${
           isResolved
-            ? "border-gray-200 bg-gray-50 opacity-70"
-            : "border-gray-200 bg-white"
+            ? "border-border bg-secondary opacity-70"
+            : "border-border bg-card"
         }`}
       >
         <div className="flex items-start justify-between gap-4">

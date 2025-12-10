@@ -134,7 +134,9 @@ export function CensusValidationSummary({
           {/* Issues */}
           {validation.issues.length > 0 && (
             <div className="space-y-2">
-              <h4 className="font-medium text-sm">Validation Issues</h4>
+              <h4 className="font-medium font-sans text-sm">
+                Validation Issues
+              </h4>
               <div className="max-h-[300px] space-y-2 overflow-y-auto">
                 {validation.issues.map((issue, index) => (
                   <div

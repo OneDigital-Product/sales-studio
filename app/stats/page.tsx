@@ -11,8 +11,8 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -124,7 +124,7 @@ Generated: ${new Date().toLocaleString()}
       value: stats.totalClients,
       icon: Users,
       color: "text-blue-500",
-      bgColor: "bg-blue-50",
+      bgColor: "bg-primary/10",
     },
     {
       title: "Active Quotes",
@@ -137,8 +137,8 @@ Generated: ${new Date().toLocaleString()}
       title: "Completed Quotes",
       value: stats.completedQuotes,
       icon: CheckCircle2,
-      color: "text-purple-500",
-      bgColor: "bg-purple-50",
+      color: "text-accent",
+      bgColor: "bg-accent/10",
     },
     {
       title: "Avg Quote Time",
@@ -179,12 +179,11 @@ Generated: ${new Date().toLocaleString()}
 
   return (
     <div className="container mx-auto p-8">
+      <Breadcrumb
+        className="mb-4"
+        items={[{ label: "Sales Studio", href: "/" }, { label: "Statistics" }]}
+      />
       <div className="mb-8">
-        <Link href="/">
-          <Button className="mb-4" variant="outline">
-            ← Back to Dashboard
-          </Button>
-        </Link>
         <h1 className="mb-2 font-bold text-3xl">System Statistics</h1>
         <p className="text-muted-foreground">
           Overview of system-wide metrics and activity
@@ -332,7 +331,7 @@ Generated: ${new Date().toLocaleString()}
 
                 <div className="rounded-lg border bg-card p-4">
                   <div className="mb-2 flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-purple-500" />
+                    <FileText className="h-4 w-4 text-accent" />
                     <h3 className="font-semibold text-sm">Files Uploaded</h3>
                   </div>
                   <p className="font-bold text-3xl">

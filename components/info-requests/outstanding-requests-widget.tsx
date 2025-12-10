@@ -99,7 +99,7 @@ export function OutstandingRequestsWidget() {
           {Object.values(groupedByClient).map((group) => (
             <div className="space-y-2" key={group.clientId}>
               <Link
-                className="font-medium text-blue-600 hover:underline"
+                className="font-medium text-primary hover:underline"
                 href={`/clients/${group.clientId}`}
               >
                 {group.clientName}

@@ -151,12 +151,12 @@ export function CloneCensusDialog({
           </div>
 
           {selectedClient && (
-            <div className="rounded-md bg-blue-50 p-3 text-blue-900 text-sm">
+            <div className="rounded-md bg-primary/10 p-3 text-blue-900 text-sm">
               <p className="font-medium">Census will be cloned to:</p>
               <p className="mt-1">
                 {selectedClient.name}
                 {selectedClient.contactEmail && (
-                  <span className="text-blue-700">
+                  <span className="text-primary">
                     {" "}
                     ({selectedClient.contactEmail})
                   </span>

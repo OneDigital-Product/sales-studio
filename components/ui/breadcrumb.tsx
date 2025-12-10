@@ -1,50 +1,45 @@
+"use client";
+
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export interface BreadcrumbItem {
   label: string;
   href?: string;
 }
 
-export interface BreadcrumbProps {
+interface BreadcrumbProps {
   items: BreadcrumbItem[];
+  className?: string;
 }
 
-export function Breadcrumb({ items }: BreadcrumbProps) {
+export function Breadcrumb({ items, className }: BreadcrumbProps) {
   return (
-    <nav aria-label="Breadcrumb" className="mb-4">
-      <ol className="flex items-center gap-2 text-sm">
-        {items.map((item, index) => {
-          const isLast = index === items.length - 1;
-
-          return (
-            <li className="flex items-center gap-2" key={index}>
-              {item.href && !isLast ? (
-                <Link
-                  className="text-gray-600 transition-colors hover:text-gray-900"
-                  href={item.href}
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <span
-                  className={
-                    isLast ? "font-medium text-gray-900" : "text-gray-600"
-                  }
-                >
-                  {item.label}
-                </span>
-              )}
-
-              {!isLast && (
-                <ChevronRight
-                  aria-hidden="true"
-                  className="h-4 w-4 text-gray-400"
-                />
-              )}
-            </li>
-          );
-        })}
+    <nav
+      aria-label="Breadcrumb"
+      className={cn("flex items-center gap-1", className)}
+    >
+      <ol className="flex items-center gap-1">
+        {items.map((item, index) => (
+          <li className="flex items-center gap-1" key={index}>
+            {item.href ? (
+              <Link
+                className="font-sans text-primary text-sm hover:underline"
+                href={item.href}
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <span className="font-sans text-foreground text-sm">
+                {item.label}
+              </span>
+            )}
+            {index < items.length - 1 && (
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            )}
+          </li>
+        ))}
       </ol>
     </nav>
   );

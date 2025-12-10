@@ -152,7 +152,7 @@ export function DocumentCenter({
           {/* Category Filter */}
           <div className="flex items-center gap-3">
             <label
-              className="font-medium text-gray-700 text-sm"
+              className="font-medium text-foreground text-sm"
               htmlFor="category-filter"
             >
               Filter by Category:
@@ -177,7 +177,7 @@ export function DocumentCenter({
           {/* Team Filter */}
           <div className="flex items-center gap-3">
             <label
-              className="font-medium text-gray-700 text-sm"
+              className="font-medium text-foreground text-sm"
               htmlFor="team-filter"
             >
               Filter by Team:
@@ -199,7 +199,7 @@ export function DocumentCenter({
         {filteredCategories.map((category) => (
           <div className="space-y-2" key={category}>
             {/* Category Header */}
-            <h3 className="font-semibold text-gray-700 text-lg">
+            <h3 className="font-sans font-semibold text-base text-foreground">
               {CATEGORY_CONFIG[category].label}
             </h3>
 
@@ -215,20 +215,11 @@ export function DocumentCenter({
                 </TableHeader>
                 <TableBody>
                   {groupedFiles[category]?.map((file) => (
-                    <TableRow key={file._id}>
+                    <TableRow className="hover:bg-muted/80" key={file._id}>
                       <TableCell className="font-medium">
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-2">
                             <span className="block">{file.name}</span>
-                            {file.isVerified && (
-                              <Badge
-                                className="flex items-center gap-1 bg-green-600 text-xs"
-                                variant="default"
-                              >
-                                <CheckCircle2 className="h-3 w-3" />
-                                Verified
-                              </Badge>
-                            )}
                             {file.isRequired && (
                               <Badge className="text-xs" variant="destructive">
                                 Required
@@ -236,11 +227,11 @@ export function DocumentCenter({
                             )}
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-gray-500 text-xs">
+                            <span className="text-muted-foreground text-xs">
                               {new Date(file.uploadedAt).toLocaleDateString()}
                             </span>
                             {file.uploadedBy && (
-                              <span className="text-gray-500 text-xs">
+                              <span className="text-muted-foreground text-xs">
                                 • Uploaded by {file.uploadedBy}
                               </span>
                             )}
@@ -260,30 +251,25 @@ export function DocumentCenter({
                               </div>
                             )}
                             {file.isVerified && file.verifiedBy && (
-                              <span className="text-gray-500 text-xs">
+                              <span className="text-muted-foreground text-xs">
                                 • Verified by {file.verifiedBy}
                               </span>
                             )}
                           </div>
                           {file.description && (
                             <div className="mt-1">
-                              <span className="text-gray-600 text-sm italic">
+                              <span className="text-muted-foreground text-sm italic">
                                 {file.description}
                               </span>
                             </div>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-gray-600 text-sm">
+                      <TableCell className="text-sm">
                         {formatFileSize(file.fileSize)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <FileCommentButton
-                            clientId={clientId}
-                            fileId={file._id}
-                            fileName={file.name}
-                          />
+                        <div className="flex items-center justify-end gap-2">
                           {!file.isVerified && (
                             <VerifyFileDialog
                               fileName={file.name}
@@ -292,6 +278,20 @@ export function DocumentCenter({
                               }
                             />
                           )}
+                          {file.isVerified && (
+                            <Badge
+                              className="mr-2 gap-1 bg-green-100 text-green-700 hover:bg-green-100"
+                              variant="secondary"
+                            >
+                              <CheckCircle2 className="h-4 w-4" />
+                              Verified
+                            </Badge>
+                          )}
+                          <FileCommentButton
+                            clientId={clientId}
+                            fileId={file._id}
+                            fileName={file.name}
+                          />
                           {file.url && (
                             <Button
                               aria-label={`Download ${file.name}`}

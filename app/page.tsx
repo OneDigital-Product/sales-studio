@@ -9,6 +9,7 @@ import { MergeClientsDialog } from "@/components/clients/merge-clients-dialog";
 import { OutstandingRequestsWidget } from "@/components/info-requests/outstanding-requests-widget";
 import { QuoteDashboard } from "@/components/quotes/quote-dashboard";
 import { Badge } from "@/components/ui/badge";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -63,9 +64,9 @@ const getStatusColor = (status: QuoteStatus, isBlocked?: boolean) => {
     case "not_started":
       return "bg-gray-100 text-gray-700 border-gray-300";
     case "intake":
-      return "bg-blue-100 text-blue-800 border-blue-300";
+      return "bg-blue-100 text-foreground border-blue-300";
     case "underwriting":
-      return "bg-purple-100 text-purple-800 border-purple-300";
+      return "bg-secondary text-foreground border-secondary";
     case "proposal_ready":
       return "bg-orange-100 text-orange-800 border-orange-300";
     case "presented":
@@ -185,8 +186,9 @@ export default function Home() {
     });
 
   return (
-    <main className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="mx-auto max-w-7xl space-y-8">
+    <main className="min-h-screen bg-gray-50">
+      <div className="container mx-auto space-y-8 p-4 md:p-8">
+        <Breadcrumb className="mb-4" items={[{ label: "Home", href: "/" }]} />
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
           <div>
             <h1 className="font-bold text-4xl text-gray-900">Sales Studio</h1>
@@ -202,9 +204,7 @@ export default function Home() {
             </Link>
             <Dialog onOpenChange={setIsModalOpen} open={isModalOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                  + Add Client
-                </Button>
+                <Button>+ Add Client</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -387,7 +387,7 @@ export default function Home() {
                                         client.documentCompleteness
                                           .percentage === 100
                                           ? "bg-green-600"
-                                          : "bg-blue-600"
+                                          : "bg-primary"
                                       }`}
                                       style={{
                                         width: `${client.documentCompleteness.percentage}%`,
@@ -503,7 +503,7 @@ export default function Home() {
                                       client.documentCompleteness.percentage ===
                                       100
                                         ? "bg-green-600"
-                                        : "bg-blue-600"
+                                        : "bg-primary"
                                     }`}
                                     style={{
                                       width: `${client.documentCompleteness.percentage}%`,

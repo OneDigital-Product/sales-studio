@@ -596,6 +596,9 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
           <CardTitle className="flex items-center justify-between">
             <span>{upload.fileName}</span>
             <div className="flex items-center gap-2">
+              <span className="font-normal text-muted-foreground text-sm">
+                {upload.rowCount} rows
+              </span>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button disabled={isExporting} size="sm" variant="outline">
@@ -635,9 +638,6 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
-              <span className="font-normal text-muted-foreground text-sm">
-                {upload.rowCount} rows
-              </span>
             </div>
           </CardTitle>
         </CardHeader>
@@ -775,7 +775,7 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
                             <PopoverContent align="start" className="w-80">
                               <div className="space-y-3">
                                 <div>
-                                  <h4 className="font-semibold">
+                                  <h4 className="font-sans font-semibold text-sm">
                                     Filter: {col}
                                   </h4>
                                   <p className="text-muted-foreground text-sm">
@@ -855,7 +855,9 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
                             <PopoverContent align="start" className="w-80">
                               <div className="space-y-3">
                                 <div>
-                                  <h4 className="font-semibold">{col}</h4>
+                                  <h4 className="font-sans font-semibold text-sm">
+                                    {col}
+                                  </h4>
                                   <p className="text-muted-foreground text-sm">
                                     Column Statistics
                                   </p>
@@ -970,7 +972,7 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
                           )}
                         </TableCell>
                       )}
-                      <TableCell className="text-muted-foreground text-xs">
+                      <TableCell className="font-medium text-xs">
                         {row.rowIndex + 1}
                       </TableCell>
                       {upload.columns.map((col) => {
@@ -1004,9 +1006,7 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
                           : undefined;
 
                         const cellContent = displayValue || (
-                          <span className="text-muted-foreground italic">
-                            empty
-                          </span>
+                          <span className="text-gray-400 italic">empty</span>
                         );
 
                         return (

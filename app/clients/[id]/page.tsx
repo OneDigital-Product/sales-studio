@@ -8,6 +8,7 @@ import {
   Copy,
   FileText,
   GitCompare,
+  MoreHorizontal,
   Pencil,
   Table as TableIcon,
   Trash2,
@@ -37,6 +38,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -544,13 +553,13 @@ Notes: ${client.notes || "N/A"}`;
               </TabsList>
 
               <TabsContent className="space-y-4" value="active">
-                <div className="flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50 p-4">
+                <div className="flex items-start gap-3 rounded-lg border border-blue-100 bg-primary/10 p-4">
                   <div className="rounded-full bg-blue-100 p-2">
-                    <TableIcon className="h-5 w-5 text-blue-600" />
+                    <TableIcon className="h-5 w-5 text-primary" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h2 className="font-semibold text-blue-900">
+                      <h2 className="font-sans font-semibold text-base text-primary">
                         Smart Census Active
                       </h2>
                       {censusHistory && censusHistory.length > 1 && (
@@ -587,7 +596,7 @@ Notes: ${client.notes || "N/A"}`;
                         </Select>
                       )}
                     </div>
-                    <p className="mt-1 text-blue-700 text-sm">
+                    <p className="mt-1 text-primary text-sm">
                       Parsing data from <strong>{activeCensus.fileName}</strong>
                       .
                     </p>
@@ -703,15 +712,15 @@ Notes: ${client.notes || "N/A"}`;
                             );
                           })}
                         </div>
-                        <Card className="bg-blue-50">
+                        <Card className="bg-primary/10">
                           <CardContent className="p-4">
                             <div className="flex items-start gap-2">
-                              <GitCompare className="h-5 w-5 text-blue-600" />
+                              <GitCompare className="h-5 w-5 text-primary" />
                               <div>
-                                <h4 className="font-semibold text-blue-900">
+                                <h4 className="font-semibold text-primary">
                                   Side-by-Side Comparison
                                 </h4>
-                                <p className="text-blue-700 text-sm">
+                                <p className="text-primary text-sm">
                                   Compare the two census versions above to
                                   identify differences in data, row counts, and
                                   validation results.
@@ -729,11 +738,11 @@ Notes: ${client.notes || "N/A"}`;
                               comparisonMode
                                 ? "cursor-pointer hover:bg-gray-50"
                                 : selectedHistoricalCensusId === upload._id
-                                  ? "cursor-pointer border-blue-500 bg-blue-50"
+                                  ? "cursor-pointer border-blue-500 bg-primary/10"
                                   : "cursor-pointer hover:bg-gray-50"
                             } ${
                               selectedForComparison.includes(upload._id)
-                                ? "border-blue-500 bg-blue-50"
+                                ? "border-blue-500 bg-primary/10"
                                 : ""
                             }`}
                             key={upload._id}
@@ -874,7 +883,7 @@ Notes: ${client.notes || "N/A"}`;
                                     <div className="relative flex w-full items-end justify-center gap-2">
                                       {/* PEO score bar */}
                                       <div
-                                        className="group relative w-6 cursor-pointer rounded-t bg-blue-500 transition-opacity hover:opacity-80"
+                                        className="group relative w-6 cursor-pointer rounded-t bg-primary/100 transition-opacity hover:opacity-80"
                                         style={{ height: peoHeight }}
                                         title={`PEO: ${point.peoScore}%`}
                                       >
@@ -885,7 +894,7 @@ Notes: ${client.notes || "N/A"}`;
 
                                       {/* ACA score bar */}
                                       <div
-                                        className="group relative w-6 cursor-pointer rounded-t bg-purple-500 transition-opacity hover:opacity-80"
+                                        className="group relative w-6 cursor-pointer rounded-t bg-accent transition-opacity hover:opacity-80"
                                         style={{ height: acaHeight }}
                                         title={`ACA: ${point.acaScore}%`}
                                       >
@@ -921,13 +930,13 @@ Notes: ${client.notes || "N/A"}`;
                         {/* Legend */}
                         <div className="flex items-center justify-center gap-6">
                           <div className="flex items-center gap-2">
-                            <div className="h-3 w-3 rounded bg-blue-500" />
+                            <div className="h-3 w-3 rounded bg-primary/100" />
                             <span className="text-gray-700 text-sm">
                               PEO Score
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <div className="h-3 w-3 rounded bg-purple-500" />
+                            <div className="h-3 w-3 rounded bg-accent" />
                             <span className="text-gray-700 text-sm">
                               ACA Score
                             </span>
@@ -1046,8 +1055,8 @@ Notes: ${client.notes || "N/A"}`;
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="mx-auto max-w-7xl space-y-4 md:space-y-8">
+    <main className="min-h-screen bg-background">
+      <div className="container mx-auto space-y-4 p-4 md:space-y-8 md:p-8">
         <div className="flex flex-col gap-4">
           <Breadcrumb
             items={[
@@ -1059,9 +1068,33 @@ Notes: ${client.notes || "N/A"}`;
           <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div className="flex items-start gap-3">
               <div>
-                <h1 className="font-bold text-3xl text-gray-900">
-                  {client.name}
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="font-bold text-3xl text-gray-900">
+                    {client.name}
+                  </h1>
+                  <Button
+                    className="h-8 w-8"
+                    onClick={handleBookmarkToggle}
+                    size="icon"
+                    variant="ghost"
+                  >
+                    {isBookmarked ? (
+                      <BookmarkCheck className="h-5 w-5 fill-yellow-500 text-yellow-500" />
+                    ) : (
+                      <Bookmark className="h-5 w-5 text-gray-400" />
+                    )}
+                    <span className="sr-only">Bookmark</span>
+                  </Button>
+                  <Button
+                    className="h-8 w-8 text-gray-400 hover:text-gray-700"
+                    onClick={handleEditClick}
+                    size="icon"
+                    variant="ghost"
+                  >
+                    <Pencil className="h-4 w-4" />
+                    <span className="sr-only">Edit Client</span>
+                  </Button>
+                </div>
                 {client.contactEmail && (
                   <p className="text-gray-600">{client.contactEmail}</p>
                 )}
@@ -1074,78 +1107,56 @@ Notes: ${client.notes || "N/A"}`;
                   </p>
                 )}
               </div>
-              <Button
-                className="mt-1"
-                onClick={handleEditClick}
-                size="sm"
-                variant="ghost"
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
             </div>
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:gap-3">
-              <Button
-                className={
-                  isBookmarked
-                    ? "border-yellow-500 text-yellow-600 hover:bg-yellow-50"
-                    : ""
-                }
-                onClick={handleBookmarkToggle}
-                variant="outline"
-              >
-                {isBookmarked ? (
-                  <>
-                    <BookmarkCheck className="mr-2 h-4 w-4" />
-                    Bookmarked
-                  </>
-                ) : (
-                  <>
-                    <Bookmark className="mr-2 h-4 w-4" />
-                    Bookmark
-                  </>
-                )}
-              </Button>
-              <Button
-                className={
-                  copySuccess
-                    ? "border-green-500 bg-green-50 text-green-600"
-                    : ""
-                }
-                onClick={handleCopyClientInfo}
-                variant="outline"
-              >
-                <Copy className="mr-2 h-4 w-4" />
-                {copySuccess ? "Copied!" : "Copy Client Info"}
-              </Button>
+
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
               <CreateRequestDialog clientId={clientId} />
-              <Button className="bg-green-600 hover:bg-green-700" disabled>
-                PEO Quoting
-              </Button>
-              <Button className="bg-purple-600 hover:bg-purple-700" disabled>
-                Perfect Quote
-              </Button>
-              <Button
-                className="bg-orange-600 hover:bg-orange-700"
-                onClick={handleArchiveClick}
-                variant="outline"
-              >
-                <Archive className="mr-2 h-4 w-4" />
-                Archive Client
-              </Button>
-              <Button
-                className="bg-red-600 hover:bg-red-700"
-                onClick={handleDeleteClick}
-                variant="destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Client
-              </Button>
+
+              <div className="flex items-center gap-2">
+                <Button className="bg-green-600 hover:bg-green-700" disabled>
+                  PEO Quoting
+                </Button>
+                <Button className="bg-accent hover:opacity-80" disabled>
+                  Perfect Quote
+                </Button>
+              </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="outline">
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">More actions</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Client Actions</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={handleCopyClientInfo}>
+                    <Copy className="mr-2 h-4 w-4" />
+                    {copySuccess ? "Copied!" : "Copy Info"}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-orange-600 focus:bg-orange-50 focus:text-orange-700"
+                    onClick={handleArchiveClick}
+                  >
+                    <Archive className="mr-2 h-4 w-4" />
+                    Archive Client
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-red-600 focus:bg-red-50 focus:text-red-700"
+                    onClick={handleDeleteClick}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Client
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
 
         {/* Quote Status Section */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <QuoteStatusCard
             clientId={clientId}
             quote={quotes?.find((q) => q.type === "PEO") ?? null}
@@ -1158,122 +1169,129 @@ Notes: ${client.notes || "N/A"}`;
           />
         </div>
 
-        {/* Document Completeness Indicator */}
-        <DocumentCompletenessIndicator files={files ?? []} />
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          <div className="space-y-8 lg:col-span-8">
+            {/* Outstanding Requests Section */}
+            <RequestsPanel clientId={clientId} />
 
-        {/* Outstanding Requests Section */}
-        <RequestsPanel clientId={clientId} />
+            {/* Census Information Section */}
+            <div>{renderRightPanel()}</div>
 
-        {/* Undo Census Replacement Banner */}
-        {undoInfo && (
-          <Card className="border-blue-200 bg-blue-50">
-            <CardContent className="flex items-center justify-between py-4">
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-blue-100 p-2">
-                  <TableIcon className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="font-medium text-blue-900 text-sm">
-                    Census data has been replaced
-                  </p>
-                  <p className="text-blue-700 text-xs">
-                    The previous census version is still available in history
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  className="border-blue-300 bg-white text-blue-700 hover:bg-blue-100"
-                  onClick={handleUndoCensusReplacement}
-                  size="sm"
-                  variant="outline"
+            {/* File Management Section */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Document Center</CardTitle>
+                <FileUploadDialog onUpload={handleDialogUpload} />
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Magic Upload Dropzone */}
+                {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: Drag and drop requires event handlers on div */}
+                {/* biome-ignore lint/a11y/useSemanticElements: Dropzone needs to be a container div */}
+                <div
+                  aria-label="File upload dropzone"
+                  className={`rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
+                    isDragging
+                      ? "border-blue-500 bg-primary/10"
+                      : "border-border bg-card hover:bg-secondary"
+                  }`}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  role="region"
                 >
-                  Undo Replacement
-                </Button>
-                <Button
-                  className="text-blue-700 hover:bg-blue-100"
-                  onClick={() => setUndoInfo(null)}
-                  size="sm"
-                  variant="ghost"
-                >
-                  Dismiss
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                  <form className="space-y-4" onSubmit={handleUpload}>
+                    <div className="space-y-2">
+                      <div className="flex flex-col items-center gap-2">
+                        <FileText className="h-8 w-8 text-muted-foreground" />
+                        <Label
+                          className="cursor-pointer font-medium text-primary hover:underline"
+                          htmlFor="file"
+                        >
+                          Click to Upload
+                        </Label>
+                        <span className="text-foreground/70 text-sm">
+                          or drag and drop files
+                        </span>
+                      </div>
+                      <Input
+                        className="hidden"
+                        id="file"
+                        multiple
+                        onChange={handleUpload}
+                        type="file" // Auto-submit on selection for smoother flow
+                      />
+                      <p className="text-muted-foreground text-xs">
+                        Supports Excel, CSV, PDF, Word, PPT
+                      </p>
+                    </div>
+                    {uploading && (
+                      <p className="animate-pulse text-primary text-sm">
+                        Uploading & Analyzing...
+                      </p>
+                    )}
+                  </form>
+                </div>
 
-        {/* File Management Section */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Document Center</CardTitle>
-            <FileUploadDialog onUpload={handleDialogUpload} />
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Magic Upload Dropzone */}
-            {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: Drag and drop requires event handlers on div */}
-            {/* biome-ignore lint/a11y/useSemanticElements: Dropzone needs to be a container div */}
-            <div
-              aria-label="File upload dropzone"
-              className={`rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
-                isDragging
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-300 bg-gray-50 hover:bg-gray-100"
-              }`}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              role="region"
-            >
-              <form className="space-y-4" onSubmit={handleUpload}>
-                <div className="space-y-2">
-                  <div className="flex flex-col items-center gap-2">
-                    <FileText className="h-8 w-8 text-gray-400" />
-                    <Label
-                      className="cursor-pointer font-medium text-blue-700 hover:underline"
-                      htmlFor="file"
-                    >
-                      Click to Upload
-                    </Label>
-                    <span className="text-gray-500 text-sm">
-                      or drag and drop files
-                    </span>
+                {/* Document Center */}
+                <DocumentCenter
+                  clientId={clientId}
+                  files={files || []}
+                  onDeleteFile={handleDelete}
+                  onVerifyFile={handleVerifyFile}
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="space-y-8 lg:col-span-4">
+            {/* Document Completeness Indicator - Moved above activity feed */}
+            <DocumentCompletenessIndicator files={files ?? []} />
+
+            {/* Activity Feed Section */}
+            <CommentFeed clientId={clientId} />
+
+            {/* Undo Census Replacement Banner */}
+            {undoInfo && (
+              <Card className="border-blue-200 bg-primary/10">
+                <CardContent className="flex items-center justify-between py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-full bg-blue-100 p-2">
+                      <TableIcon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-primary text-sm">
+                        Census data has been replaced
+                      </p>
+                      <p className="text-primary text-xs">
+                        The previous census version is still available in
+                        history
+                      </p>
+                    </div>
                   </div>
-                  <Input
-                    className="hidden"
-                    id="file"
-                    multiple
-                    onChange={handleUpload}
-                    type="file" // Auto-submit on selection for smoother flow
-                  />
-                  <p className="text-gray-400 text-xs">
-                    Supports Excel, CSV, PDF, Word, PPT
-                  </p>
-                </div>
-                {uploading && (
-                  <p className="animate-pulse text-blue-700 text-sm">
-                    Uploading & Analyzing...
-                  </p>
-                )}
-              </form>
-            </div>
-
-            {/* Document Center */}
-            <DocumentCenter
-              clientId={clientId}
-              files={files || []}
-              onDeleteFile={handleDelete}
-              onVerifyFile={handleVerifyFile}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Activity Feed Section */}
-        <CommentFeed clientId={clientId} />
-
-        {/* Census Information Section */}
-        <div>{renderRightPanel()}</div>
+                  <div className="flex gap-2">
+                    <Button
+                      className="border-primary bg-white text-primary hover:bg-blue-100"
+                      onClick={handleUndoCensusReplacement}
+                      size="sm"
+                      variant="outline"
+                    >
+                      Undo Replacement
+                    </Button>
+                    <Button
+                      className="text-primary hover:bg-blue-100"
+                      onClick={() => setUndoInfo(null)}
+                      size="sm"
+                      variant="ghost"
+                    >
+                      Dismiss
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Edit Client Dialog */}

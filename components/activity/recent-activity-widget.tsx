@@ -26,9 +26,9 @@ function formatRelativeTime(timestamp: number) {
 function getTeamBadgeColor(team: "PEO" | "ACA" | "Sales") {
   switch (team) {
     case "PEO":
-      return "bg-blue-100 text-blue-800";
+      return "bg-primary/10 text-foreground";
     case "ACA":
-      return "bg-purple-100 text-purple-800";
+      return "bg-secondary text-foreground";
     case "Sales":
       return "bg-teal-100 text-teal-800";
   }
@@ -99,7 +99,7 @@ export function RecentActivityWidget() {
               <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-2">
                   <Link
-                    className="font-medium text-blue-600 text-sm hover:underline"
+                    className="font-medium text-primary text-sm hover:underline"
                     href={`/clients/${activity.clientId}`}
                   >
                     {activity.clientName}
@@ -114,7 +114,7 @@ export function RecentActivityWidget() {
                   )}
                   {activity.type === "status_change" && (
                     <Badge
-                      className={`text-xs ${activity.quoteType === "PEO" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"}`}
+                      className={`text-xs ${activity.quoteType === "PEO" ? "bg-primary/10 text-foreground" : "bg-secondary text-foreground"}`}
                       variant="outline"
                     >
                       {activity.quoteType}
