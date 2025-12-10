@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { AlertCircle, Bell, CheckCircle2, Clock, X } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +50,9 @@ interface RequestsPanelProps {
 }
 
 export function RequestsPanel({ clientId }: RequestsPanelProps) {
+  const [viewMode, setViewMode] = useState<"outstanding" | "history">(
+    "outstanding"
+  );
   const requests = useQuery(api.info_requests.getInfoRequests, { clientId });
   const markItemReceived = useMutation(api.info_requests.markItemReceived);
   const markItemNotReceived = useMutation(
@@ -72,6 +76,8 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
 
   const pendingRequests = requests.filter((r) => r.status === "pending");
   const outstandingRequests = requests.filter((r) => r.status !== "cancelled");
+  const displayedRequests =
+    viewMode === "outstanding" ? outstandingRequests : requests;
 
   const handleToggleItem = async (
     requestId: Id<"info_requests">,
@@ -99,14 +105,36 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Outstanding Requests</span>
-          {pendingRequests.length > 0 && (
-            <Badge variant="secondary">{pendingRequests.length} pending</Badge>
-          )}
+          <span>Information Requests</span>
+          <div className="flex items-center gap-2">
+            {pendingRequests.length > 0 && (
+              <Badge variant="secondary">
+                {pendingRequests.length} pending
+              </Badge>
+            )}
+            <div className="flex rounded-md border">
+              <Button
+                className="rounded-r-none"
+                onClick={() => setViewMode("outstanding")}
+                size="sm"
+                variant={viewMode === "outstanding" ? "default" : "ghost"}
+              >
+                Outstanding
+              </Button>
+              <Button
+                className="rounded-l-none"
+                onClick={() => setViewMode("history")}
+                size="sm"
+                variant={viewMode === "history" ? "default" : "ghost"}
+              >
+                All History
+              </Button>
+            </div>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {outstandingRequests.length === 0 ? (
+        {displayedRequests.length === 0 ? (
           <div className="py-8 text-center text-muted-foreground">
             <CheckCircle2 className="mx-auto mb-3 h-12 w-12 text-green-500" />
             <p>No information requests</p>
@@ -116,7 +144,7 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
           </div>
         ) : (
           <div className="space-y-4">
-            {outstandingRequests.map((request) => {
+            {displayedRequests.map((request) => {
               const receivedCount = request.items.filter(
                 (item) => item.received
               ).length;

@@ -741,7 +741,7 @@
       "Verify timestamps for each request",
       "Verify status changes are logged"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
