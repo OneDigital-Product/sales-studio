@@ -706,7 +706,7 @@
       "Mark request as received",
       "Verify quote is unblocked automatically"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

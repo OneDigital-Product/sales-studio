@@ -30,6 +30,36 @@ export const createInfoRequest = mutation({
       })),
       notes: args.notes,
     });
+
+    // Auto-block relevant quote(s) based on quoteType
+    const quotesToBlock: Array<"PEO" | "ACA"> = [];
+    if (args.quoteType === "PEO") {
+      quotesToBlock.push("PEO");
+    } else if (args.quoteType === "ACA") {
+      quotesToBlock.push("ACA");
+    } else if (args.quoteType === "both") {
+      quotesToBlock.push("PEO", "ACA");
+    } else {
+      // If no quoteType specified, block both
+      quotesToBlock.push("PEO", "ACA");
+    }
+
+    for (const quoteType of quotesToBlock) {
+      const quote = await ctx.db
+        .query("quotes")
+        .withIndex("by_clientId_and_type", (q) =>
+          q.eq("clientId", args.clientId).eq("type", quoteType)
+        )
+        .unique();
+
+      if (quote) {
+        await ctx.db.patch(quote._id, {
+          isBlocked: true,
+          blockedReason: `Waiting for client to provide requested information (Request ID: ${requestId})`,
+        });
+      }
+    }
+
     return requestId;
   },
   returns: v.id("info_requests"),
@@ -152,6 +182,37 @@ export const markItemReceived = mutation({
       resolvedAt: allReceived ? Date.now() : request.resolvedAt,
     });
 
+    // Auto-unblock quote(s) if all items received
+    if (allReceived) {
+      const quotesToUnblock: Array<"PEO" | "ACA"> = [];
+      if (request.quoteType === "PEO") {
+        quotesToUnblock.push("PEO");
+      } else if (request.quoteType === "ACA") {
+        quotesToUnblock.push("ACA");
+      } else if (request.quoteType === "both") {
+        quotesToUnblock.push("PEO", "ACA");
+      } else {
+        // If no quoteType specified, unblock both
+        quotesToUnblock.push("PEO", "ACA");
+      }
+
+      for (const quoteType of quotesToUnblock) {
+        const quote = await ctx.db
+          .query("quotes")
+          .withIndex("by_clientId_and_type", (q) =>
+            q.eq("clientId", request.clientId).eq("type", quoteType)
+          )
+          .unique();
+
+        if (quote && quote.isBlocked) {
+          await ctx.db.patch(quote._id, {
+            isBlocked: false,
+            blockedReason: undefined,
+          });
+        }
+      }
+    }
+
     return null;
   },
   returns: v.null(),
@@ -185,6 +246,35 @@ export const markItemNotReceived = mutation({
       resolvedAt: undefined,
     });
 
+    // Re-block quote(s) since request is now pending again
+    const quotesToBlock: Array<"PEO" | "ACA"> = [];
+    if (request.quoteType === "PEO") {
+      quotesToBlock.push("PEO");
+    } else if (request.quoteType === "ACA") {
+      quotesToBlock.push("ACA");
+    } else if (request.quoteType === "both") {
+      quotesToBlock.push("PEO", "ACA");
+    } else {
+      // If no quoteType specified, block both
+      quotesToBlock.push("PEO", "ACA");
+    }
+
+    for (const quoteType of quotesToBlock) {
+      const quote = await ctx.db
+        .query("quotes")
+        .withIndex("by_clientId_and_type", (q) =>
+          q.eq("clientId", request.clientId).eq("type", quoteType)
+        )
+        .unique();
+
+      if (quote) {
+        await ctx.db.patch(quote._id, {
+          isBlocked: true,
+          blockedReason: `Waiting for client to provide requested information (Request ID: ${args.requestId})`,
+        });
+      }
+    }
+
     return null;
   },
   returns: v.null(),
@@ -195,10 +285,45 @@ export const cancelInfoRequest = mutation({
     requestId: v.id("info_requests"),
   },
   handler: async (ctx, args) => {
+    const request = await ctx.db.get(args.requestId);
+    if (!request) {
+      throw new Error("Request not found");
+    }
+
     await ctx.db.patch(args.requestId, {
       status: "cancelled",
       resolvedAt: Date.now(),
     });
+
+    // Unblock quote(s) since request is cancelled
+    const quotesToUnblock: Array<"PEO" | "ACA"> = [];
+    if (request.quoteType === "PEO") {
+      quotesToUnblock.push("PEO");
+    } else if (request.quoteType === "ACA") {
+      quotesToUnblock.push("ACA");
+    } else if (request.quoteType === "both") {
+      quotesToUnblock.push("PEO", "ACA");
+    } else {
+      // If no quoteType specified, unblock both
+      quotesToUnblock.push("PEO", "ACA");
+    }
+
+    for (const quoteType of quotesToUnblock) {
+      const quote = await ctx.db
+        .query("quotes")
+        .withIndex("by_clientId_and_type", (q) =>
+          q.eq("clientId", request.clientId).eq("type", quoteType)
+        )
+        .unique();
+
+      if (quote && quote.isBlocked) {
+        await ctx.db.patch(quote._id, {
+          isBlocked: false,
+          blockedReason: undefined,
+        });
+      }
+    }
+
     return null;
   },
   returns: v.null(),
