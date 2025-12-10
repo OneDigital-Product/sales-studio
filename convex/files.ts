@@ -75,6 +75,9 @@ export const getFiles = query({
       ),
       description: v.optional(v.string()),
       uploadedBy: v.optional(v.string()),
+      isVerified: v.optional(v.boolean()),
+      verifiedBy: v.optional(v.string()),
+      verifiedAt: v.optional(v.number()),
     })
   ),
   handler: async (ctx, args) => {
@@ -151,5 +154,20 @@ export const deleteFile = mutation({
     // Delete the file storage and record
     await ctx.storage.delete(file.storageId);
     await ctx.db.delete(args.id);
+  },
+});
+
+export const markFileAsVerified = mutation({
+  args: {
+    fileId: v.id("files"),
+    verifiedBy: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.fileId, {
+      isVerified: true,
+      verifiedBy: args.verifiedBy,
+      verifiedAt: Date.now(),
+    });
   },
 });

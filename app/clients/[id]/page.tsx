@@ -18,6 +18,7 @@ import { CensusViewer } from "@/components/census/census-viewer";
 import { CommentFeed } from "@/components/comments/comment-feed";
 import { FileCommentButton } from "@/components/comments/file-comment-button";
 import { FileUploadDialog } from "@/components/files/file-upload-dialog";
+import { VerifyFileDialog } from "@/components/files/verify-file-dialog";
 import { CreateRequestDialog } from "@/components/info-requests/create-request-dialog";
 import { RequestsPanel } from "@/components/info-requests/requests-panel";
 import { QuoteStatusCard } from "@/components/quotes/quote-status-card";
@@ -68,6 +69,7 @@ export default function ClientDetailPage() {
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const saveFile = useMutation(api.files.saveFile);
   const deleteFile = useMutation(api.files.deleteFile);
+  const markFileAsVerified = useMutation(api.files.markFileAsVerified);
   const setActiveCensus = useMutation(api.census.setActiveCensus);
   const updateClient = useMutation(api.clients.updateClient);
 
@@ -242,6 +244,14 @@ export default function ClientDetailPage() {
       await deleteFile({ id: fileId });
     } catch {
       // Delete error silently handled
+    }
+  };
+
+  const handleVerifyFile = async (fileId: Id<"files">, verifiedBy: string) => {
+    try {
+      await markFileAsVerified({ fileId, verifiedBy });
+    } catch (error) {
+      console.error("Error verifying file:", error);
     }
   };
 
@@ -536,7 +546,17 @@ export default function ClientDetailPage() {
                     <TableRow key={file._id}>
                       <TableCell className="font-medium">
                         <div className="flex flex-col gap-1">
-                          <span className="block">{file.name}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="block">{file.name}</span>
+                            {file.isVerified && (
+                              <Badge
+                                className="bg-green-600 text-xs"
+                                variant="default"
+                              >
+                                ✓ Verified
+                              </Badge>
+                            )}
+                          </div>
                           <div className="flex items-center gap-2">
                             <span className="text-gray-500 text-xs">
                               {new Date(file.uploadedAt).toLocaleDateString()}
@@ -556,6 +576,11 @@ export default function ClientDetailPage() {
                                 ))}
                               </div>
                             )}
+                            {file.isVerified && file.verifiedBy && (
+                              <span className="text-gray-500 text-xs">
+                                by {file.verifiedBy}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </TableCell>
@@ -566,6 +591,14 @@ export default function ClientDetailPage() {
                             fileId={file._id}
                             fileName={file.name}
                           />
+                          {!file.isVerified && (
+                            <VerifyFileDialog
+                              fileName={file.name}
+                              onVerify={(verifiedBy) =>
+                                handleVerifyFile(file._id, verifiedBy)
+                              }
+                            />
+                          )}
                           {file.url && (
                             <Button
                               aria-label={`Download ${file.name}`}
