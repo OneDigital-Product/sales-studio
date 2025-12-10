@@ -669,7 +669,7 @@
       "Verify receivedAt timestamp is recorded",
       "Verify other items remain pending"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -681,7 +681,7 @@
       "Verify request status changes to 'received'",
       "Verify resolvedAt timestamp is set"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
