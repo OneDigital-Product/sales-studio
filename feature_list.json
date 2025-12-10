@@ -1569,7 +1569,7 @@
       "Verify issues list is scannable",
       "Verify icons are meaningful"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
