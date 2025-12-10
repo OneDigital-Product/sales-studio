@@ -1333,7 +1333,7 @@
       "Verify bookmarked clients section exists",
       "Verify client appears in bookmarks"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -1344,7 +1344,7 @@
       "Navigate to home page",
       "Verify client is removed from bookmarks section"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

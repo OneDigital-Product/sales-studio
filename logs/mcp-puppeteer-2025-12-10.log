@@ -1207,3 +1207,83 @@
 {"arguments":{"name":"back_to_table"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:50:50.406","tool":"puppeteer_screenshot"}
 {"arguments":{"selector":"text=99-99-9999"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:50:59.164","tool":"puppeteer_hover"}
 {"arguments":{"name":"tooltip_third_cell"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:51:00.317","tool":"puppeteer_screenshot"}
+{"level":"info","message":"Starting MCP server","service":"mcp-puppeteer","timestamp":"2025-12-10 03:54:49.126"}
+{"level":"info","message":"MCP server started successfully","service":"mcp-puppeteer","timestamp":"2025-12-10 03:54:49.127"}
+{"arguments":{"url":"http://localhost:3000"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:22.950","tool":"puppeteer_navigate"}
+{"0":"n","1":"p","2":"x","level":"info","message":"Launching browser with config:","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:22.950"}
+{"level":"info","message":"Browser launched successfully","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:23.352"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:23.353","url":"http://localhost:3000"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-10 03:55:24.141","url":"http://localhost:3000"}
+{"arguments":{"height":900,"name":"verification-homepage","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:29.712","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 800)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:37.060","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":23,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:37.060"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:37.062"}
+{"arguments":{"height":900,"name":"verification-client-cards","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:40.256","tool":"puppeteer_screenshot"}
+{"arguments":{"selector":"button:has-text(\"Manage Quote\")"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:47.091","tool":"puppeteer_click"}
+{"arguments":{"script":"document.querySelector('button[class*=\"Button\"]').click()"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:50.845","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":57,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:50.845"}
+{"hasResult":true,"level":"debug","logCount":1,"message":"Script execution result","resultType":"object","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:50.848"}
+{"arguments":{"script":"\n// Find the first \"Manage Quote\" button\nconst buttons = Array.from(document.querySelectorAll('button'));\nconst manageButton = buttons.find(b => b.textContent.includes('Manage Quote'));\nif (manageButton) {\n  manageButton.click();\n  'Clicked Manage Quote button';\n} else {\n  'No Manage Quote button found';\n}\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:55.285","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":308,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:55.285"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:55.291"}
+{"arguments":{"height":900,"name":"verification-client-detail","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:55:58.414","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 800)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:56:06.821","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":23,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:56:06.821"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:56:06.822"}
+{"arguments":{"height":900,"name":"verification-client-detail-lower","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:56:10.858","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Check for console errors\nconst logs = window.__consoleLogs || [];\nJSON.stringify({ \n  hasErrors: logs.some(l => l.type === 'error'),\n  errors: logs.filter(l => l.type === 'error').slice(0, 5)\n})\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 03:56:23.329","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":199,"service":"mcp-puppeteer","timestamp":"2025-12-10 03:56:23.329"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 03:56:23.330"}
+{"arguments":{"url":"http://localhost:3000"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:00:43.014","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 04:00:43.014","url":"http://localhost:3000"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-10 04:00:43.731","url":"http://localhost:3000"}
+{"arguments":{"height":900,"name":"test-homepage-with-bookmarks","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:00:49.824","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"window.scrollTo(0, 1000)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:00:55.648","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":24,"service":"mcp-puppeteer","timestamp":"2025-12-10 04:00:55.648"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 04:00:55.648"}
+{"arguments":{"height":900,"name":"test-client-list","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:01.518","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Find and click the first \"Manage Quote\" button\nconst buttons = Array.from(document.querySelectorAll('button'));\nconst manageButton = buttons.find(b => b.textContent.includes('Manage Quote'));\nif (manageButton) {\n  manageButton.click();\n  'Clicked Manage Quote button';\n} else {\n  'No Manage Quote button found';\n}\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:14.232","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":318,"service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:14.232"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:14.238"}
+{"arguments":{"height":900,"name":"test-client-detail-before-bookmark","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:21.092","tool":"puppeteer_screenshot"}
+{"arguments":{"url":"http://localhost:3000"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:40.917","tool":"puppeteer_navigate"}
+{"level":"info","message":"Navigating to URL","service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:40.917","url":"http://localhost:3000"}
+{"level":"info","message":"Navigation successful","service":"mcp-puppeteer","status":200,"timestamp":"2025-12-10 04:01:41.588","url":"http://localhost:3000"}
+{"arguments":{"script":"window.scrollTo(0, 1000)"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:45.205","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":24,"service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:45.205"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:45.205"}
+{"arguments":{"script":"\n// Find and click the first \"Manage Quote\" button\nconst buttons = Array.from(document.querySelectorAll('button'));\nconst manageButton = buttons.find(b => b.textContent.includes('Manage Quote'));\nif (manageButton) {\n  manageButton.click();\n  'Clicked first Manage Quote button';\n} else {\n  'No button found';\n}\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:52.017","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":311,"service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:52.017"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:52.020"}
+{"arguments":{"height":900,"name":"test-client-detail-page-loaded","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:01:56.217","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Find and click the Bookmark button\nconst buttons = Array.from(document.querySelectorAll('button'));\nconst bookmarkButton = buttons.find(b => b.textContent.includes('Bookmark') && !b.textContent.includes('Bookmarked'));\nif (bookmarkButton) {\n  bookmarkButton.click();\n  'Clicked Bookmark button';\n} else {\n  'No Bookmark button found';\n}\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:03.275","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":341,"service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:03.275"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:03.276"}
+{"arguments":{"script":"new Promise(resolve => setTimeout(resolve, 1000))"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:09.332","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":49,"service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:09.332"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:09.332"}
+{"arguments":{"height":900,"name":"test-after-bookmark-click","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:16.651","tool":"puppeteer_screenshot"}
+{"arguments":{"selector":"a[href=\"/\"]"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:24.714","tool":"puppeteer_click"}
+{"arguments":{"script":"new Promise(resolve => setTimeout(resolve, 1000))"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:32.182","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":49,"service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:32.182"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:32.183"}
+{"arguments":{"height":900,"name":"test-homepage-with-bookmarked-client","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:36.670","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Find and click the bookmarked client card\nconst card = document.querySelector('a[href^=\"/clients/\"]');\nif (card) {\n  card.click();\n  'Clicked bookmarked client card';\n} else {\n  'No bookmarked client card found';\n}\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:45.027","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":219,"service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:45.027"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:45.030"}
+{"arguments":{"script":"new Promise(resolve => setTimeout(resolve, 1000))"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:49.878","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":49,"service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:49.878"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 04:02:49.878"}
+{"arguments":{"height":900,"name":"test-bookmark-navigation","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:00.570","tool":"puppeteer_screenshot"}
+{"arguments":{"script":"\n// Find and click the Bookmarked button to remove the bookmark\nconst buttons = Array.from(document.querySelectorAll('button'));\nconst bookmarkedButton = buttons.find(b => b.textContent.includes('Bookmarked'));\nif (bookmarkedButton) {\n  bookmarkedButton.click();\n  'Clicked Bookmarked button to remove bookmark';\n} else {\n  'No Bookmarked button found';\n}\n"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:06.889","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":356,"service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:06.889"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:06.890"}
+{"arguments":{"script":"new Promise(resolve => setTimeout(resolve, 1000))"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:11.172","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":49,"service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:11.173"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:11.173"}
+{"arguments":{"height":900,"name":"test-after-remove-bookmark","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:16.234","tool":"puppeteer_screenshot"}
+{"arguments":{"selector":"a[href=\"/\"]"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:21.987","tool":"puppeteer_click"}
+{"arguments":{"script":"new Promise(resolve => setTimeout(resolve, 1000))"},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:26.409","tool":"puppeteer_evaluate"}
+{"level":"debug","message":"Executing script in browser","scriptLength":49,"service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:26.409"}
+{"hasResult":false,"level":"debug","logCount":0,"message":"Script execution result","resultType":"undefined","service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:26.409"}
+{"arguments":{"height":900,"name":"test-homepage-no-bookmarks","width":1400},"level":"debug","message":"Tool call received","service":"mcp-puppeteer","timestamp":"2025-12-10 04:03:33.257","tool":"puppeteer_screenshot"}

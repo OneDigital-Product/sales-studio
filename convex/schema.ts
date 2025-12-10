@@ -157,4 +157,8 @@ export default defineSchema({
     .index("by_clientId", ["clientId"])
     .index("by_status", ["status"])
     .index("by_clientId_and_status", ["clientId", "status"]),
+  bookmarks: defineTable({
+    clientId: v.id("clients"),
+    bookmarkedAt: v.number(),
+  }).index("by_clientId", ["clientId"]),
 });

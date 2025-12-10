@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { useState } from "react";
 import { RecentActivityWidget } from "@/components/activity/recent-activity-widget";
+import { BookmarkedClientsWidget } from "@/components/bookmarks/bookmarked-clients-widget";
 import { OutstandingRequestsWidget } from "@/components/info-requests/outstanding-requests-widget";
 import { QuoteDashboard } from "@/components/quotes/quote-dashboard";
 import { Badge } from "@/components/ui/badge";
@@ -230,6 +231,8 @@ export default function Home() {
             </DialogContent>
           </Dialog>
         </div>
+
+        <BookmarkedClientsWidget />
 
         <OutstandingRequestsWidget />
 

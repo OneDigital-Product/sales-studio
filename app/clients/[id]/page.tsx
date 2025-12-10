@@ -1,7 +1,14 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
-import { FileText, Pencil, Table as TableIcon, Trash2 } from "lucide-react";
+import {
+  Bookmark,
+  BookmarkCheck,
+  FileText,
+  Pencil,
+  Table as TableIcon,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -50,6 +57,7 @@ export default function ClientDetailPage() {
   const activeCensus = useQuery(api.census.getActiveCensus, { clientId });
   const censusHistory = useQuery(api.census.getCensusHistory, { clientId });
   const quotes = useQuery(api.quotes.getQuotesByClient, { clientId });
+  const isBookmarked = useQuery(api.bookmarks.isBookmarked, { clientId });
 
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const saveFile = useMutation(api.files.saveFile);
@@ -58,6 +66,8 @@ export default function ClientDetailPage() {
   const setActiveCensus = useMutation(api.census.setActiveCensus);
   const updateClient = useMutation(api.clients.updateClient);
   const deleteClientMutation = useMutation(api.clients.deleteClient);
+  const addBookmark = useMutation(api.bookmarks.addBookmark);
+  const removeBookmark = useMutation(api.bookmarks.removeBookmark);
 
   const [uploading, setUploading] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -336,6 +346,18 @@ export default function ClientDetailPage() {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleBookmarkToggle = async () => {
+    try {
+      if (isBookmarked) {
+        await removeBookmark({ clientId });
+      } else {
+        await addBookmark({ clientId });
+      }
+    } catch {
+      // Bookmark error silently handled
+    }
+  };
+
   const handleDeleteConfirm = async () => {
     if (deleteConfirmation !== client?.name) {
       return;
@@ -481,6 +503,27 @@ export default function ClientDetailPage() {
               </Button>
             </div>
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:gap-3">
+              <Button
+                className={
+                  isBookmarked
+                    ? "border-yellow-500 text-yellow-600 hover:bg-yellow-50"
+                    : ""
+                }
+                onClick={handleBookmarkToggle}
+                variant="outline"
+              >
+                {isBookmarked ? (
+                  <>
+                    <BookmarkCheck className="mr-2 h-4 w-4" />
+                    Bookmarked
+                  </>
+                ) : (
+                  <>
+                    <Bookmark className="mr-2 h-4 w-4" />
+                    Bookmark
+                  </>
+                )}
+              </Button>
               <CreateRequestDialog clientId={clientId} />
               <Button className="bg-green-600 hover:bg-green-700" disabled>
                 PEO Quoting
