@@ -1686,7 +1686,7 @@
       "Verify content is readable",
       "Verify buttons are touch-sized (44px min)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
