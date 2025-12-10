@@ -909,7 +909,7 @@
       "Verify grouped by status",
       "Verify client name and quote type shown"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

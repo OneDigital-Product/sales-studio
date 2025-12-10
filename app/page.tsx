@@ -54,7 +54,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-8">
-      <div className="mx-auto max-w-5xl space-y-8">
+      <div className="mx-auto max-w-7xl space-y-8">
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
           <div>
             <h1 className="font-bold text-4xl text-gray-900">Sales Studio</h1>
@@ -117,50 +117,65 @@ export default function Home() {
 
         <OutstandingRequestsWidget />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Current Clients</CardTitle>
-            <CardDescription>
-              A list of all your active clients.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {clients?.map((client) => (
-                  <TableRow key={client._id}>
-                    <TableCell className="font-medium">{client.name}</TableCell>
-                    <TableCell>{client.contactEmail || "—"}</TableCell>
-                    <TableCell className="text-right">
-                      <Link href={`/clients/${client._id}`}>
-                        <Button size="sm" variant="outline">
-                          Manage Quote
-                        </Button>
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {clients?.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      className="h-24 text-center text-gray-500"
-                      colSpan={3}
-                    >
-                      No clients found. Add one to get started.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <Tabs defaultValue="clients">
+          <TabsList>
+            <TabsTrigger value="clients">Clients</TabsTrigger>
+            <TabsTrigger value="dashboard">Quote Dashboard</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="clients">
+            <Card>
+              <CardHeader>
+                <CardTitle>Current Clients</CardTitle>
+                <CardDescription>
+                  A list of all your active clients.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {clients?.map((client) => (
+                      <TableRow key={client._id}>
+                        <TableCell className="font-medium">
+                          {client.name}
+                        </TableCell>
+                        <TableCell>{client.contactEmail || "—"}</TableCell>
+                        <TableCell className="text-right">
+                          <Link href={`/clients/${client._id}`}>
+                            <Button size="sm" variant="outline">
+                              Manage Quote
+                            </Button>
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {clients?.length === 0 && (
+                      <TableRow>
+                        <TableCell
+                          className="h-24 text-center text-gray-500"
+                          colSpan={3}
+                        >
+                          No clients found. Add one to get started.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="dashboard">
+            <QuoteDashboard />
+          </TabsContent>
+        </Tabs>
       </div>
     </main>
   );
