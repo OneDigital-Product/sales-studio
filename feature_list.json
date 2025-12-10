@@ -620,7 +620,7 @@
       "Verify comment appears in second tab without refresh",
       "Verify real-time sync is working"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
