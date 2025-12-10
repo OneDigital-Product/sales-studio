@@ -1776,7 +1776,7 @@
       "Verify icon colors match context",
       "Verify icons are semantically correct"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
