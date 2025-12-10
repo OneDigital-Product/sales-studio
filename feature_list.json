@@ -1025,7 +1025,7 @@
       "Verify ACA quote status is displayed on card",
       "Verify status indicators are color-coded"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

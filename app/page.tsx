@@ -43,8 +43,43 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "../convex/_generated/api";
 
+type QuoteStatus =
+  | "not_started"
+  | "intake"
+  | "underwriting"
+  | "proposal_ready"
+  | "presented"
+  | "accepted"
+  | "declined";
+
+const getStatusColor = (status: QuoteStatus, isBlocked?: boolean) => {
+  if (isBlocked) return "bg-red-100 text-red-800 border-red-300";
+  switch (status) {
+    case "not_started":
+      return "bg-gray-100 text-gray-700 border-gray-300";
+    case "intake":
+      return "bg-blue-100 text-blue-800 border-blue-300";
+    case "underwriting":
+      return "bg-purple-100 text-purple-800 border-purple-300";
+    case "proposal_ready":
+      return "bg-orange-100 text-orange-800 border-orange-300";
+    case "presented":
+      return "bg-teal-100 text-teal-800 border-teal-300";
+    case "accepted":
+      return "bg-green-100 text-green-800 border-green-300";
+    case "declined":
+      return "bg-red-100 text-red-800 border-red-300";
+  }
+};
+
+const formatStatus = (status: QuoteStatus) =>
+  status
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
 export default function Home() {
-  const clients = useQuery(api.clients.getClients);
+  const clients = useQuery(api.clients.getClientsWithQuotes);
   const createClient = useMutation(api.clients.createClient);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -201,6 +236,7 @@ export default function Home() {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
+                      <TableHead>Quote Status</TableHead>
                       <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -211,6 +247,37 @@ export default function Home() {
                           {client.name}
                         </TableCell>
                         <TableCell>{client.contactEmail || "—"}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1.5">
+                            {client.peoQuote && (
+                              <Badge
+                                className={`border text-xs ${getStatusColor(
+                                  client.peoQuote.status,
+                                  client.peoQuote.isBlocked
+                                )}`}
+                                variant="outline"
+                              >
+                                PEO: {formatStatus(client.peoQuote.status)}
+                              </Badge>
+                            )}
+                            {client.acaQuote && (
+                              <Badge
+                                className={`border text-xs ${getStatusColor(
+                                  client.acaQuote.status,
+                                  client.acaQuote.isBlocked
+                                )}`}
+                                variant="outline"
+                              >
+                                ACA: {formatStatus(client.acaQuote.status)}
+                              </Badge>
+                            )}
+                            {!(client.peoQuote || client.acaQuote) && (
+                              <span className="text-gray-400 text-sm">
+                                No quotes
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
                         <TableCell className="text-right">
                           <Link href={`/clients/${client._id}`}>
                             <Button size="sm" variant="outline">
@@ -224,7 +291,7 @@ export default function Home() {
                       <TableRow>
                         <TableCell
                           className="h-24 text-center text-gray-500"
-                          colSpan={3}
+                          colSpan={4}
                         >
                           {searchQuery
                             ? "No clients match your search."

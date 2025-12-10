@@ -65,3 +65,70 @@ export const updateClient = mutation({
     });
   },
 });
+
+const quoteStatusValidator = v.union(
+  v.literal("not_started"),
+  v.literal("intake"),
+  v.literal("underwriting"),
+  v.literal("proposal_ready"),
+  v.literal("presented"),
+  v.literal("accepted"),
+  v.literal("declined")
+);
+
+export const getClientsWithQuotes = query({
+  args: {},
+  returns: v.array(
+    v.object({
+      _id: v.id("clients"),
+      _creationTime: v.number(),
+      name: v.string(),
+      contactEmail: v.optional(v.string()),
+      notes: v.optional(v.string()),
+      activeCensusId: v.optional(v.id("census_uploads")),
+      peoQuote: v.optional(
+        v.object({
+          status: quoteStatusValidator,
+          isBlocked: v.optional(v.boolean()),
+        })
+      ),
+      acaQuote: v.optional(
+        v.object({
+          status: quoteStatusValidator,
+          isBlocked: v.optional(v.boolean()),
+        })
+      ),
+    })
+  ),
+  handler: async (ctx) => {
+    const clients = await ctx.db.query("clients").collect();
+
+    return await Promise.all(
+      clients.map(async (client) => {
+        const quotes = await ctx.db
+          .query("quotes")
+          .withIndex("by_clientId", (q) => q.eq("clientId", client._id))
+          .collect();
+
+        const peoQuote = quotes.find((q) => q.type === "PEO");
+        const acaQuote = quotes.find((q) => q.type === "ACA");
+
+        return {
+          ...client,
+          peoQuote: peoQuote
+            ? {
+                status: peoQuote.status,
+                isBlocked: peoQuote.isBlocked,
+              }
+            : undefined,
+          acaQuote: acaQuote
+            ? {
+                status: acaQuote.status,
+                isBlocked: acaQuote.isBlocked,
+              }
+            : undefined,
+        };
+      })
+    );
+  },
+});
