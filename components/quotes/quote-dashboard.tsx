@@ -67,6 +67,7 @@ export function QuoteDashboard() {
         type: "PEO" as const,
         status: item.peoQuote.status,
         isBlocked: item.peoQuote.isBlocked ?? false,
+        blockedReason: item.peoQuote.blockedReason,
         daysOpen: item.daysOpen,
       });
     }
@@ -78,6 +79,7 @@ export function QuoteDashboard() {
         type: "ACA" as const,
         status: item.acaQuote.status,
         isBlocked: item.acaQuote.isBlocked ?? false,
+        blockedReason: item.acaQuote.blockedReason,
         daysOpen: item.daysOpen,
       });
     }
@@ -256,6 +258,7 @@ export function QuoteDashboard() {
                         <TableHead>Client</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Blocked Reason</TableHead>
                         <TableHead>Days Open</TableHead>
                         <TableHead className="text-right">Action</TableHead>
                       </TableRow>
@@ -286,6 +289,15 @@ export function QuoteDashboard() {
                             </span>
                           </TableCell>
                           <TableCell>{getStatusBadge(quote.status)}</TableCell>
+                          <TableCell>
+                            {quote.blockedReason ? (
+                              <span className="text-gray-700 text-sm">
+                                {quote.blockedReason}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400">—</span>
+                            )}
+                          </TableCell>
                           <TableCell>
                             {quote.daysOpen > 0 ? (
                               <span

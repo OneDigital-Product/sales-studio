@@ -134,6 +134,7 @@ export const getQuotesDashboard = query({
           _id: v.id("quotes"),
           status: quoteStatusValidator,
           isBlocked: v.optional(v.boolean()),
+          blockedReason: v.optional(v.string()),
           startedAt: v.optional(v.number()),
         }),
         v.null()
@@ -143,6 +144,7 @@ export const getQuotesDashboard = query({
           _id: v.id("quotes"),
           status: quoteStatusValidator,
           isBlocked: v.optional(v.boolean()),
+          blockedReason: v.optional(v.string()),
           startedAt: v.optional(v.number()),
         }),
         v.null()
@@ -199,6 +201,7 @@ export const getQuotesDashboard = query({
               _id: peoQuote._id,
               status: peoQuote.status,
               isBlocked: peoQuote.isBlocked,
+              blockedReason: peoQuote.blockedReason,
               startedAt: peoQuote.startedAt,
             }
           : null,
@@ -207,6 +210,7 @@ export const getQuotesDashboard = query({
               _id: acaQuote._id,
               status: acaQuote.status,
               isBlocked: acaQuote.isBlocked,
+              blockedReason: acaQuote.blockedReason,
               startedAt: acaQuote.startedAt,
             }
           : null,
