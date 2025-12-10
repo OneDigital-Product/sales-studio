@@ -1049,7 +1049,7 @@
       "Verify all content is readable",
       "Verify no horizontal scroll"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

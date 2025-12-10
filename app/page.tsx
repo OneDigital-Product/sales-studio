@@ -125,7 +125,7 @@ export default function Home() {
     });
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="mx-auto max-w-7xl space-y-8">
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
           <div>
@@ -198,21 +198,21 @@ export default function Home() {
           <TabsContent value="clients">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-4">
                   <div>
                     <CardTitle>Current Clients</CardTitle>
                     <CardDescription>
                       A list of all your active clients.
                     </CardDescription>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <Select
                       onValueChange={(value) =>
                         setSortBy(value as "name-asc" | "name-desc" | "newest")
                       }
                       value={sortBy}
                     >
-                      <SelectTrigger className="w-40">
+                      <SelectTrigger className="w-full sm:w-40">
                         <SelectValue placeholder="Sort by..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -222,7 +222,7 @@ export default function Home() {
                       </SelectContent>
                     </Select>
                     <Input
-                      className="w-64"
+                      className="w-full sm:w-64"
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search by name or email..."
                       type="search"
@@ -232,25 +232,124 @@ export default function Home() {
                 </div>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Quote Status</TableHead>
-                      <TableHead>Documents</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredClients?.map((client) => (
-                      <TableRow key={client._id}>
-                        <TableCell className="font-medium">
-                          {client.name}
-                        </TableCell>
-                        <TableCell>{client.contactEmail || "—"}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-1.5">
+                {/* Desktop table view */}
+                <div className="hidden md:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Quote Status</TableHead>
+                        <TableHead>Documents</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredClients?.map((client) => (
+                        <TableRow key={client._id}>
+                          <TableCell className="font-medium">
+                            {client.name}
+                          </TableCell>
+                          <TableCell>{client.contactEmail || "—"}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-1.5">
+                              {client.peoQuote && (
+                                <Badge
+                                  className={`border text-xs ${getStatusColor(
+                                    client.peoQuote.status,
+                                    client.peoQuote.isBlocked
+                                  )}`}
+                                  variant="outline"
+                                >
+                                  PEO: {formatStatus(client.peoQuote.status)}
+                                </Badge>
+                              )}
+                              {client.acaQuote && (
+                                <Badge
+                                  className={`border text-xs ${getStatusColor(
+                                    client.acaQuote.status,
+                                    client.acaQuote.isBlocked
+                                  )}`}
+                                  variant="outline"
+                                >
+                                  ACA: {formatStatus(client.acaQuote.status)}
+                                </Badge>
+                              )}
+                              {!(client.peoQuote || client.acaQuote) && (
+                                <span className="text-gray-400 text-sm">
+                                  No quotes
+                                </span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div className="min-w-[100px] flex-1">
+                                <div className="h-2 w-full rounded-full bg-gray-200">
+                                  <div
+                                    className={`h-2 rounded-full transition-all ${
+                                      client.documentCompleteness.percentage ===
+                                      100
+                                        ? "bg-green-600"
+                                        : "bg-blue-600"
+                                    }`}
+                                    style={{
+                                      width: `${client.documentCompleteness.percentage}%`,
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <span className="whitespace-nowrap text-gray-600 text-sm">
+                                {client.documentCompleteness.percentage}%
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Link href={`/clients/${client._id}`}>
+                              <Button size="sm" variant="outline">
+                                Manage Quote
+                              </Button>
+                            </Link>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {filteredClients?.length === 0 && (
+                        <TableRow>
+                          <TableCell
+                            className="h-24 text-center text-gray-500"
+                            colSpan={5}
+                          >
+                            {searchQuery
+                              ? "No clients match your search."
+                              : "No clients found. Add one to get started."}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile card view */}
+                <div className="space-y-4 md:hidden">
+                  {filteredClients?.map((client) => (
+                    <Card className="p-4" key={client._id}>
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900">
+                              {client.name}
+                            </h3>
+                            <p className="text-gray-600 text-sm">
+                              {client.contactEmail || "—"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="mb-1.5 font-medium text-gray-700 text-xs">
+                            Quote Status
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
                             {client.peoQuote && (
                               <Badge
                                 className={`border text-xs ${getStatusColor(
@@ -279,8 +378,12 @@ export default function Home() {
                               </span>
                             )}
                           </div>
-                        </TableCell>
-                        <TableCell>
+                        </div>
+
+                        <div>
+                          <p className="mb-1.5 font-medium text-gray-700 text-xs">
+                            Documents
+                          </p>
                           <div className="flex items-center gap-2">
                             <div className="min-w-[100px] flex-1">
                               <div className="h-2 w-full rounded-full bg-gray-200">
@@ -301,30 +404,28 @@ export default function Home() {
                               {client.documentCompleteness.percentage}%
                             </span>
                           </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Link href={`/clients/${client._id}`}>
-                            <Button size="sm" variant="outline">
-                              Manage Quote
-                            </Button>
-                          </Link>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    {filteredClients?.length === 0 && (
-                      <TableRow>
-                        <TableCell
-                          className="h-24 text-center text-gray-500"
-                          colSpan={4}
-                        >
-                          {searchQuery
-                            ? "No clients match your search."
-                            : "No clients found. Add one to get started."}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                        </div>
+
+                        <Link className="block" href={`/clients/${client._id}`}>
+                          <Button
+                            className="w-full"
+                            size="sm"
+                            variant="outline"
+                          >
+                            Manage Quote
+                          </Button>
+                        </Link>
+                      </div>
+                    </Card>
+                  ))}
+                  {filteredClients?.length === 0 && (
+                    <div className="py-12 text-center text-gray-500">
+                      {searchQuery
+                        ? "No clients match your search."
+                        : "No clients found. Add one to get started."}
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
