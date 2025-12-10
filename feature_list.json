@@ -718,7 +718,7 @@
       "Verify response time is calculated",
       "Verify response time is displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

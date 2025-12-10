@@ -26,6 +26,24 @@ const formatRelativeTime = (timestamp: number) => {
   return `${years} year${years === 1 ? "" : "s"} ago`;
 };
 
+// Format duration between two timestamps
+const formatDuration = (startTime: number, endTime: number) => {
+  const milliseconds = endTime - startTime;
+  const seconds = Math.floor(milliseconds / 1000);
+
+  if (seconds < 60) return `${seconds} second${seconds === 1 ? "" : "s"}`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"}`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"}`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} day${days === 1 ? "" : "s"}`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months} month${months === 1 ? "" : "s"}`;
+  const years = Math.floor(months / 12);
+  return `${years} year${years === 1 ? "" : "s"}`;
+};
+
 interface RequestsPanelProps {
   clientId: Id<"clients">;
 }
@@ -214,7 +232,16 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
 
                   {request.status === "received" && request.resolvedAt && (
                     <div className="mt-3 text-right text-green-600 text-xs">
-                      Completed {formatRelativeTime(request.resolvedAt)}
+                      <div>
+                        Completed {formatRelativeTime(request.resolvedAt)}
+                      </div>
+                      <div className="mt-1 font-medium">
+                        Response time:{" "}
+                        {formatDuration(
+                          request.requestedAt,
+                          request.resolvedAt
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
