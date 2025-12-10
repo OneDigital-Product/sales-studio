@@ -1813,7 +1813,7 @@
       "Verify large text meets 3:1 ratio",
       "Verify UI components meet 3:1 ratio"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
