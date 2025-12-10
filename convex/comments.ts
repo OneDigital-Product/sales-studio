@@ -172,3 +172,95 @@ export const getTargetCommentCount = query({
   },
   returns: v.number(),
 });
+
+// Get recent activity across all clients (for home page widget)
+export const getRecentActivity = query({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 10;
+
+    // Get recent comments
+    const recentComments = await ctx.db
+      .query("comments")
+      .order("desc")
+      .take(limit * 2); // Get more than needed to have options after merging
+
+    // Get recent quote history
+    const recentQuoteHistory = await ctx.db
+      .query("quote_history")
+      .order("desc")
+      .take(limit * 2);
+
+    // Build activity items with client names
+    const activities = [];
+
+    // Process comments
+    for (const comment of recentComments) {
+      const client = await ctx.db.get(comment.clientId);
+      if (client) {
+        activities.push({
+          type: "comment" as const,
+          timestamp: comment.createdAt,
+          clientId: comment.clientId,
+          clientName: client.name,
+          authorName: comment.authorName,
+          authorTeam: comment.authorTeam,
+          content: comment.content,
+        });
+      }
+    }
+
+    // Process quote history
+    for (const history of recentQuoteHistory) {
+      const quote = await ctx.db.get(history.quoteId);
+      if (quote) {
+        const client = await ctx.db.get(quote.clientId);
+        if (client) {
+          activities.push({
+            type: "status_change" as const,
+            timestamp: history.changedAt,
+            clientId: quote.clientId,
+            clientName: client.name,
+            quoteType: quote.type,
+            previousStatus: history.previousStatus,
+            newStatus: history.newStatus,
+            changedBy: history.changedBy,
+          });
+        }
+      }
+    }
+
+    // Sort by timestamp descending and limit
+    activities.sort((a, b) => b.timestamp - a.timestamp);
+    return activities.slice(0, limit);
+  },
+  returns: v.array(
+    v.union(
+      v.object({
+        type: v.literal("comment"),
+        timestamp: v.number(),
+        clientId: v.id("clients"),
+        clientName: v.string(),
+        authorName: v.string(),
+        authorTeam: v.union(
+          v.literal("PEO"),
+          v.literal("ACA"),
+          v.literal("Sales")
+        ),
+        content: v.string(),
+      }),
+      v.object({
+        type: v.literal("status_change"),
+        timestamp: v.number(),
+        clientId: v.id("clients"),
+        clientName: v.string(),
+        quoteType: v.union(v.literal("PEO"), v.literal("ACA")),
+        previousStatus: v.string(),
+        newStatus: v.string(),
+        changedBy: v.optional(v.string()),
+      })
+    )
+  ),
+});

@@ -1222,7 +1222,7 @@
       "Verify recent status changes are listed",
       "Verify sorted by most recent first"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
