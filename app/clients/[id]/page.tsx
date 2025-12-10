@@ -159,6 +159,8 @@ export default function ClientDetailPage() {
       name: file.name,
       type: isCensus ? "Census" : "Quote Data",
       category: isCensus ? "census" : (detectedCategory ?? "other"),
+      mimeType: file.type,
+      fileSize: file.size,
     });
 
     if (isCensus && (index === totalFiles - 1 || !pendingCensusFile)) {
@@ -226,6 +228,8 @@ export default function ClientDetailPage() {
         category,
         relevantTo,
         isRequired,
+        mimeType: file.type,
+        fileSize: file.size,
       });
 
       if (isCensus) {

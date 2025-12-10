@@ -43,6 +43,8 @@ interface FileData {
   relevantTo?: ("PEO" | "ACA")[];
   isVerified?: boolean;
   verifiedBy?: string;
+  fileSize?: number;
+  mimeType?: string;
 }
 
 interface DocumentCenterProps {
@@ -119,13 +121,14 @@ export function DocumentCenter({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[50%]">Name</TableHead>
+              <TableHead className="w-[45%]">Name</TableHead>
+              <TableHead className="w-[15%]">Size</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell className="h-24 text-center text-gray-500" colSpan={2}>
+              <TableCell className="h-24 text-center text-gray-500" colSpan={3}>
                 No files yet.
               </TableCell>
             </TableRow>
@@ -213,7 +216,8 @@ export function DocumentCenter({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[50%]">Name</TableHead>
+                    <TableHead className="w-[45%]">Name</TableHead>
+                    <TableHead className="w-[15%]">Size</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -264,6 +268,9 @@ export function DocumentCenter({
                             )}
                           </div>
                         </div>
+                      </TableCell>
+                      <TableCell className="text-gray-600 text-sm">
+                        {formatFileSize(file.fileSize)}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

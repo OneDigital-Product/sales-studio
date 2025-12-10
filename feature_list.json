@@ -1176,7 +1176,7 @@
       "Verify file size is displayed in document list",
       "Verify size is formatted (KB/MB)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -1187,7 +1187,7 @@
       "Upload Excel file",
       "Verify mimeType is stored correctly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
