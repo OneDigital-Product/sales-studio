@@ -1455,7 +1455,7 @@
       "Click on historical census",
       "Verify historical data is displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

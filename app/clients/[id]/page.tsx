@@ -43,6 +43,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
@@ -99,6 +100,9 @@ export default function ClientDetailPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [copySuccess, setCopySuccess] = useState(false);
+  const [censusTab, setCensusTab] = useState<"active" | "history">("active");
+  const [selectedHistoricalCensusId, setSelectedHistoricalCensusId] =
+    useState<Id<"census_uploads"> | null>(null);
 
   const CENSUS_KEYWORDS = [
     "dob",
@@ -432,59 +436,142 @@ Notes: ${client.notes || "N/A"}`;
 
     if (activeCensus) {
       return (
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50 p-4">
-            <div className="rounded-full bg-blue-100 p-2">
-              <TableIcon className="h-5 w-5 text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-blue-900">
-                  Smart Census Active
-                </h2>
-                {censusHistory && censusHistory.length > 1 && (
-                  <Select
-                    key={activeCensus._id}
-                    onValueChange={(val) =>
-                      setActiveCensus({
-                        clientId,
-                        censusUploadId: val as Id<"census_uploads">,
-                      })
-                    }
-                    value={activeCensus._id}
-                  >
-                    <SelectTrigger className="h-8 w-[240px] bg-white">
-                      <SelectValue placeholder="Select version" />
-                    </SelectTrigger>
-                    <SelectContent>
+        <Card>
+          <CardHeader>
+            <CardTitle>Census Data</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs
+              onValueChange={(v) => setCensusTab(v as "active" | "history")}
+              value={censusTab}
+            >
+              <TabsList className="mb-4">
+                <TabsTrigger value="active">Active Census</TabsTrigger>
+                <TabsTrigger value="history">Census History</TabsTrigger>
+              </TabsList>
+
+              <TabsContent className="space-y-4" value="active">
+                <div className="flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50 p-4">
+                  <div className="rounded-full bg-blue-100 p-2">
+                    <TableIcon className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <h2 className="font-semibold text-blue-900">
+                        Smart Census Active
+                      </h2>
+                      {censusHistory && censusHistory.length > 1 && (
+                        <Select
+                          key={activeCensus._id}
+                          onValueChange={(val) =>
+                            setActiveCensus({
+                              clientId,
+                              censusUploadId: val as Id<"census_uploads">,
+                            })
+                          }
+                          value={activeCensus._id}
+                        >
+                          <SelectTrigger className="h-8 w-[240px] bg-white">
+                            <SelectValue placeholder="Select version" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {censusHistory.map((upload) => (
+                              <SelectItem key={upload._id} value={upload._id}>
+                                <div className="flex flex-col items-start">
+                                  <span className="font-medium">
+                                    {upload.fileName}
+                                  </span>
+                                  <span className="text-muted-foreground text-xs">
+                                    {new Date(
+                                      upload.uploadedAt
+                                    ).toLocaleString()}{" "}
+                                    • {upload.rowCount} rows
+                                  </span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
+                    <p className="mt-1 text-blue-700 text-sm">
+                      Parsing data from <strong>{activeCensus.fileName}</strong>
+                      .
+                    </p>
+                  </div>
+                </div>
+                <CensusValidationSummary
+                  censusUploadId={activeCensus._id}
+                  clientId={clientId}
+                />
+                <CensusViewer censusUploadId={activeCensus._id} />
+              </TabsContent>
+
+              <TabsContent className="space-y-4" value="history">
+                {censusHistory && censusHistory.length > 0 ? (
+                  <>
+                    <div className="text-gray-600 text-sm">
+                      {censusHistory.length} census upload
+                      {censusHistory.length !== 1 ? "s" : ""} found
+                    </div>
+                    <div className="space-y-2">
                       {censusHistory.map((upload) => (
-                        <SelectItem key={upload._id} value={upload._id}>
-                          <div className="flex flex-col items-start">
-                            <span className="font-medium">
-                              {upload.fileName}
-                            </span>
-                            <span className="text-muted-foreground text-xs">
-                              {new Date(upload.uploadedAt).toLocaleString()} •{" "}
-                              {upload.rowCount} rows
-                            </span>
-                          </div>
-                        </SelectItem>
+                        <Card
+                          className={`cursor-pointer transition-colors hover:bg-gray-50 ${
+                            selectedHistoricalCensusId === upload._id
+                              ? "border-blue-500 bg-blue-50"
+                              : ""
+                          }`}
+                          key={upload._id}
+                          onClick={() =>
+                            setSelectedHistoricalCensusId(upload._id)
+                          }
+                        >
+                          <CardHeader className="pb-3">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className="font-semibold text-gray-900">
+                                  {upload.fileName}
+                                </h3>
+                                <p className="text-gray-500 text-sm">
+                                  {new Date(upload.uploadedAt).toLocaleString()}
+                                </p>
+                              </div>
+                              <div className="flex flex-col items-end gap-1">
+                                <span className="rounded-full bg-gray-100 px-2.5 py-0.5 font-medium text-gray-700 text-xs">
+                                  {upload.rowCount} rows
+                                </span>
+                                {upload._id === activeCensus._id && (
+                                  <span className="rounded-full bg-green-100 px-2.5 py-0.5 font-medium text-green-700 text-xs">
+                                    Active
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </CardHeader>
+                          {selectedHistoricalCensusId === upload._id && (
+                            <CardContent className="space-y-4 border-t pt-4">
+                              <CensusValidationSummary
+                                censusUploadId={upload._id}
+                                clientId={clientId}
+                              />
+                              <CensusViewer censusUploadId={upload._id} />
+                            </CardContent>
+                          )}
+                        </Card>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center rounded-lg border-2 border-gray-300 border-dashed bg-gray-50 p-8 text-center">
+                    <TableIcon className="mb-2 h-8 w-8 text-gray-400" />
+                    <p className="text-gray-600">No census history found</p>
+                  </div>
                 )}
-              </div>
-              <p className="mt-1 text-blue-700 text-sm">
-                Parsing data from <strong>{activeCensus.fileName}</strong>.
-              </p>
-            </div>
-          </div>
-          <CensusValidationSummary
-            censusUploadId={activeCensus._id}
-            clientId={clientId}
-          />
-          <CensusViewer censusUploadId={activeCensus._id} />
-        </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       );
     }
 
