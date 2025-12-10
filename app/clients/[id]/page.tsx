@@ -1059,10 +1059,7 @@ Notes: ${client.notes || "N/A"}`;
       <div className="container mx-auto space-y-4 p-4 md:space-y-8 md:p-8">
         <div className="flex flex-col gap-4">
           <Breadcrumb
-            items={[
-              { label: "Sales Studio", href: "/" },
-              { label: client.name },
-            ]}
+            items={[{ label: "Home", href: "/" }, { label: client.name }]}
           />
 
           <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
