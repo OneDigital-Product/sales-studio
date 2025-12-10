@@ -1801,7 +1801,7 @@
       "Verify focus ring color has sufficient contrast",
       "Verify focus order is logical"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
