@@ -1876,7 +1876,7 @@
       "Verify notes associated with each change",
       "Verify who made each change (if tracked)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

@@ -7,6 +7,7 @@ import {
   ChevronUp,
   Clock,
   Edit2,
+  History,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -110,6 +111,7 @@ export function QuoteStatusCard({
   quote,
 }: QuoteStatusCardProps) {
   const [showHistory, setShowHistory] = useState(false);
+  const [showFullHistory, setShowFullHistory] = useState(false);
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [assignedName, setAssignedName] = useState("");
 
@@ -255,7 +257,7 @@ export function QuoteStatusCard({
 
               {showHistory && (
                 <div className="mt-2 space-y-2">
-                  {history.slice(0, 5).map((entry) => (
+                  {history.slice(0, 3).map((entry) => (
                     <div
                       className="flex items-center justify-between text-xs"
                       key={entry._id}
@@ -271,10 +273,16 @@ export function QuoteStatusCard({
                       </span>
                     </div>
                   ))}
-                  {history.length > 5 && (
-                    <p className="text-center text-gray-400 text-xs">
-                      +{history.length - 5} more
-                    </p>
+                  {history.length > 3 && (
+                    <Button
+                      className="mt-2 w-full"
+                      onClick={() => setShowFullHistory(true)}
+                      size="sm"
+                      variant="outline"
+                    >
+                      <History className="mr-2 h-4 w-4" />
+                      View Full History
+                    </Button>
                   )}
                 </div>
               )}
@@ -310,6 +318,74 @@ export function QuoteStatusCard({
               Cancel
             </Button>
             <Button onClick={handleAssignmentSave}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Full History Dialog */}
+      <Dialog onOpenChange={setShowFullHistory} open={showFullHistory}>
+        <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Quote History - {type}</DialogTitle>
+            <DialogDescription>
+              Complete audit trail of all status changes for this quote
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {history && history.length > 0 ? (
+              history.map((entry, index) => (
+                <div
+                  className="border-b pb-4 last:border-b-0 last:pb-0"
+                  key={entry._id}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">
+                        {formatStatusChange(
+                          entry.previousStatus,
+                          entry.newStatus
+                        )}
+                      </div>
+                      <div className="mt-1 flex items-center gap-4 text-gray-500 text-sm">
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {new Date(entry.changedAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                              hour: "numeric",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </span>
+                        {entry.changedBy && (
+                          <span className="text-gray-600">
+                            by {entry.changedBy}
+                          </span>
+                        )}
+                      </div>
+                      {entry.notes && (
+                        <div className="mt-2 rounded-md bg-gray-50 p-2 text-gray-700 text-sm">
+                          {entry.notes}
+                        </div>
+                      )}
+                    </div>
+                    <span className="ml-4 text-gray-400 text-xs">
+                      #{history.length - index}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-gray-500">No history available</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowFullHistory(false)} variant="outline">
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
