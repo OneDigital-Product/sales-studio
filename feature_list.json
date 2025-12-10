@@ -967,7 +967,7 @@
       "Verify all status changes are listed chronologically",
       "Verify timestamps for each status"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
