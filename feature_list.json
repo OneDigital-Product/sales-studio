@@ -609,7 +609,7 @@
       "Verify only PEO comments are displayed",
       "Verify ACA and Sales comments are hidden"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

@@ -18,6 +18,9 @@ export function CommentFeed({ clientId }: CommentFeedProps) {
   const [authorName, setAuthorName] = useState("");
   const [authorTeam, setAuthorTeam] = useState<"PEO" | "ACA" | "Sales">("PEO");
   const [isAdding, setIsAdding] = useState(false);
+  const [teamFilter, setTeamFilter] = useState<"All" | "PEO" | "ACA" | "Sales">(
+    "All"
+  );
 
   const comments = useQuery(api.comments.getComments, { clientId });
   const addComment = useMutation(api.comments.addComment);
@@ -62,10 +65,31 @@ export function CommentFeed({ clientId }: CommentFeedProps) {
     }
   };
 
+  // Filter comments by team
+  const filteredComments =
+    comments?.filter((comment) => {
+      if (teamFilter === "All") return true;
+      return comment.authorTeam === teamFilter;
+    }) ?? [];
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Activity Feed</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Activity Feed</CardTitle>
+          <select
+            className="rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onChange={(e) =>
+              setTeamFilter(e.target.value as "All" | "PEO" | "ACA" | "Sales")
+            }
+            value={teamFilter}
+          >
+            <option value="All">All Teams</option>
+            <option value="PEO">PEO Only</option>
+            <option value="ACA">ACA Only</option>
+            <option value="Sales">Sales Only</option>
+          </select>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Add Comment Button/Form */}
@@ -128,12 +152,14 @@ export function CommentFeed({ clientId }: CommentFeedProps) {
         <div className="space-y-3">
           {comments === undefined ? (
             <p className="text-muted-foreground text-sm">Loading comments...</p>
-          ) : comments.length === 0 ? (
+          ) : filteredComments.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No comments yet. Be the first to add one!
+              {teamFilter === "All"
+                ? "No comments yet. Be the first to add one!"
+                : `No ${teamFilter} comments found.`}
             </p>
           ) : (
-            comments.map((comment) => (
+            filteredComments.map((comment) => (
               <CommentItem
                 authorName={comment.authorName}
                 authorTeam={comment.authorTeam}
