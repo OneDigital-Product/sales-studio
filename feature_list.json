@@ -1634,7 +1634,7 @@
       "Verify error states are clear",
       "Verify labels are properly aligned"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
