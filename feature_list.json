@@ -1608,7 +1608,7 @@
       "Verify cell padding is comfortable",
       "Verify highlighted cells stand out clearly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
