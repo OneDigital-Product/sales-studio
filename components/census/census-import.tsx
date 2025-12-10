@@ -24,7 +24,10 @@ const MAX_EXCEL_SERIAL = 1_000_000;
 type CensusImportProps = {
   clientId: Id<"clients">;
   fileId?: Id<"files">;
-  onSuccess?: () => void;
+  onSuccess?: (result: {
+    censusUploadId: Id<"census_uploads">;
+    previousCensusId: Id<"census_uploads"> | null;
+  }) => void;
   file: File;
   onCancel: () => void;
 };
@@ -137,7 +140,7 @@ export function CensusImport({
 
     setIsUploading(true);
     try {
-      await saveCensus({
+      const result = await saveCensus({
         clientId,
         fileId,
         fileName: file.name,
@@ -145,7 +148,7 @@ export function CensusImport({
         rows: previewData,
       });
       if (onSuccess) {
-        onSuccess();
+        onSuccess(result);
       }
     } catch (err) {
       console.error("Error saving census:", err);

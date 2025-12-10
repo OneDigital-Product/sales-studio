@@ -11,8 +11,15 @@ export const saveCensus = mutation({
     columns: v.array(v.string()),
     rows: v.array(v.any()), // Array of row objects
   },
-  returns: v.id("census_uploads"),
+  returns: v.object({
+    censusUploadId: v.id("census_uploads"),
+    previousCensusId: v.union(v.id("census_uploads"), v.null()),
+  }),
   handler: async (ctx, args) => {
+    // Get the previous active census ID before replacement
+    const client = await ctx.db.get(args.clientId);
+    const previousCensusId = client?.activeCensusId ?? null;
+
     const censusUploadId = await ctx.db.insert("census_uploads", {
       clientId: args.clientId,
       fileId: args.fileId,
@@ -65,7 +72,7 @@ export const saveCensus = mutation({
       }
     );
 
-    return censusUploadId;
+    return { censusUploadId, previousCensusId };
   },
 });
 

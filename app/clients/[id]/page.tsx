@@ -109,6 +109,10 @@ export default function ClientDetailPage() {
     Id<"census_uploads">[]
   >([]);
   const [showingComparison, setShowingComparison] = useState(false);
+  const [undoInfo, setUndoInfo] = useState<{
+    previousCensusId: Id<"census_uploads">;
+    replacedAt: number;
+  } | null>(null);
 
   const CENSUS_KEYWORDS = [
     "dob",
@@ -375,6 +379,19 @@ export default function ClientDetailPage() {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleUndoCensusReplacement = async () => {
+    if (!undoInfo) return;
+    try {
+      await setActiveCensus({
+        clientId,
+        censusUploadId: undoInfo.previousCensusId,
+      });
+      setUndoInfo(null);
+    } catch {
+      // Error handled silently
+    }
+  };
+
   const handleBookmarkToggle = async () => {
     try {
       if (isBookmarked) {
@@ -432,9 +449,18 @@ Notes: ${client.notes || "N/A"}`;
             setPendingCensusFile(null);
             setPendingCensusFileId(null);
           }}
-          onSuccess={() => {
+          onSuccess={(result) => {
             setPendingCensusFile(null);
             setPendingCensusFileId(null);
+            // If there was a previous census, save undo info
+            if (result.previousCensusId) {
+              setUndoInfo({
+                previousCensusId: result.previousCensusId,
+                replacedAt: Date.now(),
+              });
+              // Auto-hide undo notification after 30 seconds
+              setTimeout(() => setUndoInfo(null), 30_000);
+            }
           }}
         />
       );
@@ -857,6 +883,45 @@ Notes: ${client.notes || "N/A"}`;
 
         {/* Outstanding Requests Section */}
         <RequestsPanel clientId={clientId} />
+
+        {/* Undo Census Replacement Banner */}
+        {undoInfo && (
+          <Card className="border-blue-200 bg-blue-50">
+            <CardContent className="flex items-center justify-between py-4">
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-blue-100 p-2">
+                  <TableIcon className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-blue-900 text-sm">
+                    Census data has been replaced
+                  </p>
+                  <p className="text-blue-700 text-xs">
+                    The previous census version is still available in history
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  className="border-blue-300 bg-white text-blue-700 hover:bg-blue-100"
+                  onClick={handleUndoCensusReplacement}
+                  size="sm"
+                  variant="outline"
+                >
+                  Undo Replacement
+                </Button>
+                <Button
+                  className="text-blue-700 hover:bg-blue-100"
+                  onClick={() => setUndoInfo(null)}
+                  size="sm"
+                  variant="ghost"
+                >
+                  Dismiss
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* File Management Section */}
         <Card>

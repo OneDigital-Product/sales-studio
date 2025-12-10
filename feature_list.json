@@ -1478,7 +1478,7 @@
       "Verify previous census is restored",
       "Verify latest census shows restored data"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
