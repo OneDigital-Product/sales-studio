@@ -12,9 +12,34 @@ export default defineSchema({
     storageId: v.string(),
     clientId: v.id("clients"),
     name: v.string(),
-    type: v.string(), // "PEO", "ACA", "Other"
+    type: v.string(), // "PEO", "ACA", "Other" - keeping for backwards compatibility
     uploadedAt: v.number(),
-  }).index("by_clientId", ["clientId"]),
+    // Enhanced fields for file categorization
+    category: v.optional(
+      v.union(
+        v.literal("census"),
+        v.literal("plan_summary"),
+        v.literal("claims_history"),
+        v.literal("renewal_letter"),
+        v.literal("proposal"),
+        v.literal("contract"),
+        v.literal("other")
+      )
+    ),
+    relevantTo: v.optional(
+      v.array(v.union(v.literal("PEO"), v.literal("ACA")))
+    ),
+    isRequired: v.optional(v.boolean()),
+    isVerified: v.optional(v.boolean()),
+    verifiedBy: v.optional(v.string()),
+    verifiedAt: v.optional(v.number()),
+    uploadedBy: v.optional(v.string()),
+    description: v.optional(v.string()),
+    mimeType: v.optional(v.string()),
+    fileSize: v.optional(v.number()),
+  })
+    .index("by_clientId", ["clientId"])
+    .index("by_clientId_and_category", ["clientId", "category"]),
   census_uploads: defineTable({
     clientId: v.id("clients"),
     fileId: v.optional(v.id("files")),

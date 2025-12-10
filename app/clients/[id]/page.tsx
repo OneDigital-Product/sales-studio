@@ -125,12 +125,36 @@ export default function ClientDetailPage() {
     });
   };
 
+  // Auto-detect file category based on filename
+  const detectFileCategory = (
+    filename: string
+  ):
+    | "census"
+    | "plan_summary"
+    | "claims_history"
+    | "renewal_letter"
+    | "proposal"
+    | "contract"
+    | "other"
+    | undefined => {
+    const lower = filename.toLowerCase();
+    if (lower.includes("plan") && lower.includes("summary"))
+      return "plan_summary";
+    if (lower.includes("claims") || lower.includes("claim history"))
+      return "claims_history";
+    if (lower.includes("renewal")) return "renewal_letter";
+    if (lower.includes("proposal")) return "proposal";
+    if (lower.includes("contract")) return "contract";
+    return; // Will be set to census or other later
+  };
+
   const uploadSingleFile = async (
     file: File,
     index: number,
     totalFiles: number
   ) => {
     const isCensus = await isCensusFile(file);
+    const detectedCategory = detectFileCategory(file.name);
 
     const postUrl = await generateUploadUrl();
     const result = await fetch(postUrl, {
@@ -145,6 +169,7 @@ export default function ClientDetailPage() {
       clientId,
       name: file.name,
       type: isCensus ? "Census" : "Quote Data",
+      category: isCensus ? "census" : (detectedCategory ?? "other"),
     });
 
     if (isCensus && (index === totalFiles - 1 || !pendingCensusFile)) {

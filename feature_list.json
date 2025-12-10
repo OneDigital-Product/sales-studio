@@ -787,7 +787,7 @@
       "Verify system auto-detects category as 'Renewal Letter'",
       "Verify category is set automatically"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

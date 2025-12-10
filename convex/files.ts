@@ -13,6 +13,22 @@ export const saveFile = mutation({
     clientId: v.id("clients"),
     name: v.string(),
     type: v.string(),
+    category: v.optional(
+      v.union(
+        v.literal("census"),
+        v.literal("plan_summary"),
+        v.literal("claims_history"),
+        v.literal("renewal_letter"),
+        v.literal("proposal"),
+        v.literal("contract"),
+        v.literal("other")
+      )
+    ),
+    relevantTo: v.optional(
+      v.array(v.union(v.literal("PEO"), v.literal("ACA")))
+    ),
+    description: v.optional(v.string()),
+    uploadedBy: v.optional(v.string()),
   },
   returns: v.id("files"),
   handler: async (ctx, args) => {
@@ -22,6 +38,10 @@ export const saveFile = mutation({
       name: args.name,
       type: args.type,
       uploadedAt: Date.now(),
+      category: args.category,
+      relevantTo: args.relevantTo,
+      description: args.description,
+      uploadedBy: args.uploadedBy,
     });
     return fileId;
   },
@@ -39,6 +59,22 @@ export const getFiles = query({
       type: v.string(),
       uploadedAt: v.number(),
       url: v.union(v.string(), v.null()),
+      category: v.optional(
+        v.union(
+          v.literal("census"),
+          v.literal("plan_summary"),
+          v.literal("claims_history"),
+          v.literal("renewal_letter"),
+          v.literal("proposal"),
+          v.literal("contract"),
+          v.literal("other")
+        )
+      ),
+      relevantTo: v.optional(
+        v.array(v.union(v.literal("PEO"), v.literal("ACA")))
+      ),
+      description: v.optional(v.string()),
+      uploadedBy: v.optional(v.string()),
     })
   ),
   handler: async (ctx, args) => {
