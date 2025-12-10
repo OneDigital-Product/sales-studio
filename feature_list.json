@@ -497,7 +497,7 @@
       "Verify ACA validation detects missing_column",
       "Verify hire_date is flagged as required for ACA"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
