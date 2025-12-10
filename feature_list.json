@@ -1789,7 +1789,7 @@
       "Verify hover states increase shadow",
       "Verify shadow depths create clear hierarchy"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
