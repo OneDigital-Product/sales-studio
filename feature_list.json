@@ -1261,7 +1261,7 @@
       "Verify all rows are included",
       "Verify column headers are correct"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

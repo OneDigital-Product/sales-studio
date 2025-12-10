@@ -191,6 +191,53 @@ export const getLatestCensus = query({
   },
 });
 
+// Get all census rows for export (no pagination)
+export const getAllCensusRows = query({
+  args: {
+    censusUploadId: v.id("census_uploads"),
+  },
+  returns: v.object({
+    upload: v.object({
+      _id: v.id("census_uploads"),
+      _creationTime: v.number(),
+      clientId: v.id("clients"),
+      fileId: v.optional(v.id("files")),
+      fileName: v.string(),
+      uploadedAt: v.number(),
+      columns: v.array(v.string()),
+      rowCount: v.number(),
+    }),
+    rows: v.array(
+      v.object({
+        _id: v.id("census_rows"),
+        _creationTime: v.number(),
+        censusUploadId: v.id("census_uploads"),
+        data: v.any(),
+        rowIndex: v.number(),
+      })
+    ),
+  }),
+  handler: async (ctx, args) => {
+    const upload = await ctx.db.get(args.censusUploadId);
+    if (!upload) {
+      throw new Error("Census upload not found");
+    }
+
+    const rows = await ctx.db
+      .query("census_rows")
+      .withIndex("by_censusUploadId", (q) =>
+        q.eq("censusUploadId", args.censusUploadId)
+      )
+      .order("asc")
+      .collect();
+
+    return {
+      upload,
+      rows,
+    };
+  },
+});
+
 // Internal mutation for batch row insertion
 // Handles large census imports by processing rows in batches
 export const insertCensusRowsBatch = internalMutation({

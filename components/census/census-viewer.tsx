@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import {
   AlertCircle,
   CheckCircle2,
+  Download,
   Filter,
   Loader2,
   Mail,
@@ -147,6 +148,90 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
     censusUploadId,
   });
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [isExporting, setIsExporting] = useState(false);
+
+  // Export census data to CSV
+  const handleExportCSV = async () => {
+    if (!data?.upload) {
+      return;
+    }
+
+    try {
+      setIsExporting(true);
+
+      // Fetch all rows for export (not paginated)
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/query`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            path: "census:getAllCensusRows",
+            args: { censusUploadId },
+            format: "json",
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch census data");
+      }
+
+      const exportData = await response.json();
+      const { upload, rows } = exportData.value;
+
+      // Generate CSV content
+      const csvLines: string[] = [];
+
+      // Header row
+      const escapeCsvValue = (value: string) => {
+        if (
+          value.includes(",") ||
+          value.includes('"') ||
+          value.includes("\n")
+        ) {
+          return `"${value.replace(/"/g, '""')}"`;
+        }
+        return value;
+      };
+      csvLines.push(upload.columns.map(escapeCsvValue).join(","));
+
+      // Data rows
+      for (const row of rows) {
+        const rowData = row.data as Record<string, unknown>;
+        const rowValues = upload.columns.map((col) => {
+          const value = rowData[col];
+          if (value === null || value === undefined) {
+            return "";
+          }
+          return escapeCsvValue(String(value));
+        });
+        csvLines.push(rowValues.join(","));
+      }
+
+      // Create blob and download
+      const csvContent = csvLines.join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        upload.fileName.replace(/\.(csv|xlsx)$/i, "") + "-export.csv"
+      );
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to export census:", error);
+      alert("Failed to export census data. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Build issue maps for efficient lookup
   const { rowIssues, columnIssues, rowsWithIssues, validRows } = useMemo(() => {
@@ -279,6 +364,15 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
         <CardTitle className="flex items-center justify-between">
           <span>{upload.fileName}</span>
           <div className="flex items-center gap-2">
+            <Button
+              disabled={isExporting}
+              onClick={handleExportCSV}
+              size="sm"
+              variant="outline"
+            >
+              <Download className="mr-1 h-4 w-4" />
+              {isExporting ? "Exporting..." : "Export CSV"}
+            </Button>
             {hasValidation && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
