@@ -17,6 +17,7 @@ import { CensusValidationSummary } from "@/components/census/census-validation-s
 import { CensusViewer } from "@/components/census/census-viewer";
 import { CommentFeed } from "@/components/comments/comment-feed";
 import { FileCommentButton } from "@/components/comments/file-comment-button";
+import { FileUploadDialog } from "@/components/files/file-upload-dialog";
 import { CreateRequestDialog } from "@/components/info-requests/create-request-dialog";
 import { RequestsPanel } from "@/components/info-requests/requests-panel";
 import { QuoteStatusCard } from "@/components/quotes/quote-status-card";
@@ -195,6 +196,41 @@ export default function ClientDetailPage() {
       // Upload error silently handled
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleDialogUpload = async (
+    file: File,
+    category:
+      | "census"
+      | "plan_summary"
+      | "claims_history"
+      | "renewal_letter"
+      | "proposal"
+      | "contract"
+      | "other"
+  ) => {
+    const isCensus = category === "census" || (await isCensusFile(file));
+
+    const postUrl = await generateUploadUrl();
+    const result = await fetch(postUrl, {
+      method: "POST",
+      headers: { "Content-Type": file.type },
+      body: file,
+    });
+    const { storageId } = await result.json();
+
+    const fileId = await saveFile({
+      storageId,
+      clientId,
+      name: file.name,
+      type: isCensus ? "Census" : "Quote Data",
+      category,
+    });
+
+    if (isCensus) {
+      setPendingCensusFile(file);
+      setPendingCensusFileId(fileId);
     }
   };
 
@@ -429,8 +465,9 @@ export default function ClientDetailPage() {
 
         {/* File Management Section */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Project Files</CardTitle>
+            <FileUploadDialog onUpload={handleDialogUpload} />
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Magic Upload Dropzone */}

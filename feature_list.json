@@ -765,7 +765,7 @@
       "Verify file category is set",
       "Verify file appears in Plan Summary section"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -777,7 +777,7 @@
       "Verify category is correctly set",
       "Verify file appears in correct section"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
