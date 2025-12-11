@@ -228,7 +228,7 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
       // Data rows
       for (const row of rows) {
         const rowData = row.data as Record<string, unknown>;
-        const rowValues = upload.columns.map((col) => {
+        const rowValues = upload.columns.map((col: string) => {
           const value = rowData[col];
           if (value === null || value === undefined) {
             return "";
@@ -282,7 +282,7 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
       // Data rows
       for (const row of rows) {
         const rowData = row.data as Record<string, unknown>;
-        const rowValues = upload.columns.map((col) => {
+        const rowValues = upload.columns.map((col: string) => {
           const value = rowData[col];
           if (value === null || value === undefined) {
             return "";
@@ -297,7 +297,7 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
       const worksheet = XLSX.utils.aoa_to_sheet(excelData);
 
       // Set column widths (auto-fit)
-      const colWidths = upload.columns.map((col) => ({
+      const colWidths = upload.columns.map((col: string) => ({
         wch: Math.max(col.length, 12),
       }));
       worksheet["!cols"] = colWidths;
@@ -716,7 +716,7 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
                     <TableHead className="w-[40px]" title="Row Status" />
                   )}
                   <TableHead className="w-[50px]">#</TableHead>
-                  {upload.columns.map((col) => {
+                  {upload.columns.map((col: string) => {
                     const field = findFieldForColumn(col);
                     const isMissingColumn = field && columnIssues.has(field);
                     const isSelected = selectedColumn === col;
@@ -975,7 +975,7 @@ export function CensusViewer({ censusUploadId }: CensusViewerProps) {
                       <TableCell className="font-medium text-xs">
                         {row.rowIndex + 1}
                       </TableCell>
-                      {upload.columns.map((col) => {
+                      {upload.columns.map((col: string) => {
                         const rowData = row as Record<string, unknown>;
                         const cellData = (
                           rowData.data as Record<string, unknown>

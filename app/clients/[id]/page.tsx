@@ -273,7 +273,7 @@ export default function ClientDetailPage() {
       | "proposal"
       | "contract"
       | "other",
-    relevantTo?: string[],
+    relevantTo?: ("PEO" | "ACA")[],
     isRequired?: boolean,
     description?: string
   ) => {
@@ -324,20 +324,20 @@ export default function ClientDetailPage() {
     }
   };
 
-  const handleDelete = async (fileId: Id<"files">) => {
+  const handleDelete = async (fileId: string) => {
     try {
-      await deleteFile({ id: fileId });
+      await deleteFile({ id: fileId as Id<"files"> });
       toast.success("File deleted successfully");
     } catch {
       toast.error("Failed to delete file. Please try again.");
     }
   };
 
-  const handleVerifyFile = async (fileId: Id<"files">, verifiedBy: string) => {
+  const handleVerifyFile = async (fileId: string, verifiedBy: string) => {
     try {
-      await markFileAsVerified({ fileId, verifiedBy });
+      await markFileAsVerified({ fileId: fileId as Id<"files">, verifiedBy });
       toast.success("File marked as verified");
-    } catch (error) {
+    } catch {
       toast.error("Failed to verify file. Please try again.");
     }
   };
@@ -477,6 +477,7 @@ export default function ClientDetailPage() {
   };
 
   const handleCopyClientInfo = async () => {
+    if (!client) return;
     try {
       const clientInfo = `Client Name: ${client.name}
 Email: ${client.contactEmail || "N/A"}
@@ -1197,7 +1198,10 @@ Notes: ${client.notes || "N/A"}`;
                   onDrop={handleDrop}
                   role="region"
                 >
-                  <form className="space-y-4" onSubmit={handleUpload}>
+                  <form
+                    className="space-y-4"
+                    onSubmit={(e) => e.preventDefault()}
+                  >
                     <div className="space-y-2">
                       <div className="flex flex-col items-center gap-2">
                         <FileText className="h-8 w-8 text-muted-foreground" />

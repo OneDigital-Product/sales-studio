@@ -1,6 +1,6 @@
 "use client";
 
-import { Upload } from "lucide-react";
+import { Upload, XCircle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -44,7 +44,7 @@ interface FileUploadDialogProps {
   onUpload: (
     file: File,
     category: FileCategory,
-    relevantTo?: string[],
+    relevantTo?: ("PEO" | "ACA")[],
     isRequired?: boolean,
     description?: string
   ) => Promise<void>;
@@ -100,7 +100,7 @@ export function FileUploadDialog({ onUpload, trigger }: FileUploadDialogProps) {
     setUploading(true);
     setError(null); // Clear any previous errors
     try {
-      const relevantTo = [];
+      const relevantTo: ("PEO" | "ACA")[] = [];
       if (relevantToPEO) relevantTo.push("PEO");
       if (relevantToACA) relevantTo.push("ACA");
 

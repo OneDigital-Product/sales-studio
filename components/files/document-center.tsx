@@ -40,7 +40,7 @@ interface FileData {
   _id: string;
   name: string;
   uploadedAt: number;
-  url?: string;
+  url?: string | null;
   category?: FileCategory;
   relevantTo?: ("PEO" | "ACA")[];
   isVerified?: boolean;
@@ -48,13 +48,15 @@ interface FileData {
   uploadedBy?: string;
   fileSize?: number;
   mimeType?: string;
+  isRequired?: boolean;
+  description?: string;
 }
 
 interface DocumentCenterProps {
   files: FileData[];
   clientId: string;
-  onVerifyFile: (fileId: string, verifiedBy: string) => void;
-  onDeleteFile: (fileId: string) => void;
+  onVerifyFile: (fileId: string, verifiedBy: string) => Promise<void>;
+  onDeleteFile: (fileId: string) => Promise<void>;
 }
 
 // Category display names and order
@@ -288,8 +290,12 @@ export function DocumentCenter({
                             </Badge>
                           )}
                           <FileCommentButton
-                            clientId={clientId}
-                            fileId={file._id}
+                            clientId={
+                              clientId as unknown as import("@/convex/_generated/dataModel").Id<"clients">
+                            }
+                            fileId={
+                              file._id as unknown as import("@/convex/_generated/dataModel").Id<"files">
+                            }
                             fileName={file.name}
                           />
                           {file.url && (
