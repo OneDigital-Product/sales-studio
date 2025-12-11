@@ -20,7 +20,10 @@ import type { Id } from "@/convex/_generated/dataModel";
 
 const DATE_STRING_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const MILLISECONDS_PER_DAY = 86_400_000;
-const MAX_EXCEL_SERIAL = 1_000_000;
+// Excel date serial range for reasonable dates (1980-2099)
+// 29221 = Jan 1, 1980; 73050 = Dec 31, 2099
+const MIN_REASONABLE_EXCEL_DATE = 29_221;
+const MAX_REASONABLE_EXCEL_DATE = 73_050;
 
 type CensusImportProps = {
   clientId: Id<"clients">;
@@ -62,11 +65,12 @@ export function CensusImport({
   };
 
   // Check if a value is likely an Excel date serial number
+  // Excel dates are integers (days since 1900) optionally with decimal (time portion)
+  // We use a reasonable date range (1980-2099) to avoid false positives
   const isExcelDateSerial = (value: unknown): boolean =>
     typeof value === "number" &&
-    value > 1 &&
-    value < MAX_EXCEL_SERIAL &&
-    value % 1 !== 0;
+    value >= MIN_REASONABLE_EXCEL_DATE &&
+    value <= MAX_REASONABLE_EXCEL_DATE;
 
   // Check if a column header suggests it's a date column
   const isDateColumn = (header: string): boolean => {
@@ -108,13 +112,7 @@ export function CensusImport({
           headers.forEach((header, index) => {
             let value = row[index];
             // Convert Excel date serial numbers to date strings
-            if (
-              isDateColumn(header) &&
-              (isExcelDateSerial(value) ||
-                (typeof value === "number" &&
-                  value > 1 &&
-                  value < MAX_EXCEL_SERIAL))
-            ) {
+            if (isDateColumn(header) && isExcelDateSerial(value)) {
               value = excelSerialToDate(value as number);
             }
             rowData[header] = value;
