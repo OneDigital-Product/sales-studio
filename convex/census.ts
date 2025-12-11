@@ -1,7 +1,8 @@
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
+// Trigger regeneration - session 116
 
 export const saveCensus = mutation({
   args: {
@@ -11,8 +12,15 @@ export const saveCensus = mutation({
     columns: v.array(v.string()),
     rows: v.array(v.any()), // Array of row objects
   },
-  returns: v.id("census_uploads"),
+  returns: v.object({
+    censusUploadId: v.id("census_uploads"),
+    previousCensusId: v.union(v.id("census_uploads"), v.null()),
+  }),
   handler: async (ctx, args) => {
+    // Get the previous active census ID before replacement
+    const client = await ctx.db.get(args.clientId);
+    const previousCensusId = client?.activeCensusId ?? null;
+
     const censusUploadId = await ctx.db.insert("census_uploads", {
       clientId: args.clientId,
       fileId: args.fileId,
@@ -25,26 +33,45 @@ export const saveCensus = mutation({
     // Update the client's active census to this new upload
     await ctx.db.patch(args.clientId, { activeCensusId: censusUploadId });
 
-    // Insert rows in batches to avoid hitting size limits if necessary,
-    // though Convex handles large transactions relatively well, keeping it simple for now.
-    // For extremely large files, client-side batching or background jobs would be better.
-    // Here we assume a reasonable file size for an interactive upload.
-    await Promise.all(
-      args.rows.map((row, index) =>
-        ctx.db.insert("census_rows", {
+    // For large imports (>1000 rows), use background jobs to avoid timeouts
+    // For smaller imports, insert synchronously for immediate feedback
+    const BATCH_SIZE = 500;
+    const USE_BACKGROUND_JOBS_THRESHOLD = 1000;
+
+    if (args.rows.length > USE_BACKGROUND_JOBS_THRESHOLD) {
+      // Calculate total batches and store on the upload record
+      const totalBatches = Math.ceil(args.rows.length / BATCH_SIZE);
+      await ctx.db.patch(censusUploadId, { pendingBatches: totalBatches });
+
+      // Schedule batch insertions as background jobs for large imports
+      for (let i = 0; i < args.rows.length; i += BATCH_SIZE) {
+        const batch = args.rows.slice(i, i + BATCH_SIZE);
+        await ctx.scheduler.runAfter(0, internal.census.insertCensusRowsBatch, {
           censusUploadId,
-          data: row,
-          rowIndex: index,
-        })
-      )
-    );
+          rows: batch,
+          startIndex: i,
+        });
+      }
+      // Validation will be triggered by the last batch to complete
+    } else {
+      // For smaller imports, insert directly for immediate user feedback
+      await Promise.all(
+        args.rows.map((row, index) =>
+          ctx.db.insert("census_rows", {
+            censusUploadId,
+            data: row,
+            rowIndex: index,
+          })
+        )
+      );
 
-    // Schedule validation to run after save completes
-    await ctx.scheduler.runAfter(0, internal.censusValidation.runValidation, {
-      censusUploadId,
-    });
+      // For synchronous imports, run validation immediately
+      await ctx.scheduler.runAfter(0, internal.censusValidation.runValidation, {
+        censusUploadId,
+      });
+    }
 
-    return censusUploadId;
+    return { censusUploadId, previousCensusId };
   },
 });
 
@@ -167,5 +194,157 @@ export const getLatestCensus = query({
       .first();
 
     return upload;
+  },
+});
+
+// Get all census rows for export (no pagination)
+export const getAllCensusRows = query({
+  args: {
+    censusUploadId: v.id("census_uploads"),
+  },
+  returns: v.object({
+    upload: v.object({
+      _id: v.id("census_uploads"),
+      _creationTime: v.number(),
+      clientId: v.id("clients"),
+      fileId: v.optional(v.id("files")),
+      fileName: v.string(),
+      uploadedAt: v.number(),
+      columns: v.array(v.string()),
+      rowCount: v.number(),
+    }),
+    rows: v.array(
+      v.object({
+        _id: v.id("census_rows"),
+        _creationTime: v.number(),
+        censusUploadId: v.id("census_uploads"),
+        data: v.any(),
+        rowIndex: v.number(),
+      })
+    ),
+  }),
+  handler: async (ctx, args) => {
+    const upload = await ctx.db.get(args.censusUploadId);
+    if (!upload) {
+      throw new Error("Census upload not found");
+    }
+
+    const rows = await ctx.db
+      .query("census_rows")
+      .withIndex("by_censusUploadId", (q) =>
+        q.eq("censusUploadId", args.censusUploadId)
+      )
+      .order("asc")
+      .collect();
+
+    return {
+      upload,
+      rows,
+    };
+  },
+});
+
+// Internal mutation for batch row insertion
+// Handles large census imports by processing rows in batches
+// When all batches complete, triggers validation automatically
+export const insertCensusRowsBatch = internalMutation({
+  args: {
+    censusUploadId: v.id("census_uploads"),
+    rows: v.array(v.any()),
+    startIndex: v.number(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    // Insert all rows in this batch
+    await Promise.all(
+      args.rows.map((row, batchIndex) =>
+        ctx.db.insert("census_rows", {
+          censusUploadId: args.censusUploadId,
+          data: row,
+          rowIndex: args.startIndex + batchIndex,
+        })
+      )
+    );
+
+    // Decrement pending batch counter
+    const upload = await ctx.db.get(args.censusUploadId);
+    if (!upload) {
+      return;
+    }
+
+    const newPendingCount = (upload.pendingBatches ?? 1) - 1;
+    await ctx.db.patch(args.censusUploadId, {
+      pendingBatches: newPendingCount,
+    });
+
+    // If this was the last batch, trigger validation
+    if (newPendingCount === 0) {
+      await ctx.scheduler.runAfter(0, internal.censusValidation.runValidation, {
+        censusUploadId: args.censusUploadId,
+      });
+    }
+  },
+});
+
+// Clone census data from one client to another
+export const cloneCensus = mutation({
+  args: {
+    censusUploadId: v.id("census_uploads"),
+    targetClientId: v.id("clients"),
+  },
+  returns: v.object({
+    newCensusId: v.id("census_uploads"),
+  }),
+  handler: async (ctx, args) => {
+    // Get the source census upload
+    const sourceCensus = await ctx.db.get(args.censusUploadId);
+    if (!sourceCensus) {
+      throw new Error("Source census not found");
+    }
+
+    // Verify target client exists
+    const targetClient = await ctx.db.get(args.targetClientId);
+    if (!targetClient) {
+      throw new Error("Target client not found");
+    }
+
+    // Create new census upload for target client
+    const newCensusId = await ctx.db.insert("census_uploads", {
+      clientId: args.targetClientId,
+      fileName: `${sourceCensus.fileName} (cloned)`,
+      uploadedAt: Date.now(),
+      columns: sourceCensus.columns,
+      rowCount: sourceCensus.rowCount,
+    });
+
+    // Get all rows from source census
+    const sourceRows = await ctx.db
+      .query("census_rows")
+      .withIndex("by_censusUploadId", (q) =>
+        q.eq("censusUploadId", args.censusUploadId)
+      )
+      .order("asc")
+      .collect();
+
+    // Clone all rows to new census
+    await Promise.all(
+      sourceRows.map((row) =>
+        ctx.db.insert("census_rows", {
+          censusUploadId: newCensusId,
+          data: row.data,
+          rowIndex: row.rowIndex,
+        })
+      )
+    );
+
+    // Set as active census for target client
+    await ctx.db.patch(args.targetClientId, { activeCensusId: newCensusId });
+
+    // Trigger validation for the cloned census
+    await ctx.scheduler.runAfter(0, internal.censusValidation.runValidation, {
+      censusUploadId: newCensusId,
+    });
+
+    return { newCensusId };
   },
 });

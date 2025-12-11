@@ -1,0 +1,5 @@
+Employee Name,Date of Birth,Zip Code,Salary,Coverage Tier
+John Smith,13/45/2020,12345,50000,EE
+Jane Doe,invalid-date,67890,60000,ES
+Bob Johnson,99-99-9999,54321,55000,EC
+Alice Williams,not-a-date,11111,70000,FAM

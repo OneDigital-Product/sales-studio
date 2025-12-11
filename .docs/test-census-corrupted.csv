@@ -1,0 +1,5 @@
+Name,DOB,Salary,Zip
+"John Doe",1985-01-15,50000,12345
+"Jane Smith","1990-03-22,60000,67890
+Corrupted line with unmatched quotes and missing delimiter
+"Bob Jones" 1988-07-10 55000 "11111

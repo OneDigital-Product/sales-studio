@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/toast";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
@@ -63,6 +64,7 @@ export function QuoteStatusUpdate({
   blockedReason,
 }: QuoteStatusUpdateProps) {
   const updateQuoteStatus = useMutation(api.quotes.updateQuoteStatus);
+  const toast = useToast();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<QuoteStatus | null>(
@@ -112,9 +114,20 @@ export function QuoteStatusUpdate({
         setNotes("");
         setBlocked(false);
         setBlockReason("");
+
+        if (blocked) {
+          toast.success(`${type} quote marked as blocked`);
+        } else if (isBlocked && !blocked) {
+          toast.success(`${type} quote unblocked successfully`);
+        } else {
+          const newStatusLabel = STATUS_OPTIONS.find(
+            (s) => s.value === statusToSet
+          )?.label;
+          toast.success(`${type} quote status updated to ${newStatusLabel}`);
+        }
       },
       () => {
-        // Error handled silently
+        toast.error("Failed to update quote status. Please try again.");
       }
     );
 
@@ -125,6 +138,45 @@ export function QuoteStatusUpdate({
     STATUS_OPTIONS.find((s) => s.value === currentStatus)?.label ??
     "Not Started";
 
+  // If no quote exists yet, show simple create button
+  if (!currentStatus) {
+    return (
+      <>
+        <Button
+          className="w-full"
+          disabled={isSubmitting}
+          onClick={async () => {
+            setIsSubmitting(true);
+            const result = await ResultAsync.fromPromise(
+              updateQuoteStatus({
+                clientId,
+                type,
+                status: "not_started",
+                isBlocked: false,
+              }),
+              (error) => error
+            );
+            result.match(
+              () => {
+                toast.success(`${type} quote created successfully`);
+              },
+              () => {
+                toast.error(
+                  `Failed to create ${type} quote. Please try again.`
+                );
+              }
+            );
+            setIsSubmitting(false);
+          }}
+          size="sm"
+          variant="default"
+        >
+          {isSubmitting ? "Creating..." : `Create ${type} Quote`}
+        </Button>
+      </>
+    );
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -134,7 +186,7 @@ export function QuoteStatusUpdate({
             size="sm"
             variant="outline"
           >
-            {currentStatus ? "Update Status" : "Start Quote"}
+            Update Status
             <ChevronDown className="ml-2 h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -151,12 +203,35 @@ export function QuoteStatusUpdate({
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="text-red-600 focus:text-red-600"
-            onClick={handleSetBlocked}
-          >
-            {isBlocked ? "Update Block Reason" : "Mark as Blocked"}
-          </DropdownMenuItem>
+          {isBlocked ? (
+            <>
+              <DropdownMenuItem
+                className="text-green-600 focus:text-green-600"
+                onClick={() => {
+                  setSelectedStatus(currentStatus);
+                  setBlocked(false);
+                  setBlockReason("");
+                  setNotes("");
+                  setIsDialogOpen(true);
+                }}
+              >
+                Unblock Quote
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-red-600 focus:text-red-600"
+                onClick={handleSetBlocked}
+              >
+                Update Block Reason
+              </DropdownMenuItem>
+            </>
+          ) : (
+            <DropdownMenuItem
+              className="text-red-600 focus:text-red-600"
+              onClick={handleSetBlocked}
+            >
+              Mark as Blocked
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -166,12 +241,16 @@ export function QuoteStatusUpdate({
             <DialogTitle>
               {blocked
                 ? "Mark Quote as Blocked"
-                : `Update ${type} Quote Status`}
+                : isBlocked && !blocked
+                  ? "Unblock Quote"
+                  : `Update ${type} Quote Status`}
             </DialogTitle>
             <DialogDescription>
               {blocked
                 ? "Provide a reason why this quote is blocked."
-                : `Change status from "${currentLabel}" to "${STATUS_OPTIONS.find((s) => s.value === selectedStatus)?.label ?? ""}".`}
+                : isBlocked && !blocked
+                  ? "Remove the blocked status from this quote."
+                  : `Change status from "${currentLabel}" to "${STATUS_OPTIONS.find((s) => s.value === selectedStatus)?.label ?? ""}".`}
             </DialogDescription>
           </DialogHeader>
 

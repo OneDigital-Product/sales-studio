@@ -1,0 +1,434 @@
+import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
+
+export const createInfoRequest = mutation({
+  args: {
+    clientId: v.id("clients"),
+    quoteType: v.optional(
+      v.union(v.literal("PEO"), v.literal("ACA"), v.literal("both"))
+    ),
+    items: v.array(
+      v.object({
+        description: v.string(),
+        category: v.optional(v.string()),
+      })
+    ),
+    requestedBy: v.optional(v.string()),
+    notes: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const requestId = await ctx.db.insert("info_requests", {
+      clientId: args.clientId,
+      quoteType: args.quoteType,
+      status: "pending",
+      requestedAt: Date.now(),
+      requestedBy: args.requestedBy,
+      items: args.items.map((item) => ({
+        description: item.description,
+        category: item.category,
+        received: false,
+      })),
+      notes: args.notes,
+    });
+
+    // Auto-block relevant quote(s) based on quoteType
+    const quotesToBlock: Array<"PEO" | "ACA"> = [];
+    if (args.quoteType === "PEO") {
+      quotesToBlock.push("PEO");
+    } else if (args.quoteType === "ACA") {
+      quotesToBlock.push("ACA");
+    } else if (args.quoteType === "both") {
+      quotesToBlock.push("PEO", "ACA");
+    } else {
+      // If no quoteType specified, block both
+      quotesToBlock.push("PEO", "ACA");
+    }
+
+    for (const quoteType of quotesToBlock) {
+      const quote = await ctx.db
+        .query("quotes")
+        .withIndex("by_clientId_and_type", (q) =>
+          q.eq("clientId", args.clientId).eq("type", quoteType)
+        )
+        .unique();
+
+      if (quote) {
+        await ctx.db.patch(quote._id, {
+          isBlocked: true,
+          blockedReason: `Waiting for client to provide requested information (Request ID: ${requestId})`,
+        });
+      }
+    }
+
+    return requestId;
+  },
+  returns: v.id("info_requests"),
+});
+
+export const getInfoRequests = query({
+  args: {
+    clientId: v.id("clients"),
+  },
+  handler: async (ctx, args) => {
+    const requests = await ctx.db
+      .query("info_requests")
+      .withIndex("by_clientId", (q) => q.eq("clientId", args.clientId))
+      .order("desc")
+      .collect();
+    return requests;
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id("info_requests"),
+      _creationTime: v.number(),
+      clientId: v.id("clients"),
+      quoteType: v.optional(
+        v.union(v.literal("PEO"), v.literal("ACA"), v.literal("both"))
+      ),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("received"),
+        v.literal("cancelled")
+      ),
+      requestedAt: v.number(),
+      requestedBy: v.optional(v.string()),
+      resolvedAt: v.optional(v.number()),
+      items: v.array(
+        v.object({
+          description: v.string(),
+          category: v.optional(v.string()),
+          received: v.boolean(),
+          receivedAt: v.optional(v.number()),
+        })
+      ),
+      notes: v.optional(v.string()),
+      reminderSentAt: v.optional(v.number()),
+    })
+  ),
+});
+
+export const getPendingInfoRequests = query({
+  args: {
+    clientId: v.id("clients"),
+  },
+  handler: async (ctx, args) => {
+    const requests = await ctx.db
+      .query("info_requests")
+      .withIndex("by_clientId_and_status", (q) =>
+        q.eq("clientId", args.clientId).eq("status", "pending")
+      )
+      .order("desc")
+      .collect();
+    return requests;
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id("info_requests"),
+      _creationTime: v.number(),
+      clientId: v.id("clients"),
+      quoteType: v.optional(
+        v.union(v.literal("PEO"), v.literal("ACA"), v.literal("both"))
+      ),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("received"),
+        v.literal("cancelled")
+      ),
+      requestedAt: v.number(),
+      requestedBy: v.optional(v.string()),
+      resolvedAt: v.optional(v.number()),
+      items: v.array(
+        v.object({
+          description: v.string(),
+          category: v.optional(v.string()),
+          received: v.boolean(),
+          receivedAt: v.optional(v.number()),
+        })
+      ),
+      notes: v.optional(v.string()),
+      reminderSentAt: v.optional(v.number()),
+    })
+  ),
+});
+
+export const markItemReceived = mutation({
+  args: {
+    requestId: v.id("info_requests"),
+    itemIndex: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const request = await ctx.db.get(args.requestId);
+    if (!request) {
+      throw new Error("Request not found");
+    }
+
+    const updatedItems = request.items.map((item, index) => {
+      if (index === args.itemIndex) {
+        return {
+          ...item,
+          received: true,
+          receivedAt: Date.now(),
+        };
+      }
+      return item;
+    });
+
+    // Check if all items are received
+    const allReceived = updatedItems.every((item) => item.received);
+
+    await ctx.db.patch(args.requestId, {
+      items: updatedItems,
+      status: allReceived ? "received" : request.status,
+      resolvedAt: allReceived ? Date.now() : request.resolvedAt,
+    });
+
+    // Auto-unblock quote(s) if all items received
+    if (allReceived) {
+      const quotesToUnblock: Array<"PEO" | "ACA"> = [];
+      if (request.quoteType === "PEO") {
+        quotesToUnblock.push("PEO");
+      } else if (request.quoteType === "ACA") {
+        quotesToUnblock.push("ACA");
+      } else if (request.quoteType === "both") {
+        quotesToUnblock.push("PEO", "ACA");
+      } else {
+        // If no quoteType specified, unblock both
+        quotesToUnblock.push("PEO", "ACA");
+      }
+
+      for (const quoteType of quotesToUnblock) {
+        const quote = await ctx.db
+          .query("quotes")
+          .withIndex("by_clientId_and_type", (q) =>
+            q.eq("clientId", request.clientId).eq("type", quoteType)
+          )
+          .unique();
+
+        if (quote && quote.isBlocked) {
+          await ctx.db.patch(quote._id, {
+            isBlocked: false,
+            blockedReason: undefined,
+          });
+        }
+      }
+    }
+
+    return null;
+  },
+  returns: v.null(),
+});
+
+export const markItemNotReceived = mutation({
+  args: {
+    requestId: v.id("info_requests"),
+    itemIndex: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const request = await ctx.db.get(args.requestId);
+    if (!request) {
+      throw new Error("Request not found");
+    }
+
+    const updatedItems = request.items.map((item, index) => {
+      if (index === args.itemIndex) {
+        return {
+          ...item,
+          received: false,
+          receivedAt: undefined,
+        };
+      }
+      return item;
+    });
+
+    await ctx.db.patch(args.requestId, {
+      items: updatedItems,
+      status: "pending",
+      resolvedAt: undefined,
+    });
+
+    // Re-block quote(s) since request is now pending again
+    const quotesToBlock: Array<"PEO" | "ACA"> = [];
+    if (request.quoteType === "PEO") {
+      quotesToBlock.push("PEO");
+    } else if (request.quoteType === "ACA") {
+      quotesToBlock.push("ACA");
+    } else if (request.quoteType === "both") {
+      quotesToBlock.push("PEO", "ACA");
+    } else {
+      // If no quoteType specified, block both
+      quotesToBlock.push("PEO", "ACA");
+    }
+
+    for (const quoteType of quotesToBlock) {
+      const quote = await ctx.db
+        .query("quotes")
+        .withIndex("by_clientId_and_type", (q) =>
+          q.eq("clientId", request.clientId).eq("type", quoteType)
+        )
+        .unique();
+
+      if (quote) {
+        await ctx.db.patch(quote._id, {
+          isBlocked: true,
+          blockedReason: `Waiting for client to provide requested information (Request ID: ${args.requestId})`,
+        });
+      }
+    }
+
+    return null;
+  },
+  returns: v.null(),
+});
+
+export const cancelInfoRequest = mutation({
+  args: {
+    requestId: v.id("info_requests"),
+  },
+  handler: async (ctx, args) => {
+    const request = await ctx.db.get(args.requestId);
+    if (!request) {
+      throw new Error("Request not found");
+    }
+
+    await ctx.db.patch(args.requestId, {
+      status: "cancelled",
+      resolvedAt: Date.now(),
+    });
+
+    // Unblock quote(s) since request is cancelled
+    const quotesToUnblock: Array<"PEO" | "ACA"> = [];
+    if (request.quoteType === "PEO") {
+      quotesToUnblock.push("PEO");
+    } else if (request.quoteType === "ACA") {
+      quotesToUnblock.push("ACA");
+    } else if (request.quoteType === "both") {
+      quotesToUnblock.push("PEO", "ACA");
+    } else {
+      // If no quoteType specified, unblock both
+      quotesToUnblock.push("PEO", "ACA");
+    }
+
+    for (const quoteType of quotesToUnblock) {
+      const quote = await ctx.db
+        .query("quotes")
+        .withIndex("by_clientId_and_type", (q) =>
+          q.eq("clientId", request.clientId).eq("type", quoteType)
+        )
+        .unique();
+
+      if (quote && quote.isBlocked) {
+        await ctx.db.patch(quote._id, {
+          isBlocked: false,
+          blockedReason: undefined,
+        });
+      }
+    }
+
+    return null;
+  },
+  returns: v.null(),
+});
+
+// Helper mutation for testing: add items to an existing request
+export const addItemsToRequest = mutation({
+  args: {
+    requestId: v.id("info_requests"),
+    newItems: v.array(
+      v.object({
+        description: v.string(),
+        category: v.optional(v.string()),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const request = await ctx.db.get(args.requestId);
+    if (!request) {
+      throw new Error("Request not found");
+    }
+
+    const itemsToAdd = args.newItems.map((item) => ({
+      description: item.description,
+      category: item.category,
+      received: false,
+    }));
+
+    await ctx.db.patch(args.requestId, {
+      items: [...request.items, ...itemsToAdd],
+    });
+
+    return null;
+  },
+  returns: v.null(),
+});
+
+export const sendReminder = mutation({
+  args: {
+    requestId: v.id("info_requests"),
+  },
+  handler: async (ctx, args) => {
+    const request = await ctx.db.get(args.requestId);
+    if (!request) {
+      throw new Error("Request not found");
+    }
+
+    await ctx.db.patch(args.requestId, {
+      reminderSentAt: Date.now(),
+    });
+
+    return null;
+  },
+  returns: v.null(),
+});
+
+export const getAllPendingRequests = query({
+  args: {},
+  handler: async (ctx) => {
+    const requests = await ctx.db
+      .query("info_requests")
+      .withIndex("by_status", (q) => q.eq("status", "pending"))
+      .order("asc") // Oldest first (sorted by age)
+      .collect();
+
+    // Fetch client information for each request
+    const requestsWithClients = await Promise.all(
+      requests.map(async (request) => {
+        const client = await ctx.db.get(request.clientId);
+        return {
+          ...request,
+          clientName: client?.name ?? "Unknown Client",
+        };
+      })
+    );
+
+    return requestsWithClients;
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id("info_requests"),
+      _creationTime: v.number(),
+      clientId: v.id("clients"),
+      clientName: v.string(),
+      quoteType: v.optional(
+        v.union(v.literal("PEO"), v.literal("ACA"), v.literal("both"))
+      ),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("received"),
+        v.literal("cancelled")
+      ),
+      requestedAt: v.number(),
+      requestedBy: v.optional(v.string()),
+      resolvedAt: v.optional(v.number()),
+      items: v.array(
+        v.object({
+          description: v.string(),
+          category: v.optional(v.string()),
+          received: v.boolean(),
+          receivedAt: v.optional(v.number()),
+        })
+      ),
+      notes: v.optional(v.string()),
+      reminderSentAt: v.optional(v.number()),
+    })
+  ),
+});

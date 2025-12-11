@@ -13,6 +13,25 @@ export const saveFile = mutation({
     clientId: v.id("clients"),
     name: v.string(),
     type: v.string(),
+    category: v.optional(
+      v.union(
+        v.literal("census"),
+        v.literal("plan_summary"),
+        v.literal("claims_history"),
+        v.literal("renewal_letter"),
+        v.literal("proposal"),
+        v.literal("contract"),
+        v.literal("other")
+      )
+    ),
+    relevantTo: v.optional(
+      v.array(v.union(v.literal("PEO"), v.literal("ACA")))
+    ),
+    description: v.optional(v.string()),
+    uploadedBy: v.optional(v.string()),
+    isRequired: v.optional(v.boolean()),
+    mimeType: v.optional(v.string()),
+    fileSize: v.optional(v.number()),
   },
   returns: v.id("files"),
   handler: async (ctx, args) => {
@@ -22,7 +41,20 @@ export const saveFile = mutation({
       name: args.name,
       type: args.type,
       uploadedAt: Date.now(),
+      category: args.category,
+      relevantTo: args.relevantTo,
+      description: args.description,
+      uploadedBy: args.uploadedBy,
+      isRequired: args.isRequired,
+      mimeType: args.mimeType,
+      fileSize: args.fileSize,
     });
+
+    // Update client's lastModified timestamp
+    await ctx.db.patch(args.clientId, {
+      lastModified: Date.now(),
+    });
+
     return fileId;
   },
 });
@@ -39,6 +71,28 @@ export const getFiles = query({
       type: v.string(),
       uploadedAt: v.number(),
       url: v.union(v.string(), v.null()),
+      category: v.optional(
+        v.union(
+          v.literal("census"),
+          v.literal("plan_summary"),
+          v.literal("claims_history"),
+          v.literal("renewal_letter"),
+          v.literal("proposal"),
+          v.literal("contract"),
+          v.literal("other")
+        )
+      ),
+      relevantTo: v.optional(
+        v.array(v.union(v.literal("PEO"), v.literal("ACA")))
+      ),
+      description: v.optional(v.string()),
+      uploadedBy: v.optional(v.string()),
+      isVerified: v.optional(v.boolean()),
+      verifiedBy: v.optional(v.string()),
+      verifiedAt: v.optional(v.number()),
+      isRequired: v.optional(v.boolean()),
+      mimeType: v.optional(v.string()),
+      fileSize: v.optional(v.number()),
     })
   ),
   handler: async (ctx, args) => {
@@ -115,5 +169,20 @@ export const deleteFile = mutation({
     // Delete the file storage and record
     await ctx.storage.delete(file.storageId);
     await ctx.db.delete(args.id);
+  },
+});
+
+export const markFileAsVerified = mutation({
+  args: {
+    fileId: v.id("files"),
+    verifiedBy: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.fileId, {
+      isVerified: true,
+      verifiedBy: args.verifiedBy,
+      verifiedAt: Date.now(),
+    });
   },
 });

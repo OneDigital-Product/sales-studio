@@ -7,14 +7,42 @@ export default defineSchema({
     contactEmail: v.optional(v.string()),
     notes: v.optional(v.string()),
     activeCensusId: v.optional(v.id("census_uploads")),
+    lastModified: v.optional(v.number()),
+    isArchived: v.optional(v.boolean()),
+    archivedAt: v.optional(v.number()),
   }),
   files: defineTable({
     storageId: v.string(),
     clientId: v.id("clients"),
     name: v.string(),
-    type: v.string(), // "PEO", "ACA", "Other"
+    type: v.string(), // "PEO", "ACA", "Other" - keeping for backwards compatibility
     uploadedAt: v.number(),
-  }).index("by_clientId", ["clientId"]),
+    // Enhanced fields for file categorization
+    category: v.optional(
+      v.union(
+        v.literal("census"),
+        v.literal("plan_summary"),
+        v.literal("claims_history"),
+        v.literal("renewal_letter"),
+        v.literal("proposal"),
+        v.literal("contract"),
+        v.literal("other")
+      )
+    ),
+    relevantTo: v.optional(
+      v.array(v.union(v.literal("PEO"), v.literal("ACA")))
+    ),
+    isRequired: v.optional(v.boolean()),
+    isVerified: v.optional(v.boolean()),
+    verifiedBy: v.optional(v.string()),
+    verifiedAt: v.optional(v.number()),
+    uploadedBy: v.optional(v.string()),
+    description: v.optional(v.string()),
+    mimeType: v.optional(v.string()),
+    fileSize: v.optional(v.number()),
+  })
+    .index("by_clientId", ["clientId"])
+    .index("by_clientId_and_category", ["clientId", "category"]),
   census_uploads: defineTable({
     clientId: v.id("clients"),
     fileId: v.optional(v.id("files")),
@@ -22,6 +50,8 @@ export default defineSchema({
     uploadedAt: v.number(),
     columns: v.array(v.string()),
     rowCount: v.number(),
+    // Track pending batch insertions for large imports
+    pendingBatches: v.optional(v.number()),
   })
     .index("by_clientId", ["clientId"])
     .index("by_fileId", ["fileId"]),
@@ -86,4 +116,54 @@ export default defineSchema({
       })
     ),
   }).index("by_censusUploadId", ["censusUploadId"]),
+  comments: defineTable({
+    clientId: v.id("clients"),
+    targetType: v.union(
+      v.literal("client"),
+      v.literal("file"),
+      v.literal("census")
+    ),
+    targetId: v.optional(v.string()),
+    content: v.string(),
+    authorName: v.string(),
+    authorTeam: v.union(v.literal("PEO"), v.literal("ACA"), v.literal("Sales")),
+    createdAt: v.number(),
+    isResolved: v.optional(v.boolean()),
+    resolvedAt: v.optional(v.number()),
+    resolvedBy: v.optional(v.string()),
+  })
+    .index("by_clientId", ["clientId"])
+    .index("by_targetType_and_targetId", ["targetType", "targetId"])
+    .index("by_clientId_and_createdAt", ["clientId", "createdAt"]),
+  info_requests: defineTable({
+    clientId: v.id("clients"),
+    quoteType: v.optional(
+      v.union(v.literal("PEO"), v.literal("ACA"), v.literal("both"))
+    ),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("received"),
+      v.literal("cancelled")
+    ),
+    requestedAt: v.number(),
+    requestedBy: v.optional(v.string()),
+    resolvedAt: v.optional(v.number()),
+    items: v.array(
+      v.object({
+        description: v.string(),
+        category: v.optional(v.string()),
+        received: v.boolean(),
+        receivedAt: v.optional(v.number()),
+      })
+    ),
+    notes: v.optional(v.string()),
+    reminderSentAt: v.optional(v.number()),
+  })
+    .index("by_clientId", ["clientId"])
+    .index("by_status", ["status"])
+    .index("by_clientId_and_status", ["clientId", "status"]),
+  bookmarks: defineTable({
+    clientId: v.id("clients"),
+    bookmarkedAt: v.number(),
+  }).index("by_clientId", ["clientId"]),
 });

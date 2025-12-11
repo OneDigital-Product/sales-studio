@@ -120,6 +120,58 @@ export const getQuoteHistory = query({
       .collect(),
 });
 
+export const updateQuoteAssignment = mutation({
+  args: {
+    quoteId: v.id("quotes"),
+    assignedTo: v.optional(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.quoteId, {
+      assignedTo: args.assignedTo,
+    });
+  },
+});
+
+export const batchUpdateQuoteStatus = mutation({
+  args: {
+    quoteIds: v.array(v.id("quotes")),
+    status: quoteStatusValidator,
+    notes: v.optional(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    const isTerminalStatus =
+      args.status === "accepted" || args.status === "declined";
+
+    for (const quoteId of args.quoteIds) {
+      const existing = await ctx.db.get(quoteId);
+      if (!existing) continue;
+
+      // Record history if status changed
+      if (existing.status !== args.status) {
+        await ctx.db.insert("quote_history", {
+          quoteId: existing._id,
+          previousStatus: existing.status,
+          newStatus: args.status,
+          changedAt: now,
+          notes: args.notes,
+        });
+      }
+
+      await ctx.db.patch(quoteId, {
+        status: args.status,
+        notes: args.notes,
+        startedAt:
+          existing.startedAt ??
+          (args.status !== "not_started" ? now : undefined),
+        completedAt: isTerminalStatus ? now : undefined,
+      });
+    }
+  },
+});
+
 export const getQuotesDashboard = query({
   args: {},
   returns: v.array(
@@ -134,7 +186,9 @@ export const getQuotesDashboard = query({
           _id: v.id("quotes"),
           status: quoteStatusValidator,
           isBlocked: v.optional(v.boolean()),
+          blockedReason: v.optional(v.string()),
           startedAt: v.optional(v.number()),
+          completedAt: v.optional(v.number()),
         }),
         v.null()
       ),
@@ -143,7 +197,9 @@ export const getQuotesDashboard = query({
           _id: v.id("quotes"),
           status: quoteStatusValidator,
           isBlocked: v.optional(v.boolean()),
+          blockedReason: v.optional(v.string()),
           startedAt: v.optional(v.number()),
+          completedAt: v.optional(v.number()),
         }),
         v.null()
       ),
@@ -199,7 +255,9 @@ export const getQuotesDashboard = query({
               _id: peoQuote._id,
               status: peoQuote.status,
               isBlocked: peoQuote.isBlocked,
+              blockedReason: peoQuote.blockedReason,
               startedAt: peoQuote.startedAt,
+              completedAt: peoQuote.completedAt,
             }
           : null,
         acaQuote: acaQuote
@@ -207,11 +265,126 @@ export const getQuotesDashboard = query({
               _id: acaQuote._id,
               status: acaQuote.status,
               isBlocked: acaQuote.isBlocked,
+              blockedReason: acaQuote.blockedReason,
               startedAt: acaQuote.startedAt,
+              completedAt: acaQuote.completedAt,
             }
           : null,
         daysOpen,
       };
     });
+  },
+});
+
+export const generateQuoteReport = query({
+  args: {
+    startDate: v.optional(v.number()),
+    endDate: v.optional(v.number()),
+  },
+  returns: v.object({
+    quotes: v.array(
+      v.object({
+        _id: v.id("quotes"),
+        clientName: v.string(),
+        type: quoteTypeValidator,
+        status: quoteStatusValidator,
+        isBlocked: v.optional(v.boolean()),
+        blockedReason: v.optional(v.string()),
+        startedAt: v.optional(v.number()),
+        completedAt: v.optional(v.number()),
+        daysToComplete: v.optional(v.number()),
+      })
+    ),
+    summary: v.object({
+      totalQuotes: v.number(),
+      peoQuotes: v.number(),
+      acaQuotes: v.number(),
+      acceptedQuotes: v.number(),
+      declinedQuotes: v.number(),
+      activeQuotes: v.number(),
+      blockedQuotes: v.number(),
+      avgDaysToComplete: v.optional(v.number()),
+    }),
+  }),
+  handler: async (ctx, args) => {
+    const clients = await ctx.db.query("clients").collect();
+    const allQuotes = await ctx.db.query("quotes").collect();
+
+    // Filter quotes by date range if provided
+    let filteredQuotes = allQuotes;
+    if (args.startDate || args.endDate) {
+      filteredQuotes = allQuotes.filter((quote) => {
+        const quoteDate = quote.startedAt ?? quote._creationTime;
+        if (args.startDate && quoteDate < args.startDate) return false;
+        if (args.endDate && quoteDate > args.endDate) return false;
+        return true;
+      });
+    }
+
+    // Build client lookup map
+    const clientMap = new Map(clients.map((c) => [c._id, c]));
+
+    // Transform quotes with client names
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const quotesWithDetails = filteredQuotes.map((quote) => {
+      const client = clientMap.get(quote.clientId);
+      const daysToComplete =
+        quote.completedAt && quote.startedAt
+          ? Math.floor((quote.completedAt - quote.startedAt) / msPerDay)
+          : undefined;
+
+      return {
+        _id: quote._id,
+        clientName: client?.name ?? "Unknown",
+        type: quote.type,
+        status: quote.status,
+        isBlocked: quote.isBlocked,
+        blockedReason: quote.blockedReason,
+        startedAt: quote.startedAt,
+        completedAt: quote.completedAt,
+        daysToComplete,
+      };
+    });
+
+    // Calculate summary statistics
+    const totalQuotes = filteredQuotes.length;
+    const peoQuotes = filteredQuotes.filter((q) => q.type === "PEO").length;
+    const acaQuotes = filteredQuotes.filter((q) => q.type === "ACA").length;
+    const acceptedQuotes = filteredQuotes.filter(
+      (q) => q.status === "accepted"
+    ).length;
+    const declinedQuotes = filteredQuotes.filter(
+      (q) => q.status === "declined"
+    ).length;
+    const activeQuotes = filteredQuotes.filter(
+      (q) => q.status !== "accepted" && q.status !== "declined"
+    ).length;
+    const blockedQuotes = filteredQuotes.filter((q) => q.isBlocked).length;
+
+    // Calculate average days to complete for completed quotes
+    const completedQuotesWithTime = quotesWithDetails.filter(
+      (q) => q.daysToComplete !== undefined
+    );
+    const avgDaysToComplete =
+      completedQuotesWithTime.length > 0
+        ? completedQuotesWithTime.reduce(
+            (sum, q) => sum + (q.daysToComplete ?? 0),
+            0
+          ) / completedQuotesWithTime.length
+        : undefined;
+
+    return {
+      quotes: quotesWithDetails,
+      summary: {
+        totalQuotes,
+        peoQuotes,
+        acaQuotes,
+        acceptedQuotes,
+        declinedQuotes,
+        activeQuotes,
+        blockedQuotes,
+        avgDaysToComplete,
+      },
+    };
   },
 });

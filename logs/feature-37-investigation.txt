@@ -1,0 +1,20 @@
+Feature #37: Filter census view by validation status
+
+INVESTIGATION:
+- Code exists in census-viewer.tsx (lines 283-303)
+- Filter button renders with correct text "All Rows"
+- Button has aria-expanded="false"
+- Dropdown content does not appear in DOM when clicked
+- No menu items found with role="menuitem"
+- No Radix UI popper content found
+
+POSSIBLE ISSUES:
+1. Dropdown component not rendering (React issue)
+2. Event handler not attached (hydration issue)
+3. CSS z-index or visibility issue
+4. Portal rendering outside viewport
+
+NEXT STEPS:
+- Try navigating to a different client with census data
+- Check if issue is specific to this test client
+- Examine dropdown component imports
