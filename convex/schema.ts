@@ -50,6 +50,8 @@ export default defineSchema({
     uploadedAt: v.number(),
     columns: v.array(v.string()),
     rowCount: v.number(),
+    // Track pending batch insertions for large imports
+    pendingBatches: v.optional(v.number()),
   })
     .index("by_clientId", ["clientId"])
     .index("by_fileId", ["fileId"]),

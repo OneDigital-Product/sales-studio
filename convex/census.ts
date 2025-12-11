@@ -39,6 +39,10 @@ export const saveCensus = mutation({
     const USE_BACKGROUND_JOBS_THRESHOLD = 1000;
 
     if (args.rows.length > USE_BACKGROUND_JOBS_THRESHOLD) {
+      // Calculate total batches and store on the upload record
+      const totalBatches = Math.ceil(args.rows.length / BATCH_SIZE);
+      await ctx.db.patch(censusUploadId, { pendingBatches: totalBatches });
+
       // Schedule batch insertions as background jobs for large imports
       for (let i = 0; i < args.rows.length; i += BATCH_SIZE) {
         const batch = args.rows.slice(i, i + BATCH_SIZE);
@@ -48,6 +52,7 @@ export const saveCensus = mutation({
           startIndex: i,
         });
       }
+      // Validation will be triggered by the last batch to complete
     } else {
       // For smaller imports, insert directly for immediate user feedback
       await Promise.all(
@@ -59,19 +64,12 @@ export const saveCensus = mutation({
           })
         )
       );
-    }
 
-    // Schedule validation to run after save completes
-    // For large imports, add a delay to ensure all batches are inserted first
-    const validationDelay =
-      args.rows.length > USE_BACKGROUND_JOBS_THRESHOLD ? 5000 : 0;
-    await ctx.scheduler.runAfter(
-      validationDelay,
-      internal.censusValidation.runValidation,
-      {
+      // For synchronous imports, run validation immediately
+      await ctx.scheduler.runAfter(0, internal.censusValidation.runValidation, {
         censusUploadId,
-      }
-    );
+      });
+    }
 
     return { censusUploadId, previousCensusId };
   },
@@ -248,6 +246,7 @@ export const getAllCensusRows = query({
 
 // Internal mutation for batch row insertion
 // Handles large census imports by processing rows in batches
+// When all batches complete, triggers validation automatically
 export const insertCensusRowsBatch = internalMutation({
   args: {
     censusUploadId: v.id("census_uploads"),
@@ -266,6 +265,24 @@ export const insertCensusRowsBatch = internalMutation({
         })
       )
     );
+
+    // Decrement pending batch counter
+    const upload = await ctx.db.get(args.censusUploadId);
+    if (!upload) {
+      return;
+    }
+
+    const newPendingCount = (upload.pendingBatches ?? 1) - 1;
+    await ctx.db.patch(args.censusUploadId, {
+      pendingBatches: newPendingCount,
+    });
+
+    // If this was the last batch, trigger validation
+    if (newPendingCount === 0) {
+      await ctx.scheduler.runAfter(0, internal.censusValidation.runValidation, {
+        censusUploadId: args.censusUploadId,
+      });
+    }
   },
 });
 
