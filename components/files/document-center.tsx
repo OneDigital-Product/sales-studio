@@ -223,7 +223,10 @@ export function DocumentCenter({
                           <div className="flex items-center gap-2">
                             <span className="block">{file.name}</span>
                             {file.isRequired && (
-                              <Badge className="text-xs" variant="destructive">
+                              <Badge
+                                className="text-white text-xs"
+                                variant="destructive"
+                              >
                                 Required
                               </Badge>
                             )}

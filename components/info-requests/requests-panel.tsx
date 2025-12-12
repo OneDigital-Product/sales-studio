@@ -171,8 +171,8 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
                   }`}
                   key={request._id}
                 >
-                  <div className="mb-3 flex items-start justify-between">
-                    <div className="flex-1">
+                  <div className="mb-3 flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
                       <div className="mb-1 flex items-center gap-2">
                         {request.status === "pending" ? (
                           <Clock className="h-4 w-4 text-yellow-600" />
@@ -181,7 +181,7 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
                         ) : (
                           <AlertCircle className="h-4 w-4 text-gray-600" />
                         )}
-                        <span className="font-medium text-sm">
+                        <span className="break-words font-medium text-sm">
                           {displayTitle}
                         </span>
                         <Badge
@@ -210,7 +210,7 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
                         </div>
                       )}
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex shrink-0 items-center gap-3">
                       <div className="font-medium text-sm">
                         {receivedCount}/{totalCount} items
                       </div>
@@ -256,9 +256,9 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
                             handleToggleItem(request._id, index, checked)
                           }
                         />
-                        <div className="flex-1">
+                        <div className="min-w-0 flex-1">
                           <div
-                            className={`text-sm ${item.received ? "text-muted-foreground line-through" : ""}`}
+                            className={`break-words text-sm ${item.received ? "text-muted-foreground line-through" : ""}`}
                           >
                             {item.description}
                           </div>

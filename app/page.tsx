@@ -11,7 +11,7 @@ import {
   Upload,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { MergeClientsDialog } from "@/components/clients/merge-clients-dialog";
 import { MainNav } from "@/components/navigation/main-nav";
 import { Badge } from "@/components/ui/badge";
@@ -346,10 +346,9 @@ export default function Home() {
                         );
 
                         return (
-                          <>
+                          <Fragment key={client._id}>
                             <TableRow
                               className={`cursor-pointer transition-colors hover:bg-gray-50 ${isBookmarked ? "bg-yellow-50/50" : ""}`}
-                              key={client._id}
                               onClick={() => toggleRowExpansion(client._id)}
                             >
                               <TableCell className="w-8 pl-6">
@@ -527,7 +526,7 @@ export default function Home() {
                                 </TableCell>
                               </TableRow>
                             )}
-                          </>
+                          </Fragment>
                         );
                       })}
                       {filteredClients?.length === 0 && (
