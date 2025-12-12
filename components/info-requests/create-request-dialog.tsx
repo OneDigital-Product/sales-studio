@@ -43,6 +43,7 @@ export function CreateRequestDialog({
   const [quoteType, setQuoteType] = useState<
     "PEO" | "ACA" | "both" | undefined
   >(defaultQuoteType);
+  const [title, setTitle] = useState("");
   const [requestedBy, setRequestedBy] = useState("");
   const [notes, setNotes] = useState("");
   const [items, setItems] = useState<
@@ -84,6 +85,10 @@ export function CreateRequestDialog({
     // Filter out empty items
     const validItems = items.filter((item) => item.description.trim() !== "");
 
+    if (!title.trim()) {
+      alert("Please add a request title");
+      return;
+    }
     if (validItems.length === 0) {
       alert("Please add at least one request item");
       return;
@@ -91,6 +96,7 @@ export function CreateRequestDialog({
 
     await createRequest({
       clientId,
+      title: title.trim(),
       quoteType,
       items: validItems,
       requestedBy: requestedBy.trim() || undefined,
@@ -99,6 +105,7 @@ export function CreateRequestDialog({
 
     // Reset form
     setQuoteType(undefined);
+    setTitle("");
     setRequestedBy("");
     setNotes("");
     setItems([{ description: "", category: "" }]);
@@ -120,6 +127,16 @@ export function CreateRequestDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="What are you requesting?"
+              value={title}
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="quoteType">Quote Type (Optional)</Label>
             <Select

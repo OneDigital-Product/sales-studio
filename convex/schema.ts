@@ -137,6 +137,7 @@ export default defineSchema({
     .index("by_clientId_and_createdAt", ["clientId", "createdAt"]),
   info_requests: defineTable({
     clientId: v.id("clients"),
+    title: v.optional(v.string()),
     quoteType: v.optional(
       v.union(v.literal("PEO"), v.literal("ACA"), v.literal("both"))
     ),

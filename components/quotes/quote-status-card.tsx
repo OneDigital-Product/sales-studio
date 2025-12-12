@@ -124,6 +124,24 @@ export function QuoteStatusCard({
 
   const status = quote?.status ?? "not_started";
   const isBlocked = quote?.isBlocked ?? false;
+  const legacyRequestIdMatch = quote?.blockedReason?.match(
+    /\(Request ID:\s*([^)]+)\)/i
+  );
+  const legacyRequestId = legacyRequestIdMatch?.[1] as
+    | Id<"info_requests">
+    | undefined;
+  const legacyRequestTitle = useQuery(
+    api.info_requests.getInfoRequestTitle,
+    legacyRequestId ? { requestId: legacyRequestId } : "skip"
+  );
+  const blockedReason = quote?.blockedReason
+    ? legacyRequestTitle
+      ? quote.blockedReason.replace(
+          /\(Request ID:[^)]+\)/i,
+          `(Request: ${legacyRequestTitle})`
+        )
+      : quote.blockedReason.replace(/\(Request ID:[^)]+\)/i, "").trim()
+    : undefined;
 
   const handleAssignmentSave = async () => {
     if (!quote) return;
@@ -200,25 +218,27 @@ export function QuoteStatusCard({
             )}
 
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Assigned</span>
+              <span className="text-gray-500">Owner</span>
               <button
-                className="group flex items-center gap-1 text-gray-700 hover:text-gray-900"
+                className="group -mr-2 flex items-center gap-1 rounded-md px-2 py-1 text-gray-700 hover:bg-muted hover:text-gray-900"
                 onClick={handleAssignClick}
                 type="button"
               >
-                <span>{quote?.assignedTo ?? "—"}</span>
-                <Edit2 className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                <span>{quote?.assignedTo ?? "No owner"}</span>
+                <Edit2 className="h-3 w-3 opacity-70 transition-opacity group-hover:opacity-100" />
               </button>
             </div>
           </div>
 
           {/* Blocked Reason */}
-          {isBlocked && quote?.blockedReason && (
+          {isBlocked && blockedReason && (
             <div className="flex items-start gap-2 rounded-md bg-red-100 p-3 text-sm">
               <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
               <div>
                 <span className="font-medium text-red-800">Blocked: </span>
-                <span className="text-red-700">{quote.blockedReason}</span>
+                <span className="break-words text-red-700">
+                  {blockedReason}
+                </span>
               </div>
             </div>
           )}

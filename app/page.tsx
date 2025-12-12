@@ -5,7 +5,6 @@ import {
   Bookmark,
   ChevronDown,
   ChevronRight,
-  FileText,
   MessageSquare,
   Plus,
   Search,
@@ -333,7 +332,7 @@ export default function Home() {
                         <TableHead>Email</TableHead>
                         <TableHead className="text-center">Status</TableHead>
                         <TableHead className="rounded-tr-lg pr-6 text-center">
-                          Action
+                          <span className="sr-only">Action</span>
                         </TableHead>
                       </TableRow>
                     </TableHeader>
@@ -387,7 +386,7 @@ export default function Home() {
                                   {combinedStatus.label}
                                 </span>
                               </TableCell>
-                              <TableCell className="pr-6 text-center">
+                              <TableCell className="pr-6 text-right">
                                 <Link
                                   href={`/clients/${client._id}`}
                                   onClick={(e) => e.stopPropagation()}
@@ -488,26 +487,15 @@ export default function Home() {
                                       </p>
                                     </div>
 
-                                    <div>
-                                      <h4 className="mb-2 font-medium text-primary text-sm">
-                                        Quick Actions
-                                      </h4>
-                                      <div className="flex flex-wrap gap-2">
-                                        <Link href={`/clients/${client._id}`}>
-                                          <Button size="sm" variant="outline">
-                                            <FileText className="mr-1 h-3 w-3" />
-                                            View Details
-                                          </Button>
-                                        </Link>
-                                        <Link
-                                          href={`/clients/${client._id}#documents`}
-                                        >
-                                          <Button size="sm" variant="outline">
-                                            <Upload className="mr-1 h-3 w-3" />
-                                            Upload Docs
-                                          </Button>
-                                        </Link>
-                                      </div>
+                                    <div className="flex self-center justify-end">
+                                      <Link
+                                        href={`/clients/${client._id}#documents`}
+                                      >
+                                        <Button size="sm" variant="outline">
+                                          <Upload className="mr-1 h-3 w-3" />
+                                          Upload documents
+                                        </Button>
+                                      </Link>
                                     </div>
                                   </div>
 

@@ -49,6 +49,12 @@ interface RequestsPanelProps {
   clientId: Id<"clients">;
 }
 
+const REQUEST_STATUS_LABELS = {
+  pending: "Pending",
+  received: "Received",
+  cancelled: "Cancelled",
+} as const;
+
 export function RequestsPanel({ clientId }: RequestsPanelProps) {
   const [viewMode, setViewMode] = useState<"outstanding" | "history">(
     "outstanding"
@@ -82,13 +88,13 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
   const handleToggleItem = async (
     requestId: Id<"info_requests">,
     itemIndex: number,
-    currentlyReceived: boolean
+    checked: boolean
   ) => {
-    if (currentlyReceived) {
-      await markItemNotReceived({ requestId, itemIndex });
-    } else {
+    if (checked) {
       await markItemReceived({ requestId, itemIndex });
+      return;
     }
+    await markItemNotReceived({ requestId, itemIndex });
   };
 
   const handleCancelRequest = async (requestId: Id<"info_requests">) => {
@@ -150,6 +156,9 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
               ).length;
               const totalCount = request.items.length;
               const progress = (receivedCount / totalCount) * 100;
+              const displayTitle =
+                request.title ??
+                `${request.quoteType ? `${request.quoteType} Quote` : "General"} Information Request`;
 
               return (
                 <div
@@ -173,10 +182,7 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
                           <AlertCircle className="h-4 w-4 text-gray-600" />
                         )}
                         <span className="font-medium text-sm">
-                          {request.quoteType
-                            ? `${request.quoteType} Quote`
-                            : "General"}{" "}
-                          Information Request
+                          {displayTitle}
                         </span>
                         <Badge
                           variant={
@@ -187,7 +193,7 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
                                 : "outline"
                           }
                         >
-                          {request.status}
+                          {REQUEST_STATUS_LABELS[request.status]}
                         </Badge>
                       </div>
                       <div className="text-muted-foreground text-xs">
@@ -237,17 +243,17 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
                     </div>
                   )}
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {request.items.map((item, index) => (
                       <div
-                        className="flex items-start gap-3 rounded border bg-white p-3"
+                        className="flex items-start gap-3 rounded-md bg-white/70 px-3 py-2"
                         key={index}
                       >
                         <Checkbox
                           checked={item.received}
-                          disabled={request.status !== "pending"}
-                          onCheckedChange={() =>
-                            handleToggleItem(request._id, index, item.received)
+                          disabled={request.status === "cancelled"}
+                          onCheckedChange={(checked) =>
+                            handleToggleItem(request._id, index, checked)
                           }
                         />
                         <div className="flex-1">
@@ -257,8 +263,8 @@ export function RequestsPanel({ clientId }: RequestsPanelProps) {
                             {item.description}
                           </div>
                           {item.category && (
-                            <div className="mt-1 text-muted-foreground text-xs">
-                              Category: {item.category}
+                            <div className="mt-0.5 text-muted-foreground text-xs">
+                              {item.category}
                             </div>
                           )}
                           {item.receivedAt && (

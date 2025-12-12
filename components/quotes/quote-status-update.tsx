@@ -191,11 +191,13 @@ export function QuoteStatusUpdate({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuLabel>Set Status</DropdownMenuLabel>
-          <DropdownMenuSeparator />
           {STATUS_OPTIONS.map((option) => (
             <DropdownMenuItem
-              className={currentStatus === option.value ? "bg-accent" : ""}
+              className={
+                currentStatus === option.value
+                  ? "bg-primary text-primary-foreground focus:bg-primary focus:text-primary-foreground"
+                  : ""
+              }
               key={option.value}
               onClick={() => handleStatusSelect(option.value)}
             >
@@ -206,7 +208,7 @@ export function QuoteStatusUpdate({
           {isBlocked ? (
             <>
               <DropdownMenuItem
-                className="text-green-600 focus:text-green-600"
+                className="text-emerald-700 focus:text-emerald-700 dark:text-emerald-400 dark:focus:text-emerald-400"
                 onClick={() => {
                   setSelectedStatus(currentStatus);
                   setBlocked(false);
@@ -218,7 +220,7 @@ export function QuoteStatusUpdate({
                 Unblock Quote
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="text-red-600 focus:text-red-600"
+                className="text-red-700 focus:text-red-700 dark:text-red-400 dark:focus:text-red-400"
                 onClick={handleSetBlocked}
               >
                 Update Block Reason
@@ -226,7 +228,7 @@ export function QuoteStatusUpdate({
             </>
           ) : (
             <DropdownMenuItem
-              className="text-red-600 focus:text-red-600"
+              className="text-red-700 focus:text-red-700 dark:text-red-400 dark:focus:text-red-400"
               onClick={handleSetBlocked}
             >
               Mark as Blocked

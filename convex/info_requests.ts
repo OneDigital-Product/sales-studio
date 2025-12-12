@@ -4,6 +4,7 @@ import { mutation, query } from "./_generated/server";
 export const createInfoRequest = mutation({
   args: {
     clientId: v.id("clients"),
+    title: v.string(),
     quoteType: v.optional(
       v.union(v.literal("PEO"), v.literal("ACA"), v.literal("both"))
     ),
@@ -19,6 +20,7 @@ export const createInfoRequest = mutation({
   handler: async (ctx, args) => {
     const requestId = await ctx.db.insert("info_requests", {
       clientId: args.clientId,
+      title: args.title,
       quoteType: args.quoteType,
       status: "pending",
       requestedAt: Date.now(),
@@ -55,7 +57,7 @@ export const createInfoRequest = mutation({
       if (quote) {
         await ctx.db.patch(quote._id, {
           isBlocked: true,
-          blockedReason: `Waiting for client to provide requested information (Request ID: ${requestId})`,
+          blockedReason: `Waiting for client to provide requested information: ${args.title}`,
         });
       }
     }
@@ -82,6 +84,7 @@ export const getInfoRequests = query({
       _id: v.id("info_requests"),
       _creationTime: v.number(),
       clientId: v.id("clients"),
+      title: v.optional(v.string()),
       quoteType: v.optional(
         v.union(v.literal("PEO"), v.literal("ACA"), v.literal("both"))
       ),
@@ -107,6 +110,17 @@ export const getInfoRequests = query({
   ),
 });
 
+export const getInfoRequestTitle = query({
+  args: {
+    requestId: v.id("info_requests"),
+  },
+  handler: async (ctx, args) => {
+    const request = await ctx.db.get(args.requestId);
+    return request?.title ?? null;
+  },
+  returns: v.union(v.string(), v.null()),
+});
+
 export const getPendingInfoRequests = query({
   args: {
     clientId: v.id("clients"),
@@ -126,6 +140,7 @@ export const getPendingInfoRequests = query({
       _id: v.id("info_requests"),
       _creationTime: v.number(),
       clientId: v.id("clients"),
+      title: v.optional(v.string()),
       quoteType: v.optional(
         v.union(v.literal("PEO"), v.literal("ACA"), v.literal("both"))
       ),
@@ -270,7 +285,9 @@ export const markItemNotReceived = mutation({
       if (quote) {
         await ctx.db.patch(quote._id, {
           isBlocked: true,
-          blockedReason: `Waiting for client to provide requested information (Request ID: ${args.requestId})`,
+          blockedReason: request.title
+            ? `Waiting for client to provide requested information: ${request.title}`
+            : "Waiting for client to provide requested information",
         });
       }
     }
@@ -408,6 +425,7 @@ export const getAllPendingRequests = query({
       _creationTime: v.number(),
       clientId: v.id("clients"),
       clientName: v.string(),
+      title: v.optional(v.string()),
       quoteType: v.optional(
         v.union(v.literal("PEO"), v.literal("ACA"), v.literal("both"))
       ),

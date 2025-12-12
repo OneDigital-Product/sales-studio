@@ -1172,9 +1172,6 @@ Notes: ${client.notes || "N/A"}`;
             {/* Outstanding Requests Section */}
             <RequestsPanel clientId={clientId} />
 
-            {/* Census Information Section */}
-            <div>{renderRightPanel()}</div>
-
             {/* File Management Section */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
@@ -1243,6 +1240,9 @@ Notes: ${client.notes || "N/A"}`;
                 />
               </CardContent>
             </Card>
+
+            {/* Census Information Section */}
+            <div>{renderRightPanel()}</div>
           </div>
 
           <div className="space-y-8 lg:col-span-4">

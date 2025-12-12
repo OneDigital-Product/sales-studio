@@ -176,7 +176,16 @@ export const getClientsWithQuotes = query({
             : 100;
 
         return {
-          ...client,
+          // Explicitly pick fields to avoid return validation errors from legacy fields
+          _id: client._id,
+          _creationTime: client._creationTime,
+          name: client.name,
+          contactEmail: client.contactEmail,
+          notes: client.notes,
+          activeCensusId: client.activeCensusId,
+          lastModified: client.lastModified,
+          isArchived: client.isArchived,
+          archivedAt: client.archivedAt,
           peoQuote: peoQuote
             ? {
                 status: peoQuote.status,
