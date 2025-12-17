@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* stylelint-disable at-rule-no-unknown */
 @theme inline {
   /* Color System - Brand Colors */
   --color-blue-lightest: #1ea4cd;
@@ -95,6 +96,7 @@
   --transition-base: 150ms ease-out;
   --transition-slow: 250ms ease-out;
 }
+/* stylelint-enable at-rule-no-unknown */
 
 :root {
   --radius: 0.625rem;
@@ -118,7 +120,6 @@
   --border: #d1cfcc;
   --input: #d1cfcc;
   --ring: #1ea4cd;
-  --highlight: #00344f;
 
   /* Info, Success, Warning */
   --info: #0d7aa5;
